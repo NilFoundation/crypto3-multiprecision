@@ -87,7 +87,11 @@ namespace nil {
                 }
 
                 number_type get_mod() const {
-                    return backends::montgomery_params<Backend>::mod() | backends::barrett_params<Backend>::mod();
+                    BOOST_ASSERT(backends::montgomery_params<Backend>::mod() == backends::barrett_params<Backend>::mod() || (backends::montgomery_params<Backend>::mod() + backends::barrett_params<Backend>::mod() > 0 && backends::montgomery_params<Backend>::mod() * backends::barrett_params<Backend>::mod() == 0));
+                    if (backends::montgomery_params<Backend>::mod() > 0)
+                        return backends::montgomery_params<Backend>::mod();
+                    else
+                        return backends::barrett_params<Backend>::mod();
                 }
 
                 template<typename BackendT, expression_template_option ExpressionTemplates>
