@@ -144,57 +144,6 @@ namespace nil {
                                                 (SignType == unsigned_magnitude) || (SignType == unsigned_packed)> { };
 
             namespace backends {
-                //
-                // Traits class determines whether T should be implicitly convertible to U, or
-                // whether the constructor should be made explicit.  The latter happens if we
-                // are losing the sign, or have fewer digits precision in the target type:
-                //
-                template<class T, class U>
-                struct is_implicit_cpp_int_conversion;
-
-                template<unsigned MinBits,
-                         unsigned MaxBits,
-                         cpp_integer_type SignType,
-                         cpp_int_check_type Checked,
-                         class Allocator,
-                         unsigned MinBits2,
-                         unsigned MaxBits2,
-                         cpp_integer_type SignType2,
-                         cpp_int_check_type Checked2,
-                         class Allocator2>
-                struct is_implicit_cpp_int_conversion<
-                    cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
-                    cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>> {
-                    using t1 = cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>;
-                    using t2 = cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>;
-                    static constexpr const bool value = (is_signed_number<t2>::value || !is_signed_number<t1>::value) &&
-                                                        (max_precision<t1>::value <= max_precision<t2>::value);
-                };
-
-                //
-                // Traits class to determine whether operations on a cpp_int may throw:
-                //
-                template<class T>
-                struct is_non_throwing_cpp_int : public std::integral_constant<bool, false> { };
-                template<unsigned MinBits, unsigned MaxBits, cpp_integer_type SignType>
-                struct is_non_throwing_cpp_int<cpp_int_backend<MinBits, MaxBits, SignType, unchecked, void>>
-                    : public std::integral_constant<bool, true> { };
-
-                //
-                // Traits class, determines whether the cpp_int is fixed precision or not:
-                //
-                template<class T>
-                struct is_fixed_precision;
-                template<unsigned MinBits,
-                         unsigned MaxBits,
-                         cpp_integer_type SignType,
-                         cpp_int_check_type Checked,
-                         class Allocator>
-                struct is_fixed_precision<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>>
-                    : public std::integral_constant<
-                          bool,
-                          max_precision<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>>::value !=
-                              UINT_MAX> { };
 
                 namespace detail {
 
