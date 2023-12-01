@@ -1110,8 +1110,8 @@ void test_float_funcs(const std::integral_constant<bool, true>&)
    {
       a = std::numeric_limits<Real>::quiet_NaN();
       b = modf(a, &c);
-      BOOST_CHECK((boost::math::isnan)(b));
-      BOOST_CHECK((boost::math::isnan)(c));
+      BOOST_CHECK((nil::crypto3::math::isnan)(b));
+      BOOST_CHECK((nil::crypto3::math::isnan)(c));
    }
 
    a = 4;
@@ -1291,7 +1291,7 @@ void test_float_ops(const std::integral_constant<int, nil::crypto3::multiprecisi
    {
       if (std::numeric_limits<Real>::has_infinity)
       {
-         BOOST_CHECK((boost::math::isinf)(Real(20) / 0u));
+         BOOST_CHECK((nil::crypto3::math::isinf)(Real(20) / 0u));
       }
       else
       {
@@ -1334,30 +1334,31 @@ void test_float_ops(const std::integral_constant<int, nil::crypto3::multiprecisi
    {
       v = 20.25;
       r = std::numeric_limits<Real>::quiet_NaN();
-      BOOST_CHECK((boost::math::isnan)(v + r));
-      BOOST_CHECK((boost::math::isnan)(r + v));
-      BOOST_CHECK((boost::math::isnan)(r - v));
-      BOOST_CHECK((boost::math::isnan)(v - r));
-      BOOST_CHECK((boost::math::isnan)(r * v));
-      BOOST_CHECK((boost::math::isnan)(v * r));
-      BOOST_CHECK((boost::math::isnan)(r / v));
-      BOOST_CHECK((boost::math::isnan)(v / r));
+      BOOST_CHECK((nil::crypto3::math::isnan)(r));
+      BOOST_CHECK((nil::crypto3::math::isnan)(v + r));
+      BOOST_CHECK((nil::crypto3::math::isnan)(r + v));
+      BOOST_CHECK((nil::crypto3::math::isnan)(r - v));
+      BOOST_CHECK((nil::crypto3::math::isnan)(v - r));
+      BOOST_CHECK((nil::crypto3::math::isnan)(r * v));
+      BOOST_CHECK((nil::crypto3::math::isnan)(v * r));
+      BOOST_CHECK((nil::crypto3::math::isnan)(r / v));
+      BOOST_CHECK((nil::crypto3::math::isnan)(v / r));
       Real t = v;
-      BOOST_CHECK((boost::math::isnan)(t += r));
+      BOOST_CHECK((nil::crypto3::math::isnan)(t += r));
       t = r;
-      BOOST_CHECK((boost::math::isnan)(t += v));
+      BOOST_CHECK((nil::crypto3::math::isnan)(t += v));
       t = r;
-      BOOST_CHECK((boost::math::isnan)(t -= v));
+      BOOST_CHECK((nil::crypto3::math::isnan)(t -= v));
       t = v;
-      BOOST_CHECK((boost::math::isnan)(t -= r));
+      BOOST_CHECK((nil::crypto3::math::isnan)(t -= r));
       t = r;
-      BOOST_CHECK((boost::math::isnan)(t *= v));
+      BOOST_CHECK((nil::crypto3::math::isnan)(t *= v));
       t = v;
-      BOOST_CHECK((boost::math::isnan)(t *= r));
+      BOOST_CHECK((nil::crypto3::math::isnan)(t *= r));
       t = r;
-      BOOST_CHECK((boost::math::isnan)(t /= v));
+      BOOST_CHECK((nil::crypto3::math::isnan)(t /= v));
       t = v;
-      BOOST_CHECK((boost::math::isnan)(t /= r));
+      BOOST_CHECK((nil::crypto3::math::isnan)(t /= r));
    }
    //
    // Operations involving infinities as one argument:
@@ -1366,31 +1367,31 @@ void test_float_ops(const std::integral_constant<int, nil::crypto3::multiprecisi
    {
       v = 20.25;
       r = std::numeric_limits<Real>::infinity();
-      BOOST_CHECK((boost::math::isinf)(v + r));
-      BOOST_CHECK((boost::math::isinf)(r + v));
-      BOOST_CHECK((boost::math::isinf)(r - v));
-      BOOST_CHECK((boost::math::isinf)(v - r));
+      BOOST_CHECK((nil::crypto3::math::isinf)(v + r));
+      BOOST_CHECK((nil::crypto3::math::isinf)(r + v));
+      BOOST_CHECK((nil::crypto3::math::isinf)(r - v));
+      BOOST_CHECK((nil::crypto3::math::isinf)(v - r));
       BOOST_CHECK_LT(v - r, 0);
-      BOOST_CHECK((boost::math::isinf)(r * v));
-      BOOST_CHECK((boost::math::isinf)(v * r));
-      BOOST_CHECK((boost::math::isinf)(r / v));
+      BOOST_CHECK((nil::crypto3::math::isinf)(r * v));
+      BOOST_CHECK((nil::crypto3::math::isinf)(v * r));
+      BOOST_CHECK((nil::crypto3::math::isinf)(r / v));
       BOOST_CHECK_EQUAL(v / r, 0);
       Real t = v;
-      BOOST_CHECK((boost::math::isinf)(t += r));
+      BOOST_CHECK((nil::crypto3::math::isinf)(t += r));
       t = r;
-      BOOST_CHECK((boost::math::isinf)(t += v));
+      BOOST_CHECK((nil::crypto3::math::isinf)(t += v));
       t = r;
-      BOOST_CHECK((boost::math::isinf)(t -= v));
+      BOOST_CHECK((nil::crypto3::math::isinf)(t -= v));
       t = v;
-      BOOST_CHECK((boost::math::isinf)(t -= r));
+      BOOST_CHECK((nil::crypto3::math::isinf)(t -= r));
       t = v;
       BOOST_CHECK(t -= r < 0);
       t = r;
-      BOOST_CHECK((boost::math::isinf)(t *= v));
+      BOOST_CHECK((nil::crypto3::math::isinf)(t *= v));
       t = v;
-      BOOST_CHECK((boost::math::isinf)(t *= r));
+      BOOST_CHECK((nil::crypto3::math::isinf)(t *= r));
       t = r;
-      BOOST_CHECK((boost::math::isinf)(t /= v));
+      BOOST_CHECK((nil::crypto3::math::isinf)(t /= v));
       t = v;
       BOOST_CHECK((t /= r) == 0);
    }
@@ -1401,11 +1402,11 @@ void test_float_ops(const std::integral_constant<int, nil::crypto3::multiprecisi
    {
       v = r  = 0;
       Real t = v / r;
-      BOOST_CHECK((boost::math::isnan)(t));
+      BOOST_CHECK((nil::crypto3::math::isnan)(t));
       v /= r;
-      BOOST_CHECK((boost::math::isnan)(v));
+      BOOST_CHECK((nil::crypto3::math::isnan)(v));
       t = v / 0;
-      BOOST_CHECK((boost::math::isnan)(v));
+      BOOST_CHECK((nil::crypto3::math::isnan)(v));
       if (std::numeric_limits<Real>::has_infinity)
       {
          v = 0;
@@ -1413,13 +1414,13 @@ void test_float_ops(const std::integral_constant<int, nil::crypto3::multiprecisi
          t = v * r;
          if (!nil::crypto3::multiprecision::is_interval_number<Real>::value)
          {
-            BOOST_CHECK((boost::math::isnan)(t));
+            BOOST_CHECK((nil::crypto3::math::isnan)(t));
             t = r * 0;
-            BOOST_CHECK((boost::math::isnan)(t));
+            BOOST_CHECK((nil::crypto3::math::isnan)(t));
          }
          v = r;
          t = r / v;
-         BOOST_CHECK((boost::math::isnan)(t));
+         BOOST_CHECK((nil::crypto3::math::isnan)(t));
       }
    }
 
@@ -1806,7 +1807,7 @@ void test_mixed(const std::integral_constant<bool, false>&)
 template <class Real>
 inline bool check_is_nan(const Real& val, const std::integral_constant<bool, true>&)
 {
-   return (boost::math::isnan)(val);
+   return (nil::crypto3::math::isnan)(val);
 }
 template <class Real>
 inline bool check_is_nan(const Real&, const std::integral_constant<bool, false>&)
@@ -1976,7 +1977,7 @@ void test_mixed(const std::integral_constant<bool, true>&)
    r = static_cast<cast_type>(Num(4) * n4) / Real(4);
    BOOST_CHECK_EQUAL(r, static_cast<cast_type>(n4));
 
-   typedef std::integral_constant<bool, 
+   typedef std::integral_constant<bool,
        (!std::numeric_limits<Num>::is_specialized || std::numeric_limits<Num>::is_signed) && (!std::numeric_limits<Real>::is_specialized || std::numeric_limits<Real>::is_signed)>
        signed_tag;
 

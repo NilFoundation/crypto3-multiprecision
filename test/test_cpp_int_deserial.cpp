@@ -25,7 +25,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
-boost::filesystem::path root;
+boost::filesystem::path root(TEST_DATA_DIR);
 
 template<class T>
 void test64() {
@@ -1034,6 +1034,7 @@ void test64() {
 
     boost::filesystem::ifstream is(root / "cpp_int64_serial64.txt");
     std::cout << "Testing cpp_int64_serial64.txt with T=" << typeid(T).name() << std::endl;
+    std::cout << root / "cpp_int64_serial64.txt" << std::endl;
     // is.peek();
     BOOST_CHECK(is.good());
     // char c = is.peek();
