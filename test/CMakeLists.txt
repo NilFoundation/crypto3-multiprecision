@@ -146,346 +146,255 @@ endif()
 #target_link_libraries(GMP_MY ${Quadmath_LIBRARY})
 #target_include_directories(GMP_MY PRIVATE ${Quadmath_INCLUDE_DIR})
 
+function(set_test_name name suffix)
+    set(local_test_name "${CURRENT_PROJECT_NAME}_${name}_test")
+    if(suffix)
+        set(local_test_name "${local_test_name}_${suffix}")
+    endif()
+    set(test_name "${local_test_name}" PARENT_SCOPE)
+endfunction()
+
+# Please, use this function to define new tests
+function(define_multiprecision_test name)
+    set(one_value_args "SUFFIX")
+    set(multi_value_args "SOURCES" "INCLUDES" "LIBRARIES" "PARENTS" "COMPILE_DEFS")
+
+    cmake_parse_arguments(ARGS "" "${one_value_args}" "${multi_value_args}" ${ARGN})
+
+    set_test_name(${name} "${ARGS_SUFFIX}")
+
+    set(source_files "${ARGS_SOURCES}")
+    if(NOT source_files)
+        set(source_files "${CURRENT_TEST_SOURCES_DIR}/${name}.cpp")
+    endif()
+
+    set(additional_args "")
+    if(ENABLE_JUNIT_TEST_OUTPUT)
+        set(TEST_RESULTS_DIR "${CMAKE_CURRENT_BINARY_DIR}/junit_results")
+        set(TEST_LOGS_DIR "${TEST_RESULTS_DIR}/logs")
+        file(MAKE_DIRECTORY ${TEST_LOGS_DIR} ${TEST_REPORTS_DIR})
+
+        set(additional_args "--log_format=JUNIT"
+                            "--log_sink=${TEST_LOGS_DIR}/${test_name}.xml")
+    endif()
+
+    cm_test(NAME ${test_name} SOURCES ${source_files} ARGS ${additional_args})
+
+    target_link_libraries(${test_name} ${ARGS_LIBRARIES} no_eh_support)
+    target_include_directories(${test_name} PRIVATE ${ARGS_INCLUDES})
+
+    foreach(parent_target IN LISTS ARGS_PARENTS)
+        add_dependencies(${parent_target} ${test_name})
+    endforeach()
+
+    target_compile_definitions(${test_name} PUBLIC ${ARGS_COMPILE_DEFS})
+
+    set_target_properties(${test_name} PROPERTIES CXX_STANDARD 14)
+endfunction()
+
 add_library(no_eh_support SHARED ${CURRENT_TEST_SOURCES_DIR}/no_eh_test_support.cpp)
 
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_backend_concept SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_backend_concept.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_backend_concept no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_backend_concept)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_backend_concept PROPERTIES CXX_STANDARD 14)
+set(TESTS_LIST
+    "test_arithmetic_backend_concept"
+    "test_arithmetic_cpp_dec_float_1"
+    "test_arithmetic_cpp_dec_float_2"
+    "test_arithmetic_cpp_dec_float_3"
+    "test_arithmetic_cpp_dec_float_3m"
+    "test_arithmetic_cpp_bin_float_1"
+    "test_arithmetic_cpp_bin_float_2"
+    "test_arithmetic_cpp_bin_float_2m"
+    "test_arithmetic_cpp_bin_float_3"
+    )
 
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_dec_float_1 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_dec_float_1.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_dec_float_1 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_dec_float_1)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_dec_float_1 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_dec_float_2 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_dec_float_2.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_dec_float_2 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_dec_float_2)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_dec_float_2 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_dec_float_3 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_dec_float_3.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_dec_float_3 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_dec_float_3)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_dec_float_3 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_dec_float_3m SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_dec_float_3m.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_dec_float_3m no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_dec_float_3m)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_dec_float_3m PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_bin_float_1 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_bin_float_1.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_bin_float_1 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_bin_float_1)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_bin_float_1 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_bin_float_2 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_bin_float_2.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_bin_float_2 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_bin_float_2)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_bin_float_2 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_bin_float_2m SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_bin_float_2m.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_bin_float_2m no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_bin_float_2m)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_bin_float_2m PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_bin_float_3 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_bin_float_3.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_bin_float_3 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_bin_float_3)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_bin_float_3 PROPERTIES CXX_STANDARD 14)
+foreach(TEST_NAME ${TESTS_LIST})
+    define_multiprecision_test(
+        ${TEST_NAME}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+    )
+endforeach()
 
 if(GMP_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpf_50 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_mpf_50.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpf_50 ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpf_50 PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpf_50)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpf_50 PROPERTIES CXX_STANDARD 14)
-
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpf SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_mpf.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpf ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpf PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpf)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpf PROPERTIES CXX_STANDARD 14)
-
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpz SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_mpz.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpz ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpz PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpz)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpz PROPERTIES CXX_STANDARD 14)
-
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpz_rat SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_mpz_rat.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpz_rat ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpz_rat PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpz_rat)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpz_rat PROPERTIES CXX_STANDARD 14)
-
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpz_br SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_mpz_br.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpz_br ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpz_br PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpz_br)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpz_br PROPERTIES CXX_STANDARD 14)
-
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpq SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_mpq.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpq ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpq PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpq)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpq PROPERTIES CXX_STANDARD 14)
+    set(TESTS_LIST
+        "test_arithmetic_mpf_50"
+        "test_arithmetic_mpf"
+        "test_arithmetic_mpz"
+        "test_arithmetic_mpz_rat"
+        "test_arithmetic_mpz_br"
+        "test_arithmetic_mpq"
+    )
+    foreach(TEST_NAME ${TESTS_LIST})
+        define_multiprecision_test(
+            ${TEST_NAME}
+            INCLUDES ${GMP_INCLUDE_DIRS}
+            LIBRARIES ${GMP_LIBRARIES}
+            PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+        )
+    endforeach()
 endif()
 
 if(MPFR_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfr SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_mpfr.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfr ${MPFR_LIBRARIES} ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfr PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfr)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfr PROPERTIES CXX_STANDARD 14)
-
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfr_50 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_mpfr_50.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfr_50 ${MPFR_LIBRARIES} ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfr_50 PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfr_50)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfr_50 PROPERTIES CXX_STANDARD 14)
-
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfr_50_static SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_mpfr_50_static.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfr_50_static ${MPFR_LIBRARIES} ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfr_50_static PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfr_50_static)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfr_50_static PROPERTIES CXX_STANDARD 14)
+    set(TESTS_LIST
+        "test_arithmetic_mpfr"
+        "test_arithmetic_mpfr_50"
+        "test_arithmetic_mpfr_50_static"
+        )
+    foreach(TEST_NAME ${TESTS_LIST})
+        define_multiprecision_test(
+            ${TEST_NAME}
+            LIBRARIES ${MPFR_LIBRARIES} ${GMP_LIBRARIES}
+            INCLUDES ${GMP_INCLUDE_DIRS}
+            PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+        )
+    endforeach()
 endif()
 
 if(TOMMATH_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_tommath SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_tommath.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_tommath ${TomMath_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_arithmetic_tommath PRIVATE ${TomMath_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_tommath)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_tommath PROPERTIES CXX_STANDARD 14)
-
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_tommath_rat SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_tommath_rat.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_tommath_rat ${TomMath_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_arithmetic_tommath_rat PRIVATE ${TomMath_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_tommath_rat)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_tommath_rat PROPERTIES CXX_STANDARD 14)
-
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_tommath_br SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_tommath_br.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_tommath_br ${TomMath_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_arithmetic_tommath_br PRIVATE ${TomMath_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_tommath_br)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_tommath_br PROPERTIES CXX_STANDARD 14)
+    set(TESTS_LIST
+        "test_arithmetic_tommath"
+        "test_arithmetic_tommath_rat"
+        "test_arithmetic_tommath_br"
+        )
+    foreach(TEST_NAME ${TESTS_LIST})
+        define_multiprecision_test(
+            ${TEST_NAME}
+            INCLUDES ${TomMath_INCLUDE_DIRS}
+            LIBRARIES ${TomMath_LIBRARIES}
+            PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+        )
+    endforeach()
 endif()
 
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_1 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_1.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_1 no_eh_support)
+set(TESTS_LIST
+    "test_arithmetic_cpp_int_1"
+    "test_arithmetic_cpp_int_2"
+    "test_arithmetic_cpp_int_3"
+    "test_arithmetic_cpp_int_4"
+    "test_arithmetic_cpp_int_5"
+    "test_arithmetic_cpp_int_6"
+    "test_arithmetic_cpp_int_7"
+    "test_arithmetic_cpp_int_8"
+    "test_arithmetic_cpp_int_9"
+    "test_arithmetic_cpp_int_10"
+    "test_arithmetic_cpp_int_11"
+    "test_arithmetic_cpp_int_12"
+    "test_arithmetic_cpp_int_13"
+    "test_arithmetic_cpp_int_14"
+    "test_arithmetic_cpp_int_15"
+    "test_arithmetic_cpp_int_16"
+    "test_arithmetic_cpp_int_17"
+    "test_arithmetic_cpp_int_18"
+    "test_arithmetic_cpp_int_19"
+    "test_arithmetic_cpp_int_br"
+    "test_arithmetic_ab_1"
+    "test_arithmetic_ab_2"
+    "test_arithmetic_ab_3"
+    "test_cpp_dec_float_round"
+    "test_arithmetic_logged_1"
+    "test_arithmetic_logged_2"
+    "test_arithmetic_dbg_adptr1"
+    "test_arithmetic_dbg_adptr1m"
+    "test_arithmetic_dbg_adptr2"
+    )
+
+foreach(TEST_NAME ${TESTS_LIST})
+    define_multiprecision_test(
+        ${TEST_NAME}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+    )
+endforeach()
+
 if(MSVC)
-    target_compile_options(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_1 PRIVATE /bigobj)
+    set_test_name(test_arithmetic_cpp_int_1)
+    target_compile_options(${test_name} PRIVATE /bigobj)
 endif()
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_1)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_1 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_2 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_2.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_2 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_2)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_2 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_3 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_3.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_3 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_3)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_3 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_4 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_4.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_4 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_4)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_4 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_5 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_5.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_5 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_5)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_5 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_6 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_6.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_6 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_6)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_6 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_7 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_7.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_7 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_7)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_7 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_8 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_8.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_8 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_8)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_8 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_9 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_9.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_9 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_9)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_9 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_10 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_10.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_10 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_10)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_10 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_11 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_11.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_11 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_11)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_11 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_12 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_12.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_12 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_12)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_12 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_13 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_13.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_13 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_13)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_13 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_14 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_14.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_14 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_14)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_14 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_15 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_15.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_15 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_15)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_15 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_16 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_16.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_16 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_16)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_16 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_17 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_17.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_17 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_17)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_17 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_18 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_18.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_18 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_18)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_18 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_19 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_19.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_19 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_19)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_19 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_br SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_cpp_int_br.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_br no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_br)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_cpp_int_br PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_ab_1 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_ab_1.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_ab_1 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_ab_1)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_ab_1 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_ab_2 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_ab_2.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_ab_2 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_ab_2)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_ab_2 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_ab_3 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_ab_3.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_ab_3 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_ab_3)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_ab_3 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_cpp_dec_float_round SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_cpp_dec_float_round.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_cpp_dec_float_round no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_cpp_dec_float_round)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_cpp_dec_float_round PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_logged_1 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_logged_1.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_logged_1 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_logged_1)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_logged_1 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_logged_2 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_logged_2.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_logged_2 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_logged_2)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_logged_2 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_dbg_adptr1 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_dbg_adptr1.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_dbg_adptr1 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_dbg_adptr1)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_dbg_adptr1 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_dbg_adptr1m SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_dbg_adptr1m.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_dbg_adptr1m no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_dbg_adptr1m)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_dbg_adptr1m PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_dbg_adptr2 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_dbg_adptr2.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_dbg_adptr2 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_dbg_adptr2)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_dbg_adptr2 PROPERTIES CXX_STANDARD 14)
 
 if(MPFI_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfi_50 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_mpfi_50.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfi_50 ${MPFI_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfi_50 PRIVATE ${MPFI_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfi_50)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpfi_50 PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_arithmetic_mpfi_50"
+        LIBRARIES ${MPFI_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES}
+        INCLUDES ${MPFI_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+    )
+endif()
+
+if(MPFI_COMPILED)
+    define_multiprecision_test(
+        "test_arithmetic_mpfi_50"
+        LIBRARIES ${MPFI_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES}
+        INCLUDES ${MPFI_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+    )
 endif()
 
 if(INTEL_QUAD_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_float_128 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_float_128.cpp)
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_float_128)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_float_128 PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_arithmetic_float_128"
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+    )
 endif()
 
 if(FLOAT128_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_float_128_quad SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_float_128.cpp)
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_float_128_quad)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_float_128_quad PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_arithmetic_float_128"
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+        SUFFIX "quad"
+    )
 endif()
 
 if(MPC_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpc SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_mpc.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpc ${MPC_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES})
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpc PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpc)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_mpc PROPERTIES CXX_STANDARD 14)
-
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_mpfr_mpc_precisions SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_mpfr_mpc_precisions.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_mpfr_mpc_precisions ${MPC_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES})
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_mpfr_mpc_precisions PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_mpfr_mpc_precisions)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_mpfr_mpc_precisions PROPERTIES CXX_STANDARD 14)
+    set(TESTS_LIST
+        "test_arithmetic_mpc"
+        "test_mpfr_mpc_precisions"
+    )
+    foreach(TEST_NAME ${TESTS_LIST})
+        define_multiprecision_test(
+            ${TEST_NAME}
+            LIBRARIES ${MPC_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES}
+            INCLUDES ${GMP_INCLUDE_DIRS}
+            PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+        )
+    endforeach()
 endif()
+
 if(MPFI_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_mpfi_precisions SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_mpfi_precisions.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_mpfi_precisions ${MPFI_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES})
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_mpfi_precisions PRIVATE ${MPFI_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_mpfi_precisions)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_mpfi_precisions PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_mpfi_precisions"
+        LIBRARIES ${MPFI_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES}
+        INCLUDES ${MPFI_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+    )
 endif()
 
 if(GMP_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_mpf_precisions SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_mpf_precisions.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_mpf_precisions ${GMP_LIBRARIES})
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_mpf_precisions PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_mpf_precisions)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_mpf_precisions PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_mpf_precisions"
+        LIBRARIES ${GMP_LIBRARIES}
+        INCLUDES ${GMP_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+    )
 endif()
 
 if((MPC_COMPILED) AND (FLOAT128_COMPILED))
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_complex SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_complex.cpp)
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_complex)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_complex PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_complex"
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+    )
 endif()
 
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_complex_adaptor SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_complex_adaptor.cpp)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_complex_adaptor)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_complex_adaptor PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_complex_adaptor_2 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_complex_adaptor_2.cpp)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_arithmetic_complex_adaptor_2)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_complex_adaptor_2 PROPERTIES CXX_STANDARD 14)
+define_multiprecision_test(
+    "test_arithmetic_complex_adaptor"
+    PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+)
+define_multiprecision_test(
+    "test_arithmetic_complex_adaptor_2"
+    PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+)
 
 if(FLOAT128_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_arithmetic_complex128 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_arithmetic_complex128.cpp)
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests ${CURRENT_PROJECT_NAME}_test_test_complex128)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_arithmetic_complex128 PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_arithmetic_complex128"
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+    )
 endif()
 
 set(LOCAL_SOURCES
@@ -504,113 +413,136 @@ set(LOCAL_SOURCES
     test_atan.cpp
     test_round.cpp
     test_fpclassify.cpp
-    test_sf_import_c99.cpp)
+    # test_sf_import_c99.cpp  # refer to SF_IMPORT_C99_LIST comment
+    )
 foreach(FILE ${LOCAL_SOURCES})
     get_filename_component(NAME ${FILE} NAME_WE)
+
     if(GMP_COMPILED)
-        cm_test(NAME ${CURRENT_PROJECT_NAME}_test_${NAME}_mpf50 SOURCES ${CURRENT_TEST_SOURCES_DIR}/${FILE})
-        target_compile_definitions(${CURRENT_PROJECT_NAME}_test_${NAME}_mpf50 PUBLIC -DTEST_MPF_50)
-        target_link_libraries(${CURRENT_PROJECT_NAME}_test_${NAME}_mpf50 ${GMP_LIBRARIES} no_eh_support)
-        target_include_directories(${CURRENT_PROJECT_NAME}_test_${NAME}_mpf50 PRIVATE ${GMP_INCLUDE_DIRS})
-        add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_${NAME}_mpf50)
-        set_target_properties(${CURRENT_PROJECT_NAME}_test_${NAME}_mpf50 PROPERTIES CXX_STANDARD 14)
+        define_multiprecision_test(
+            ${NAME}
+            LIBRARIES ${GMP_LIBRARIES}
+            INCLUDES ${GMP_INCLUDE_DIRS}
+            PARENTS ${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits
+            SUFFIX "mpf50"
+            COMPILE_DEFS "TEST_MPF_50"
+        )
     endif()
     if(MPFR_COMPILED)
-        cm_test(NAME ${CURRENT_PROJECT_NAME}_test_${NAME}_mpfr50 SOURCES ${CURRENT_TEST_SOURCES_DIR}/${FILE})
-        target_compile_definitions(${CURRENT_PROJECT_NAME}_test_${NAME}_mpfr50 PUBLIC -DTEST_MPFR_50)
-        target_link_libraries(${CURRENT_PROJECT_NAME}_test_${NAME}_mpfr50 ${MPFR_LIBRARIES} ${GMP_LIBRARIES} no_eh_support)
-        target_include_directories(${CURRENT_PROJECT_NAME}_test_${NAME}_mpfr50 PRIVATE ${GMP_INCLUDE_DIRS})
-        add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_${NAME}_mpfr50)
-        set_target_properties(${CURRENT_PROJECT_NAME}_test_${NAME}_mpfr50 PROPERTIES CXX_STANDARD 14)
+        define_multiprecision_test(
+            ${NAME}
+            LIBRARIES ${MPFR_LIBRARIES} ${GMP_LIBRARIES}
+            INCLUDES ${GMP_INCLUDE_DIRS}
+            PARENTS ${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits
+            SUFFIX "mpfr50"
+            COMPILE_DEFS "TEST_MPFR_50"
+        )
     endif()
     if(MPFI_COMPILED)
-        cm_test(NAME ${CURRENT_PROJECT_NAME}_test_${NAME}_mpfi50 SOURCES ${CURRENT_TEST_SOURCES_DIR}/${FILE})
-        target_compile_definitions(${CURRENT_PROJECT_NAME}_test_${NAME}_mpfi50 PUBLIC -DTEST_MPFI_50)
-        target_link_libraries(${CURRENT_PROJECT_NAME}_test_${NAME}_mpfi50 ${MPFI_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES} no_eh_support)
-        target_include_directories(${CURRENT_PROJECT_NAME}_test_${NAME}_mpfi50 PRIVATE ${MPFI_INCLUDE_DIRS})
-        add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_${NAME}_mpfi50)
-        set_target_properties(${CURRENT_PROJECT_NAME}_test_${NAME}_mpfi50 PROPERTIES CXX_STANDARD 14)
+        define_multiprecision_test(
+            ${NAME}
+            LIBRARIES ${MPFI_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES}
+            INCLUDES ${MPFI_INCLUDE_DIRS}
+            PARENTS ${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits
+            SUFFIX "mpfi50"
+            COMPILE_DEFS "TEST_MPFI_50"
+        )
     endif()
-
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_${NAME}_cpp_dec_float SOURCES ${CURRENT_TEST_SOURCES_DIR}/${FILE})
-    target_compile_definitions(${CURRENT_PROJECT_NAME}_test_${NAME}_cpp_dec_float PUBLIC -DTEST_CPP_DEC_FLOAT)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_${NAME}_cpp_dec_float no_eh_support)
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_${NAME}_cpp_dec_float)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_${NAME}_cpp_dec_float PROPERTIES CXX_STANDARD 14)
-
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_${NAME}_cpp_bin_float SOURCES ${CURRENT_TEST_SOURCES_DIR}/${FILE})
-    target_compile_definitions(${CURRENT_PROJECT_NAME}_test_${NAME}_cpp_bin_float PUBLIC -DTEST_CPP_BIN_FLOAT)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_${NAME}_cpp_bin_float no_eh_support)
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_${NAME}_cpp_bin_float)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_${NAME}_cpp_bin_float PROPERTIES CXX_STANDARD 14)
-
     if(FLOAT128_COMPILED)
-        cm_test(NAME ${CURRENT_PROJECT_NAME}_test_${NAME}_float128 SOURCES ${CURRENT_TEST_SOURCES_DIR}/${FILE})
-        target_compile_definitions(${CURRENT_PROJECT_NAME}_test_${NAME}_float128 PUBLIC -DTEST_FLOAT128)
-        target_link_libraries(${CURRENT_PROJECT_NAME}_test_${NAME}_float128 no_eh_support)
-        add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_${NAME}_float128)
-        set_target_properties(${CURRENT_PROJECT_NAME}_test_${NAME}_float128 PROPERTIES CXX_STANDARD 14)
+        define_multiprecision_test(
+            ${NAME}
+            PARENTS ${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits
+            SUFFIX "float128"
+            COMPILE_DEFS "TEST_FLOAT128"
+        )
+    endif()
+    if(INTEL_QUAD_COMPILED)
+        define_multiprecision_test(
+            ${NAME}
+            PARENTS ${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits
+            SUFFIX "intel_quad"
+            COMPILE_DEFS "TEST_FLOAT128"
+        )
     endif()
 
-    if(INTEL_QUAD_COMPILED)
-        cm_test(NAME ${CURRENT_PROJECT_NAME}_test_${NAME}_intel_quad SOURCES ${CURRENT_TEST_SOURCES_DIR}/${FILE})
-        target_compile_definitions(${CURRENT_PROJECT_NAME}_test_${NAME}_intel_quad PUBLIC -DTEST_FLOAT128)
-        target_link_libraries(${CURRENT_PROJECT_NAME}_test_${NAME}_intel_quad no_eh_support)
-        add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_${NAME}_intel_quad)
-        set_target_properties(${CURRENT_PROJECT_NAME}_test_${NAME}_intel_quad PROPERTIES CXX_STANDARD 14)
-    endif()
+    define_multiprecision_test(
+        ${NAME}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits
+        SUFFIX "cpp_dec_float"
+        COMPILE_DEFS "TEST_CPP_DEC_FLOAT"
+    )
+
+    define_multiprecision_test(
+        ${NAME}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits
+        SUFFIX "cpp_bin_float"
+        COMPILE_DEFS "TEST_CPP_BIN_FLOAT"
+    )
+
 endforeach()
 
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_backend_concept SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_numeric_limits.cpp)
-target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_backend_concept PUBLIC -DTEST_BACKEND)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_backend_concept no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_backend_concept)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_backend_concept PROPERTIES CXX_STANDARD 14)
+define_multiprecision_test(
+    "test_numeric_limits"
+    PARENTS ${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits
+    SUFFIX "backend_concept"
+    COMPILE_DEFS "TEST_BACKEND"
+)
 
 if(GMP_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpf50 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_numeric_limits.cpp)
-    target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpf50 PUBLIC -DTEST_MPF_50)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpf50 ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpf50 PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpf50)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpf50 PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_numeric_limits"
+        LIBRARIES ${GMP_LIBRARIES}
+        INCLUDES ${GMP_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+        SUFFIX "mpf50"
+        COMPILE_DEFS TEST_MPF_50
+    )
 
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpf SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_numeric_limits.cpp)
-    target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpf PUBLIC -DTEST_MPF)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpf ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpf PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpf)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpf PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_numeric_limits"
+        LIBRARIES ${GMP_LIBRARIES}
+        INCLUDES ${GMP_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+        SUFFIX "mpf"
+        COMPILE_DEFS TEST_MPF
+    )
 
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpz SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_numeric_limits.cpp)
-    target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpz PUBLIC -DTEST_MPZ)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpz ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpz PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpz)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpz PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_numeric_limits"
+        LIBRARIES ${GMP_LIBRARIES}
+        INCLUDES ${GMP_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+        SUFFIX "mpz"
+        COMPILE_DEFS TEST_MPZ
+    )
 
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpq SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_numeric_limits.cpp)
-    target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpq PUBLIC -DTEST_MPQ)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpq ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpq PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpq)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpq PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_numeric_limits"
+        LIBRARIES ${GMP_LIBRARIES}
+        INCLUDES ${GMP_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_arithmetic_tests
+        SUFFIX "mpq"
+        COMPILE_DEFS TEST_MPQ
+    )
 endif()
 
 if(MPFR_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpfr SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_numeric_limits.cpp)
-    target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpfr PUBLIC -DTEST_MPFR)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpfr ${MPFR_LIBRARIES} ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpfr PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpfr)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpfr PROPERTIES CXX_STANDARD 14)
-
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpfr_50 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_numeric_limits.cpp)
-    target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpfr_50 PUBLIC -DTEST_MPFR_50)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpfr_50 ${MPFR_LIBRARIES} ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpfr_50 PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpfr_50)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpfr_50 PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_numeric_limits"
+        LIBRARIES ${MPFR_LIBRARIES} ${GMP_LIBRARIES}
+        INCLUDES ${GMP_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits
+        SUFFIX "mpfr"
+        COMPILE_DEFS TEST_MPFR
+    )
+    define_multiprecision_test(
+        "test_numeric_limits"
+        LIBRARIES ${MPFR_LIBRARIES} ${GMP_LIBRARIES}
+        INCLUDES ${GMP_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits
+        SUFFIX "mpfr_50"
+        COMPILE_DEFS TEST_MPFR_50
+    )
 endif()
 
 cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_cpp_dec_float SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_numeric_limits.cpp)
@@ -643,12 +575,13 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 endif()
 
 if(MPFI_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpfi_50 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_numeric_limits.cpp)
-    target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpfi_50 PUBLIC -DTEST_MPFI_50)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpfi_50 ${MPFI_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpfi_50 PRIVATE ${MPFI_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpfi_50)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_mpfi_50 PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_numeric_limits"
+        LIBRARIES ${MPFI_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES}
+        INCLUDES ${MPFI_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits
+        SUFFIX "mpfi_50"
+    )
 endif()
 
 if(FLOAT128_COMPILED)
@@ -659,46 +592,33 @@ if(FLOAT128_COMPILED)
 endif()
 
 if((INTEL_QUAD_COMPILED) AND (FLOAT128_COMPILED))
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_intel_quad SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_numeric_limits.cpp)
-    target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_intel_quad PUBLIC -DTEST_FLOAT128)
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_test_numeric_limits_intel_quad)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_numeric_limits_intel_quad PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_numeric_limits"
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits
+        COMPILE_DEFS TEST_FLOAT128
+        SUFFIX "intel_quad"
+    )
 endif()
 
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_2 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_sf_import_c99.cpp)
-target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_2 PUBLIC -DTEST_CPP_DEC_FLOAT_2)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_2)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_2 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_3 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_sf_import_c99.cpp)
-target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_3 PUBLIC -DTEST_CPP_DEC_FLOAT_3)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_3)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_3 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_4 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_sf_import_c99.cpp)
-target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_4 PUBLIC -DTEST_CPP_DEC_FLOAT_4)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_4)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_4 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_5 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_sf_import_c99.cpp)
-target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_5 PUBLIC -DTEST_CPP_DEC_FLOAT_5)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_5)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_5 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_6 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_sf_import_c99.cpp)
-target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_6 PUBLIC -DTEST_CPP_DEC_FLOAT_6)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_6)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_dec_float_6 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_bin_float_2 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_sf_import_c99.cpp)
-target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_bin_float_2 PUBLIC -DTEST_CPP_BIN_FLOAT_2)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_bin_float_2)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_bin_float_2 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_bin_float_3 SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_sf_import_c99.cpp)
-target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_bin_float_3 PUBLIC -DTEST_CPP_BIN_FLOAT_2)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_bin_float_3)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_sf_import_c99_cpp_bin_float_3 PROPERTIES CXX_STANDARD 14)
+# TODO: some of these fail due to different isnan (isinf, etc.) handling compared to Boost. We don't need 99 anyway
+set(SF_IMPORT_C99_LIST
+    # "dec_float_2"
+    # "dec_float_3"
+    # "dec_float_4"
+    # "dec_float_5"
+    # "dec_float_6"
+    # "bin_float_2"
+    # "bin_float_3"
+    )
+foreach(test_suffix ${SF_IMPORT_C99_LIST})
+    string(TOUPPER "${test_suffix}" test_suffix_uppercase)
+    define_multiprecision_test(
+        test_sf_import_c99
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits
+        COMPILE_DEFS TEST_CPP_${test_suffix_uppercase}
+        SUFFIX ${test_suffix}
+    )
+endforeach()
 
 if(MPFR_COMPILED)
     cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_move_mpfr SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_move.cpp)
@@ -709,19 +629,23 @@ if(MPFR_COMPILED)
 endif()
 
 if(MPC_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_move_mpc SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_move.cpp)
-    target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_move_mpc PUBLIC -DTEST_MPC)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_move_mpc ${MPC_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES} no_eh_support)
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_test_move_mpc)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_move_mpc PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_move"
+        LIBRARIES ${MPC_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits
+        SUFFIX "mpc"
+        COMPILE_DEFS TEST_MPC
+    )
 endif()
 
 if(GMP_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_move_gmp SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_move.cpp)
-    target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_move_gmp PUBLIC -DTEST_GMP)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_move_gmp ${GMP_LIBRARIES} no_eh_support)
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRENT_PROJECT_NAME}_test_test_move_gmp)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_move_gmp PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_move"
+        LIBRARIES ${GMP_LIBRARIES}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits
+        SUFFIX "gmp"
+        COMPILE_DEFS TEST_GMP
+    )
 endif()
 
 if(TOMMATH_COMPILED)
@@ -739,27 +663,32 @@ add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_functions_and_limits ${CURRE
 set_target_properties(${CURRENT_PROJECT_NAME}_test_test_move_cpp_int PROPERTIES CXX_STANDARD 14)
 
 if(GMP_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_gmp_conversions SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_gmp_conversions.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_gmp_conversions ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_gmp_conversions PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_conversions ${CURRENT_PROJECT_NAME}_test_test_gmp_conversions)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_gmp_conversions PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_gmp_conversions"
+        LIBRARIES ${GMP_LIBRARIES}
+        INCLUDES ${GMP_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_conversions
+    )
 endif()
 
 if(MPFR_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_mpfr_conversions SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_mpfr_conversions.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_mpfr_conversions ${MPFR_LIBRARIES} ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_mpfr_conversions PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_conversions ${CURRENT_PROJECT_NAME}_test_test_mpfr_conversions)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_mpfr_conversions PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_mpfr_conversions"
+        LIBRARIES ${MPFR_LIBRARIES} ${GMP_LIBRARIES}
+        INCLUDES ${GMP_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_conversions
+    )
 endif()
 
 if(MPC_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_mpc_conversions SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_mpfr_conversions.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_mpc_conversions ${MPC_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_mpc_conversions PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_conversions ${CURRENT_PROJECT_NAME}_test_test_mpc_conversions)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_mpc_conversions PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_mpfr_conversions"
+        LIBRARIES ${MPC_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES}
+        INCLUDES ${GMP_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_conversions
+        SUFFIX "mpc"
+        COMPILE_DEFS TEST_MPF_50
+    )
 endif()
 
 if(GMP_COMPILED)
@@ -910,12 +839,14 @@ add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_conversions ${CURRENT_PROJEC
 set_target_properties(${CURRENT_PROJECT_NAME}_test_cpp_dec_float PROPERTIES CXX_STANDARD 14)
 
 if(GMP_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_float_io_mpf SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_float_io.cpp)
-    target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_float_io_mpf PUBLIC -DTEST_MPF_50)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_float_io_mpf ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_float_io_mpf PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_conversions ${CURRENT_PROJECT_NAME}_test_test_float_io_mpf)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_float_io_mpf PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_float_io"
+        LIBRARIES ${GMP_LIBRARIES}
+        INCLUDES ${GMP_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_conversions
+        COMPILE_DEFS TEST_MPF_50
+        SUFFIX "mpf"
+    )
 endif()
 
 if(MPFR_COMPILED)
@@ -928,12 +859,14 @@ if(MPFR_COMPILED)
 endif()
 
 if(MPFI_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_float_io_mpfi SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_float_io.cpp)
-    target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_float_io_mpfi PUBLIC -DTEST_MPFI_50)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_float_io_mpfi ${MPFI_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES} ${TomMath_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_float_io_mpfi PRIVATE ${GMP_INCLUDE_DIRS} ${MPFI_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_conversions ${CURRENT_PROJECT_NAME}_test_test_float_io_mpfi)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_float_io_mpfi PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_float_io"
+        LIBRARIES ${MPFI_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES} ${TomMath_LIBRARIES}
+        INCLUDES ${GMP_INCLUDE_DIRS} ${MPFI_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_conversions
+        COMPILE_DEFS TEST_MPFI_50
+        SUFFIX "mpfi"
+    )
 endif()
 
 if(FLOAT128_COMPILED)
@@ -945,11 +878,14 @@ if(FLOAT128_COMPILED)
 endif()
 
 if((INTEL_QUAD_COMPILED) AND (FLOAT128_COMPILED))
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_float_io_intel_quad SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_float_io.cpp)
-    target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_float_io_intel_quad PUBLIC -DTEST_FLOAT128)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_float_io_intel_quad no_eh_support)
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_conversions ${CURRENT_PROJECT_NAME}_test_test_float_io_intel_quad)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_float_io_intel_quad PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_float_io"
+        LIBRARIES ${MPFI_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES}
+        INCLUDES ${MPFI_INCLUDE_DIRS} ${GMP_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_conversions
+        COMPILE_DEFS TEST_FLOAT128
+        SUFFIX "intel_quad"
+    )
 endif()
 
 if(TOMMATH_COMPILED)
@@ -962,12 +898,14 @@ if(TOMMATH_COMPILED)
 endif()
 
 if(GMP_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_int_io_mpz SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_int_io.cpp)
-    target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_int_io_mpz PUBLIC -DTEST_MPZ)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_int_io_mpz ${GMP_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_test_int_io_mpz PRIVATE ${GMP_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_conversions ${CURRENT_PROJECT_NAME}_test_test_int_io_mpz)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_test_int_io_mpz PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "test_int_io"
+        INCLUDES ${GMP_INCLUDE_DIRS}
+        LIBRARIES ${GMP_LIBRARIES}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_conversions
+        COMPILE_DEFS TEST_MPZ
+        SUFFIX "mpz"
+    )
 endif()
 
 cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_int_io_cpp_int SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_int_io.cpp)
@@ -1049,9 +987,12 @@ target_compile_definitions(${CURRENT_PROJECT_NAME}_test_test_cpp_int_serial_4 PU
 add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_cpp_int_tests ${CURRENT_PROJECT_NAME}_test_test_cpp_int_serial_4)
 set_target_properties(${CURRENT_PROJECT_NAME}_test_test_cpp_int_serial_4 PROPERTIES CXX_STANDARD 14)
 
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_cpp_int_deserial SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_cpp_int_deserial.cpp)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_cpp_int_tests ${CURRENT_PROJECT_NAME}_test_test_cpp_int_deserial)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_test_cpp_int_deserial PROPERTIES CXX_STANDARD 14)
+define_multiprecision_test(
+    "test_cpp_int_deserial"
+    PARENTS ${CURRENT_PROJECT_NAME}_test_suite_cpp_int_tests
+    SUFFIX "mpfr_50"
+    COMPILE_DEFS TEST_DATA_DIR="${CURRENT_TEST_SOURCES_DIR}/serial_txts/"
+)
 
 cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_cpp_rat_serial SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_cpp_rat_serial.cpp)
 add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_cpp_int_tests ${CURRENT_PROJECT_NAME}_test_test_cpp_rat_serial)
@@ -1250,92 +1191,110 @@ cm_test(NAME ${CURRENT_PROJECT_NAME}_test_ublas_interopinclude_test_cpp_bin_floa
 add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_misc ${CURRENT_PROJECT_NAME}_test_ublas_interopinclude_test_cpp_bin_float_include_test)
 set_target_properties(${CURRENT_PROJECT_NAME}_test_ublas_interopinclude_test_cpp_bin_float_include_test PROPERTIES CXX_STANDARD 14)
 
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_ublas_interop_test1 SOURCES ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test1.cpp
-        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test11.cpp
-        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test12.cpp
-        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test13.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_ublas_interop_test1 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_misc ${CURRENT_PROJECT_NAME}_test_ublas_interop_test1)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_ublas_interop_test1 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_ublas_interop_test2 SOURCES ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test2.cpp
-        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test21.cpp
-        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test22.cpp
-        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test23.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_ublas_interop_test2 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_misc ${CURRENT_PROJECT_NAME}_test_ublas_interop_test2)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_ublas_interop_test2 PROPERTIES CXX_STANDARD 14)
-
-#run ublas_interop/test3.cpp ublas_interop/test31.cpp ublas_interop/test32.cpp ublas_interop/test33.cpp ;
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_ublas_interop_test4 SOURCES ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test4.cpp
-        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test42.cpp
-        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test43.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_ublas_interop_test4 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_misc ${CURRENT_PROJECT_NAME}_test_ublas_interop_test4)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_ublas_interop_test4 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_ublas_interop_test5 SOURCES ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test5.cpp
-        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test52.cpp
-        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test53.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_ublas_interop_test5 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_misc ${CURRENT_PROJECT_NAME}_test_ublas_interop_test5)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_ublas_interop_test5 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_ublas_interop_test6 SOURCES ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test6.cpp
-        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test62.cpp
-        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test63.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_ublas_interop_test6 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_misc ${CURRENT_PROJECT_NAME}_test_ublas_interop_test6)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_ublas_interop_test6 PROPERTIES CXX_STANDARD 14)
-
-#run ublas_interop/test7.cpp ublas_interop/test71.cpp ublas_interop/test72.cpp ublas_interop/test73.cpp ;
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_ublas_interop_test1_et SOURCES
+define_multiprecision_test(
+    my_multi_source_1
+    SOURCES
         ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test1.cpp
         ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test11.cpp
         ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test12.cpp
-        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test13.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_ublas_interop_test1_et no_eh_support)
-target_compile_definitions(${CURRENT_PROJECT_NAME}_test_ublas_interop_test1_et PUBLIC -DTEST_ET=1)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_misc ${CURRENT_PROJECT_NAME}_test_ublas_interop_test1_et)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_ublas_interop_test1_et PROPERTIES CXX_STANDARD 14)
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test13.cpp
+    PARENTS ${CURRENT_PROJECT_NAME}_test_suite_misc
+)
 
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_ublas_interop_test2_et SOURCES
+define_multiprecision_test(
+    my_multi_source_2
+    SOURCES
         ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test2.cpp
         ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test21.cpp
         ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test22.cpp
-        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test23.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_ublas_interop_test2_et no_eh_support)
-target_compile_definitions(${CURRENT_PROJECT_NAME}_test_ublas_interop_test2_et PUBLIC -DTEST_ET=1)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_misc ${CURRENT_PROJECT_NAME}_test_ublas_interop_test2_et)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_ublas_interop_test2_et PROPERTIES CXX_STANDARD 14)
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test23.cpp
+    PARENTS ${CURRENT_PROJECT_NAME}_test_suite_misc
+)
 
 #run ublas_interop/test3.cpp ublas_interop/test31.cpp ublas_interop/test32.cpp ublas_interop/test33.cpp ;
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_ublas_interop_test4_et SOURCES
+
+define_multiprecision_test(
+    my_multi_source_4
+    SOURCES
         ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test4.cpp
         ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test42.cpp
-        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test43.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_ublas_interop_test4_et no_eh_support)
-target_compile_definitions(${CURRENT_PROJECT_NAME}_test_ublas_interop_test4_et PUBLIC -DTEST_ET=1)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_misc ${CURRENT_PROJECT_NAME}_test_ublas_interop_test4_et)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_ublas_interop_test4_et PROPERTIES CXX_STANDARD 14)
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test43.cpp
+    PARENTS ${CURRENT_PROJECT_NAME}_test_suite_misc
+)
 
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_ublas_interop_test5_et SOURCES
+define_multiprecision_test(
+    my_multi_source_5
+    SOURCES
         ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test5.cpp
         ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test52.cpp
-        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test53.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_ublas_interop_test5_et no_eh_support)
-target_compile_definitions(${CURRENT_PROJECT_NAME}_test_ublas_interop_test5_et PUBLIC -DTEST_ET=1)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_misc ${CURRENT_PROJECT_NAME}_test_ublas_interop_test5_et)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_ublas_interop_test5_et PROPERTIES CXX_STANDARD 14)
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test53.cpp
+    PARENTS ${CURRENT_PROJECT_NAME}_test_suite_misc
+)
 
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_ublas_interop_test6_et SOURCES ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test6.cpp
+define_multiprecision_test(
+    my_multi_source_6
+    SOURCES
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test6.cpp
         ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test62.cpp
-        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test63.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_ublas_interop_test6_et no_eh_support)
-target_compile_definitions(${CURRENT_PROJECT_NAME}_test_ublas_interop_test6_et PUBLIC -DTEST_ET=1)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_misc ${CURRENT_PROJECT_NAME}_test_ublas_interop_test6_et)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_ublas_interop_test6_et PROPERTIES CXX_STANDARD 14)
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test63.cpp
+    PARENTS ${CURRENT_PROJECT_NAME}_test_suite_misc
+)
+
+#run ublas_interop/test7.cpp ublas_interop/test71.cpp ublas_interop/test72.cpp ublas_interop/test73.cpp ;
+
+define_multiprecision_test(
+    my_multi_source_1_et
+    SOURCES
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test1.cpp
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test11.cpp
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test12.cpp
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test13.cpp
+    PARENTS ${CURRENT_PROJECT_NAME}_test_suite_misc
+    COMPILE_DEFS TEST_ET
+)
+
+define_multiprecision_test(
+    my_multi_source_2_et
+    SOURCES
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test2.cpp
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test21.cpp
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test22.cpp
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test23.cpp
+        COMPILE_DEFS TEST_ET
+    PARENTS ${CURRENT_PROJECT_NAME}_test_suite_misc
+)
+
+#run ublas_interop/test3.cpp ublas_interop/test31.cpp ublas_interop/test32.cpp ublas_interop/test33.cpp ;
+
+define_multiprecision_test(
+    my_multi_source_4_et
+    SOURCES
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test4.cpp
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test42.cpp
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test43.cpp
+    PARENTS ${CURRENT_PROJECT_NAME}_test_suite_misc
+    COMPILE_DEFS TEST_ET
+)
+
+define_multiprecision_test(
+    my_multi_source_5_et
+    SOURCES
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test5.cpp
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test52.cpp
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test53.cpp
+    PARENTS ${CURRENT_PROJECT_NAME}_test_suite_misc
+    COMPILE_DEFS TEST_ET
+)
+
+define_multiprecision_test(
+    my_multi_source_6_et
+    SOURCES
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test6.cpp
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test62.cpp
+        ${CURRENT_TEST_SOURCES_DIR}/ublas_interop/test63.cpp
+    PARENTS ${CURRENT_PROJECT_NAME}_test_suite_misc
+    COMPILE_DEFS TEST_ET
+)
 
 #run ublas_interop/test7.cpp ublas_interop/test71.cpp ublas_interop/test72.cpp ublas_interop/test73.cpp ;
 
@@ -1696,11 +1655,13 @@ add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_examples ${CURRENT_PROJECT_N
 set_target_properties(${CURRENT_PROJECT_NAME}_test_integer_examples PROPERTIES CXX_STANDARD 14)
 
 if(MPFI_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_logged_adaptor SOURCES ${CURRENT_TEST_SOURCES_DIR}/../example/logged_adaptor.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_logged_adaptor ${GMP_LIBRARIES} ${MPFR_LIBRARIES} ${MPFI_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_logged_adaptor PRIVATE ${GMP_INCLUDE_DIRS} ${MPFI_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_examples ${CURRENT_PROJECT_NAME}_test_logged_adaptor)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_logged_adaptor PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "logged_adaptor"
+        LIBRARIES ${MPFI_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES}
+        INCLUDES ${MPFI_INCLUDE_DIRS} ${GMP_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_examples
+        SOURCES "../example/logged_adaptor.cpp"
+    )
 endif()
 
 cm_test(NAME ${CURRENT_PROJECT_NAME}_test_mixed_integer_arithmetic SOURCES ${CURRENT_TEST_SOURCES_DIR}/../example/mixed_integer_arithmetic.cpp)
@@ -1734,11 +1695,13 @@ if(GMP_COMPILED)
 endif()
 
 if(MPFI_COMPILED)
-    cm_test(NAME ${CURRENT_PROJECT_NAME}_test_mpfi_snips SOURCES ${CURRENT_TEST_SOURCES_DIR}/../example/mpfi_snips.cpp)
-    target_link_libraries(${CURRENT_PROJECT_NAME}_test_mpfi_snips ${GMP_LIBRARIES} ${MPFI_LIBRARIES} ${MPFR_LIBRARIES} no_eh_support)
-    target_include_directories(${CURRENT_PROJECT_NAME}_test_mpfi_snips PRIVATE ${GMP_INCLUDE_DIRS} ${MPFI_INCLUDE_DIRS})
-    add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_examples ${CURRENT_PROJECT_NAME}_test_mpfi_snips)
-    set_target_properties(${CURRENT_PROJECT_NAME}_test_mpfi_snips PROPERTIES CXX_STANDARD 14)
+    define_multiprecision_test(
+        "mpfi_snips"
+        LIBRARIES ${MPFI_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES}
+        INCLUDES ${MPFI_INCLUDE_DIRS} ${GMP_INCLUDE_DIRS}
+        PARENTS ${CURRENT_PROJECT_NAME}_test_suite_examples
+        SOURCES "../example/mpfi_snips.cpp"
+    )
 endif()
 
 if(MPFR_COMPILED)
