@@ -3729,6 +3729,7 @@ namespace nil {
             // Integer functions:
             //
             BINARY_OP_FUNCTOR(gcd, number_kind_integer)
+            BINARY_OP_FUNCTOR(gcd, number_kind_modular)
             BINARY_OP_FUNCTOR(lcm, number_kind_integer)
             HETERO_BINARY_OP_FUNCTOR(pow, unsigned, number_kind_integer)
 
