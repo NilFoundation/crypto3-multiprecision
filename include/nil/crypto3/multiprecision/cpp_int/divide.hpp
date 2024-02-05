@@ -21,7 +21,7 @@ namespace nil {
                     // I've implemented the following fix: if we are being evaluated at compile time
                     // we switch to forcefully creating copies of x/y/r.
                     // At runtime we use the usual version for performance.
-                    if constexpr (!ConstRec) {
+                    if (!ConstRec) {
                         if (__builtin_is_constant_evaluated()) {
                             CppInt2 x_(x);
                             CppInt3 y_(y);
