@@ -292,20 +292,30 @@ namespace nil {
                                  0);    // remainder must be less than the divisor or our code has failed
                 }
 
-                template<class CppInt1, class CppInt2>
+                template<class CppInt1, class CppInt2, bool ConstRec = false>
                 BOOST_MP_CXX14_CONSTEXPR void
                     divide_unsigned_helper(CppInt1* result, const CppInt2& x, limb_type y, CppInt1& r) {
-                    if (((void*)result == (void*)&x) || ((void*)&r == (void*)&x)) {
-                        CppInt2 t(x);
-                        divide_unsigned_helper(result, t, y, r);
-                        return;
-                    }
+                    if (!ConstRec) {
+                        if (__builtin_is_constant_evaluated()) {
+                            CppInt2 x_(x);
+                            CppInt1 r_(r);
+                            divide_unsigned_helper<CppInt1, CppInt2, true>(result, x_, y, r_);
+                            r = r_;
+                            return;
+                        } else {
+                            if (((void*)result == (void*)&x) || ((void*)&r == (void*)&x)) {
+                                CppInt2 t(x);
+                                divide_unsigned_helper<CppInt1, CppInt2, false>(result, t, y, r);
+                                return;
+                            }
 
-                    if (result == &r) {
-                        CppInt1 rem;
-                        divide_unsigned_helper(result, x, y, rem);
-                        r = rem;
-                        return;
+                            if (result == &r) {
+                                CppInt1 rem;
+                                divide_unsigned_helper<CppInt1, CppInt2, false>(result, x, y, rem);
+                                r = rem;
+                                return;
+                            }
+                        }
                     }
 
                     // As above, but simplified for integer divisor:
