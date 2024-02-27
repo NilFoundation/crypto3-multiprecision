@@ -36,57 +36,7 @@ namespace nil {
                 class modular_params_ct {
                 public:
                     typedef modular_params<Backend> modular_type;
-
-                    constexpr modular_params_ct() {
-                    }
-
-                    constexpr modular_params_ct(modular_type &input) {
-                    }
-
-                    constexpr void set_modular_params(const modular_type &input) {
-                    }
-
-                    template<typename T>
-                    constexpr void set_modular_params(const T &input) {
-                    }
-
-                    constexpr const modular_type &mod_data() const {
-                        return m_mod;
-                    }
-
-                protected:
                     constexpr static const modular_type m_mod = Modulus;
-                };
-
-                template<typename Backend>
-                class modular_params_rt {
-                public:
-                    typedef modular_params<Backend> modular_type;
-
-                    constexpr modular_params_rt() {
-                    }
-
-                    constexpr modular_params_rt(modular_type input) {
-                        m_mod = input;
-                    }
-
-                    constexpr void set_modular_params(const modular_type &input) {
-                        m_mod = input;
-                    }
-
-                    constexpr void set_modular_params(const number<Backend> &input) {
-                        m_mod = input;
-                    }
-
-                    constexpr modular_type &mod_data() {
-                        return m_mod;
-                    }
-                    constexpr const modular_type &mod_data() const {
-                        return m_mod;
-                    }
-
-                public:
-                    modular_type m_mod;
                 };
 
                 template<typename Backend, const nil::crypto3::multiprecision::modular_params<Backend> &Modulus>

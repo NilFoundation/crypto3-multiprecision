@@ -24,9 +24,6 @@ namespace nil {
         namespace multiprecision {
             namespace backends {
 
-                template<typename Backend>
-                class modular_functions_fixed;
-
                 //
                 // the function works correctly only with consistent backend objects,
                 // i.e. their limbs should not be manipulated directly
@@ -177,7 +174,7 @@ namespace nil {
                 }
 
                 template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked>
-                class modular_functions_fixed<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>> {
+                class modular_functions_fixed {
                 protected:
                     typedef modular_fixed_cpp_int_backend<MinBits, SignType, Checked> Backend;
 
@@ -478,6 +475,8 @@ namespace nil {
                         /// input parameters should be lesser than modulus
                         // BOOST_ASSERT(eval_lt(x, m_mod.backend()) && eval_lt(y, m_mod.backend()));
 
+                        // Backend_padded_limbs = modular_fixed_cpp_int_backend<BitsCount_padded_limbs, SignType, Checked> where
+                        // BitsCount_padded_limbs = limbs_count * limb_bits + limb_bits
                         Backend_padded_limbs A(internal_limb_type(0u));
                         const size_t mod_size = m_mod.backend().size();
                         auto mod_last_limb = static_cast<internal_double_limb_type>(get_limb_value(m_mod.backend(), 0));

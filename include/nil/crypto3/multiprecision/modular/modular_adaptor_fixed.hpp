@@ -17,13 +17,13 @@ namespace nil {
     namespace crypto3 {
         namespace multiprecision {
             namespace backends {
-                template<typename Backend, typename StorageType>
+                template<typename Backend, typename ModularParamsType>
                 class modular_adaptor;
 
                 // fixed precision modular backend which supports compile-time execution
-                template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename StateType>
-                class modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StateType>
-                    : public StateType {
+                template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename ModularParamsType>
+                class modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType>
+                    : public ModularParamsType {
                 protected:
                     typedef modular_fixed_cpp_int_backend<MinBits, SignType, Checked> Backend;
 
@@ -190,82 +190,82 @@ namespace nil {
                 };
 
                 template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename Backend1,
-                         typename Backend2, typename StorageType>
+                         typename Backend2, typename ModularParamsType>
                 constexpr void assign_components(
-                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType> &result,
+                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType> &result,
                     const Backend1 &a, const Backend2 &b) {
                     // BOOST_ASSERT_MSG(MinBits == eval_msb(b) + 1, "modulus precision should match used backend");
                     result.set_modular_params(b);
                     result.mod_data().adjust_modular(result.base_data(), a);
                 }
 
-                template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename StorageType>
+                template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename ModularParamsType>
                 constexpr void eval_add(
-                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType> &result,
-                    const modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType> &o) {
+                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType> &result,
+                    const modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType> &o) {
                     BOOST_ASSERT(result.mod_data().get_mod() == o.mod_data().get_mod());
                     result.mod_data().mod_add(result.base_data(), o.base_data());
                 }
 
                 template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename Backend,
-                         typename StorageType>
+                         typename ModularParamsType>
                 constexpr void eval_add(
-                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType> &result,
-                    const modular_adaptor<Backend, StorageType> &o) {
+                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType> &result,
+                    const modular_adaptor<Backend, ModularParamsType> &o) {
                     BOOST_ASSERT(result.mod_data().get_mod() == o.mod_data().get_mod());
                     result.mod_data().mod_add(result.base_data(), o.base_data());
                 }
 
                 template<typename Backend, unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked,
-                         typename StorageType>
+                         typename ModularParamsType>
                 constexpr void eval_add(
-                    modular_adaptor<Backend, StorageType> &result,
-                    const modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType> &o) {
+                    modular_adaptor<Backend, ModularParamsType> &result,
+                    const modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType> &o) {
                     BOOST_ASSERT(result.mod_data().get_mod() == o.mod_data().get_mod());
                     o.mod_data().mod_add(result.base_data(), o.base_data());
                 }
 
-                template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename StorageType>
+                template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename ModularParamsType>
                 constexpr void eval_multiply(
-                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType> &result,
-                    const modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType> &o) {
+                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType> &result,
+                    const modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType> &o) {
                     //                    BOOST_ASSERT(result.mod_data().get_mod() == o.mod_data().get_mod());
                     result.mod_data().mod_mul(result.base_data(), o.base_data());
                 }
 
                 template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename Backend,
-                         typename StorageType>
+                         typename ModularParamsType>
                 constexpr void eval_multiply(
-                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType> &result,
-                    const modular_adaptor<Backend, StorageType> &o) {
+                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType> &result,
+                    const modular_adaptor<Backend, ModularParamsType> &o) {
                     BOOST_ASSERT(result.mod_data().get_mod() == o.mod_data().get_mod());
                     result.mod_data().mod_mul(result.base_data(), o.base_data());
                 }
 
                 template<typename Backend, unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked,
-                         typename StorageType>
+                         typename ModularParamsType>
                 constexpr void eval_multiply(
-                    modular_adaptor<Backend, StorageType> &result,
-                    const modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType> &o) {
+                    modular_adaptor<Backend, ModularParamsType> &result,
+                    const modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType> &o) {
                     BOOST_ASSERT(result.mod_data().get_mod() == o.mod_data().get_mod());
                     o.mod_data().mod_mul(result.base_data(), o.base_data());
                 }
 
                 template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename T,
-                         typename StorageType>
+                         typename ModularParamsType>
                 constexpr void eval_pow(
-                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType> &result,
-                    const modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType> &b,
+                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType> &result,
+                    const modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType> &b,
                     const T &e) {
                     result.set_modular_params(b.mod_data());
                     result.mod_data().mod_exp(result.base_data(), b.base_data(), e);
                 }
 
-                template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename StorageType>
+                template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename ModularParamsType>
                 constexpr void eval_pow(
-                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType> &result,
-                    const modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType> &b,
-                    const modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType> &e) {
+                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType> &result,
+                    const modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType> &b,
+                    const modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType> &e) {
                     using Backend = modular_fixed_cpp_int_backend<MinBits, SignType, Checked>;
 
                     Backend exp;
@@ -274,20 +274,20 @@ namespace nil {
                 }
 
                 template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename Backend,
-                         typename T, typename StorageType>
+                         typename T, typename ModularParamsType>
                 constexpr void eval_powm(
-                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType> &result,
-                    const modular_adaptor<Backend, StorageType> &b, const T &e) {
+                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType> &result,
+                    const modular_adaptor<Backend, ModularParamsType> &b, const T &e) {
                     BOOST_ASSERT(MinBits >= msb(b.mod_data().get_mod()) + 1);
                     result.set_modular_params(b.mod_data());
                     result.mod_data().mod_exp(result.base_data(), b.base_data(), e);
                 }
 
                 template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename Backend1,
-                         typename Backend2, typename StorageType>
+                         typename Backend2, typename ModularParamsType>
                 constexpr void eval_powm(
-                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType> &result,
-                    const modular_adaptor<Backend1, StorageType> &b, const modular_adaptor<Backend2, StorageType> &e) {
+                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType> &result,
+                    const modular_adaptor<Backend1, ModularParamsType> &b, const modular_adaptor<Backend2, ModularParamsType> &e) {
                     using Backend = modular_fixed_cpp_int_backend<MinBits, SignType, Checked>;
 
                     Backend exp;
@@ -295,10 +295,10 @@ namespace nil {
                     eval_powm(result, b, exp);
                 }
 
-                template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename StorageType>
+                template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename ModularParamsType>
                 constexpr void eval_inverse_mod(
-                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType> &result,
-                    const modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType> &input) {
+                    modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType> &result,
+                    const modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType> &input) {
                     using Backend = modular_fixed_cpp_int_backend<MinBits, SignType, Checked>;
                     using Backend_padded_limbs = typename modular_params<Backend>::policy_type::Backend_padded_limbs;
 
@@ -315,9 +315,9 @@ namespace nil {
             using backends::modular_adaptor;
             using backends::modular_fixed_cpp_int_backend;
 
-            template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename StorageType>
+            template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename ModularParamsType>
             struct expression_template_default<
-                modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, StorageType>> {
+                modular_adaptor<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>, ModularParamsType>> {
                 static const expression_template_option value = et_off;
             };
         }    // namespace multiprecision
