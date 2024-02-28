@@ -483,6 +483,10 @@ namespace nil {
                         auto mod_last_limb = static_cast<internal_double_limb_type>(get_limb_value(m_mod.backend(), 0));
                         auto y_last_limb = get_limb_value(y, 0);
 
+                        internal_double_limb_type t;
+                        internal_double_limb_type t2;
+                        internal_double_limb_type tmp;
+
                         for (size_t i = 0; i < mod_size; i++) {
                             auto x_i = get_limb_value(result, i);
                             auto A_0 = A.limbs()[0];
@@ -501,24 +505,27 @@ namespace nil {
                             k2 = static_cast<internal_limb_type>(z2 >> std::numeric_limits<internal_limb_type>::digits);
 
                             for (size_t j = 1; j < mod_size; ++j) {
-                                internal_double_limb_type t =
-                                    static_cast<internal_double_limb_type>(get_limb_value(y, j)) *
-                                        static_cast<internal_double_limb_type>(x_i) +
-                                    A.limbs()[j] + k;
-                                internal_double_limb_type t2 =
-                                    static_cast<internal_double_limb_type>(get_limb_value(m_mod.backend(), j)) *
-                                        static_cast<internal_double_limb_type>(u_i) +
-                                    static_cast<internal_limb_type>(t) + k2;
+                                t = static_cast<internal_double_limb_type>(get_limb_value(y, j));
+                                t *= static_cast<internal_double_limb_type>(x_i);
+                                t += A.limbs()[j];
+                                t += k;
+
+                                t2 = static_cast<internal_double_limb_type>(get_limb_value(m_mod.backend(), j));
+                                t2 *= static_cast<internal_double_limb_type>(u_i);
+                                t2 += static_cast<internal_limb_type>(t);
+                                t2 += k2;
+
                                 A.limbs()[j - 1] = static_cast<internal_limb_type>(t2);
                                 k = static_cast<internal_limb_type>(t >>
                                                                     std::numeric_limits<internal_limb_type>::digits);
                                 k2 = static_cast<internal_limb_type>(t2 >>
                                                                      std::numeric_limits<internal_limb_type>::digits);
                             }
-                            internal_double_limb_type tmp =
-                                static_cast<internal_double_limb_type>(
-                                    custom_get_limb_value<internal_limb_type>(A, mod_size)) +
-                                k + k2;
+                            tmp = static_cast<internal_double_limb_type>(
+                                custom_get_limb_value<internal_limb_type>(A, mod_size));
+                            tmp += k;
+                            tmp += k2;
+
                             custom_set_limb_value<internal_limb_type>(A, mod_size - 1,
                                                                       static_cast<internal_limb_type>(tmp));
                             custom_set_limb_value<internal_limb_type>(
@@ -534,7 +541,7 @@ namespace nil {
                         if (!eval_lt(A, m_mod.backend())) {
                             eval_subtract(A, m_mod.backend());
                         }
-                        result = A;
+                        result = std::move(A);
                     }
 
                     template<typename Backend1, typename Backend2, typename Backend3,
