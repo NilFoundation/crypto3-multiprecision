@@ -1,0 +1,163 @@
+name: PR Testing
+
+on:
+  pull_request:
+
+# There is unified reusable workflow for crypto3 submodules, but multiprecision does not use Boost.Test ):
+# Thus, we have custom one here. It is almost the same, only `Run tests inside submodule test dir` step differs.
+
+env:
+  BOOST_VERSION: "1.81.0"
+  TESTS_ARTIFACT_NAME: 'test-results'
+  EVENT_FILE_ARTIFACT_NAME: 'event-file'
+
+jobs:
+  handle-syncwith:
+    name: Call Reusable SyncWith Handler
+    uses: NilFoundation/ci-cd/.github/workflows/reusable-handle-syncwith.yml@v1
+    with:
+      ci-cd-ref: 'v1'
+    secrets: inherit
+
+  build-and-test:
+    name: "Build and Test using Matrix"
+    needs: [ handle-syncwith ]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # Set up a matrix to run the following 4 configurations:
+      # 1. <Linux, Release, latest G++ compiler toolchain on the default runner image, default generator>
+      # 2. <Linux, Release, latest Clang++ compiler toolchain on the default runner image, default generator>
+      # 3. <MacOS, Release, latest G++ compiler toolchain on the default runner image, default generator>
+      # 4. <MacOS, Release, latest Clang++ compiler toolchain on the default runner image, default generator>
+      matrix:
+        os: [ubuntu-22.04, macos-12]
+        cpp_compiler: [g++, clang++]
+        build_type: [Release]
+    steps:
+      - name: Checkout Crypto3 repository
+        uses: actions/checkout@v4
+        with:
+          repository: NilFoundation/crypto3
+          submodules: 'true' # Using true fetches only the top-level submodules
+          fetch-depth: 1 # Fetch only the latest commit on the triggered branch/ref
+
+      - name: Checkout submodules to specified refs
+        if: needs.handle-syncwith.outputs.prs-refs != ''
+        uses: NilFoundation/ci-cd/actions/recursive-checkout@v1
+        with:
+          paths: |
+            ${{ github.workspace }}/**
+            !${{ github.workspace }}/**/.git/**
+          refs: ${{ needs.handle-syncwith.outputs.prs-refs }}
+
+      - name: Determine submodule path
+        id: get-submodule-path
+        run: |
+          # Parsing .gitmodules to find the path of the submodule repository.
+          submodule_path=$(git config --file .gitmodules --get-regexp path | awk -v repo_name="${{ github.event.repository.name }}" '$0 ~ "submodule\\."repo_name"\\.path" { sub(/.*path /, ""); print }')
+          echo "Submodule path is $submodule_path"
+          echo "submodule-path=$submodule_path" >> $GITHUB_OUTPUT
+
+      - name: Checkout current repository as umbrella submodule lib
+        uses: actions/checkout@v4
+        with:
+          path: ${{ steps.get-submodule-path.outputs.submodule-path }}
+          fetch-depth: 1
+
+      - name: Set usefull strings
+        # Turn input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+        id: strings
+        shell: bash
+        run: |
+          # CMake locations
+          umbrella_build_dir="${{ github.workspace }}/build"
+          submodule_build_dir="$umbrella_build_dir/${{ steps.get-submodule-path.outputs.submodule-path }}"
+          echo "umbrella-build-dir=$umbrella_build_dir" >> "$GITHUB_OUTPUT"
+          echo "submodule-build-dir=$submodule_build_dir" >> "$GITHUB_OUTPUT"
+          echo "submodule-test-dir=$submodule_build_dir/test" >> "$GITHUB_OUTPUT"
+
+          # Dependencies dir location
+          echo "dependencies-dir=${{ github.workspace }}/../dependencies" >> "$GITHUB_OUTPUT"
+
+          # Get platform version
+          os_version=${{ matrix.os }}
+          platform_version=${os_version##*-}
+          echo "platform-version=${platform_version}" >> $GITHUB_OUTPUT
+
+          if [[ ${{ runner.os }} == 'Linux' ]]; then
+            proc_number=$(nproc)
+          elif [[ ${{ runner.os }} == 'macOS' ]]; then
+            proc_number=$(sysctl -n hw.ncpu)
+          fi
+          echo "proc-number=${proc_number}" >> $GITHUB_OUTPUT
+
+      - name: Set up dependencies directory
+        run: |
+          mkdir -p "${{ steps.strings.outputs.dependencies-dir }}"
+
+      - name: Install boost
+        uses: MarkusJx/install-boost@v2.4.4
+        id: install-boost
+        with:
+          boost_version: ${{ env.BOOST_VERSION }}
+          # Extract version number from matrix.os by replacing os_name-
+          # A list of supported versions can be found here:
+          # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
+          platform_version: ${{ steps.strings.outputs.platform-version }}
+          boost_install_dir: ${{ steps.strings.outputs.dependencies-dir }}
+
+      - name: Configure CMake
+        run: >
+          cmake -B ${{ steps.strings.outputs.umbrella-build-dir }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DBUILD_TESTS=TRUE
+          -DENABLE_JUNIT_TEST_OUTPUT=TRUE
+          -S ${{ github.workspace }}
+
+        env:
+          BOOST_ROOT: "${{ steps.install-boost.outputs.BOOST_ROOT }}"
+
+      - name: Build all inside submodule
+        id: build-submodule
+        working-directory: ${{ steps.strings.outputs.submodule-build-dir }}
+        run: |
+          # Not considering failed targets bad. We will handle them as junit test result
+          build_log_path=${{ steps.strings.outputs.submodule-build-dir }}/build.log
+          make -k -j ${{ steps.strings.outputs.proc-number }} 2>&1 | tee build.log
+          echo "build-log=$build_log_path" >> "$GITHUB_OUTPUT"
+
+      - name: Generate JUnit Report from build result
+        id: make-build-report
+        uses: NilFoundation/ci-cd/actions/build-log-to-junit@0588663776c5989c2ba23064811e7f71a20ada83
+        with:
+          build-log: ${{ steps.build-submodule.outputs.build-log }}
+
+      - name: Run tests inside submodule test dir
+        id: run-tests
+        working-directory: ${{ steps.strings.outputs.submodule-test-dir }}
+        # Not considering failed tests bad. We will compare diff instead
+        run: |
+          test_results=${{ steps.strings.outputs.submodule-test-dir }}/test_results.xml
+          ctest --output-junit ${test_results} -v -j ${{ steps.strings.outputs.proc-number }} || true
+          echo "test-results=$test_results" >> "$GITHUB_OUTPUT"
+
+      - name: Move test results to dir for uploading
+        id: prepare-for-uploading
+        run: |
+          # upload action takes only absolute path, following command fits both macOS and Linux
+          artifact_dir=${{ github.workspace }}/../results_for_uploading
+          mkdir $artifact_dir
+          artifact_dir=$(cd ${{ github.workspace }}/../results_for_uploading && pwd)
+
+          custom_tests_dir=$artifact_dir/${{ matrix.os }}/${{ matrix.cpp_compiler }}/${{ matrix.build_type }}
+          mkdir -p $custom_tests_dir
+          mv ${{ steps.run-tests.outputs.test-results }} $custom_tests_dir
+          mv ${{ steps.make-build-report.outputs.build-junit-report }} $custom_tests_dir
+          echo "artifact-dir=$artifact_dir" >> "$GITHUB_OUTPUT"
+
+      - name: Upload tests JUnit results
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.TESTS_ARTIFACT_NAME }}
+          path: ${{ steps.prepare-for-uploading.outputs.artifact-dir }}

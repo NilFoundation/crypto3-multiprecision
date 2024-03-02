@@ -419,6 +419,13 @@ namespace nil {
 
                     typedef number<modular_adaptor<Backend, StorageType>> modular_type;
                     modular_params<Backend> mod = b.mod_data();
+                    modular_type x(1, mod);
+
+                    if (eval_is_zero(exp)) {
+                        result = x.backend();
+                        return;
+                    }
+
                     size_t m_window_bits;
                     unsigned long cur_exp_index;
                     size_t exp_bits = eval_msb(exp);
@@ -426,7 +433,6 @@ namespace nil {
 
                     std::vector<modular_type> m_g(1U << m_window_bits);
                     modular_type *p_g = m_g.data();
-                    modular_type x(1, mod);
                     Backend nibble = exp;
                     Backend mask;
                     eval_bit_set(mask, m_window_bits);
