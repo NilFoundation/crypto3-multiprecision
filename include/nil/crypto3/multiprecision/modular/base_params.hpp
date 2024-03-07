@@ -47,10 +47,10 @@ namespace nil {
 
                 // // fixed precision barrett params type which supports compile-time execution
                 // template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked>
-                // class base_params<cpp_int_backend<MinBits, MinBits, SignType, Checked, void>>
+                // class base_params<cpp_int_modular_backend<MinBits, MinBits, SignType, Checked, void>>
                 // {
                 //  protected:
-                //    typedef modular_policy<cpp_int_backend<MinBits, MinBits, SignType, Checked, void>> policy_type;
+                //    typedef modular_policy<cpp_int_modular_backend<MinBits, MinBits, SignType, Checked, void>> policy_type;
                 //    typedef typename policy_type::number_type number_type;
                 //
                 //    constexpr void initialize_base_params(const number_type& mod)

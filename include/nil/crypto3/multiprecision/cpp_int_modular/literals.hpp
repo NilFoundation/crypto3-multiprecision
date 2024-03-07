@@ -190,7 +190,7 @@ namespace nil {
                     struct signed_cpp_int_literal_result_type {
                         static constexpr unsigned bits = Digits * 4;
                         using backend_type =
-                            nil::crypto3::multiprecision::backends::cpp_int_backend<bits, bits, signed_magnitude,
+                            nil::crypto3::multiprecision::backends::cpp_int_modular_backend<bits, bits, signed_magnitude,
                                                                                     unchecked, void>;
                         using number_type = number<backend_type, et_off>;
                     };
@@ -199,7 +199,7 @@ namespace nil {
                     struct unsigned_cpp_int_literal_result_type {
                         static constexpr unsigned bits = Digits * 4;
                         using backend_type =
-                            nil::crypto3::multiprecision::backends::cpp_int_backend<bits, bits, unsigned_magnitude,
+                            nil::crypto3::multiprecision::backends::cpp_int_modular_backend<bits, bits, unsigned_magnitude,
                                                                                     unchecked, void>;
                         using number_type = number<backend_type, et_off>;
                     };
@@ -242,22 +242,22 @@ namespace nil {
 #else
 #define BOOST_MP_DEFINE_SIZED_CPP_INT_LITERAL(Bits)                                                                   \
     template<char... STR>                                                                                             \
-    constexpr nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::backends::cpp_int_backend<           \
+    constexpr nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<           \
         Bits, Bits, nil::crypto3::multiprecision::signed_magnitude, nil::crypto3::multiprecision::unchecked, void>>   \
         operator"" BOOST_JOIN(_cppi, Bits)() {                                                                        \
         using pt = typename nil::crypto3::multiprecision::literals::detail::make_packed_value_from_str<STR...>::type; \
         return nil::crypto3::multiprecision::literals::detail::make_backend_from_pack<                                \
-            pt, nil::crypto3::multiprecision::backends::cpp_int_backend<                                              \
+            pt, nil::crypto3::multiprecision::backends::cpp_int_modular_backend<                                              \
                     Bits, Bits, nil::crypto3::multiprecision::signed_magnitude,                                       \
                     nil::crypto3::multiprecision::unchecked, void>>::value;                                           \
     }                                                                                                                 \
     template<char... STR>                                                                                             \
-    constexpr nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::backends::cpp_int_backend<           \
+    constexpr nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<           \
         Bits, Bits, nil::crypto3::multiprecision::unsigned_magnitude, nil::crypto3::multiprecision::unchecked, void>> \
         operator"" BOOST_JOIN(_cppui, Bits)() {                                                                       \
         using pt = typename nil::crypto3::multiprecision::literals::detail::make_packed_value_from_str<STR...>::type; \
         return nil::crypto3::multiprecision::literals::detail::make_backend_from_pack<                                \
-            pt, nil::crypto3::multiprecision::backends::cpp_int_backend<                                              \
+            pt, nil::crypto3::multiprecision::backends::cpp_int_modular_backend<                                              \
                     Bits, Bits, nil::crypto3::multiprecision::unsigned_magnitude,                                     \
                     nil::crypto3::multiprecision::unchecked, void>>::value;                                           \
     }
@@ -270,17 +270,17 @@ namespace nil {
             // Overload unary minus operator for constexpr use:
             //
             template<unsigned MinBits, cpp_int_check_type Checked>
-            constexpr number<cpp_int_backend<MinBits, MinBits, signed_magnitude, Checked, void>, et_off>
-                operator-(const number<cpp_int_backend<MinBits, MinBits, signed_magnitude, Checked, void>, et_off>& a) {
-                return cpp_int_backend<MinBits, MinBits, signed_magnitude, Checked, void>(
+            constexpr number<cpp_int_modular_backend<MinBits, MinBits, signed_magnitude, Checked, void>, et_off>
+                operator-(const number<cpp_int_modular_backend<MinBits, MinBits, signed_magnitude, Checked, void>, et_off>& a) {
+                return cpp_int_modular_backend<MinBits, MinBits, signed_magnitude, Checked, void>(
                     a.backend(), nil::crypto3::multiprecision::literals::detail::make_negate_tag());
             }
             template<unsigned MinBits, cpp_int_check_type Checked>
-            constexpr number<cpp_int_backend<MinBits, MinBits, signed_magnitude, Checked, void>, et_off>
-                operator-(number<cpp_int_backend<MinBits, MinBits, signed_magnitude, Checked, void>, et_off>&& a) {
-                return cpp_int_backend<MinBits, MinBits, signed_magnitude, Checked, void>(
+            constexpr number<cpp_int_modular_backend<MinBits, MinBits, signed_magnitude, Checked, void>, et_off>
+                operator-(number<cpp_int_modular_backend<MinBits, MinBits, signed_magnitude, Checked, void>, et_off>&& a) {
+                return cpp_int_modular_backend<MinBits, MinBits, signed_magnitude, Checked, void>(
                     static_cast<
-                        const number<cpp_int_backend<MinBits, MinBits, signed_magnitude, Checked, void>, et_off>&>(a)
+                        const number<cpp_int_modular_backend<MinBits, MinBits, signed_magnitude, Checked, void>, et_off>&>(a)
                         .backend(),
                     nil::crypto3::multiprecision::literals::detail::make_negate_tag());
             }

@@ -69,7 +69,7 @@ namespace nil {
 
                 template<unsigned MinBits, unsigned MaxBits, cpp_integer_type SignType, cpp_int_check_type Checked,
                          class Allocator>
-                inline void resize_to_bit_size(cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>& newval,
+                inline void resize_to_bit_size(cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>& newval,
                                                unsigned bits, const std::integral_constant<bool, false>&) {
                     unsigned limb_count = static_cast<unsigned>(bits / (sizeof(limb_type) * CHAR_BIT));
                     if (bits % (sizeof(limb_type) * CHAR_BIT))
@@ -85,18 +85,18 @@ namespace nil {
                 }
                 template<unsigned MinBits, unsigned MaxBits, cpp_integer_type SignType, cpp_int_check_type Checked,
                          class Allocator>
-                inline void resize_to_bit_size(cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>& newval,
+                inline void resize_to_bit_size(cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>& newval,
                                                unsigned, const std::integral_constant<bool, true>&) {
                     *newval.limbs() = 0;
                 }
 
                 template<unsigned MinBits, unsigned MaxBits, cpp_integer_type SignType, cpp_int_check_type Checked,
                          class Allocator, expression_template_option ExpressionTemplates, class Iterator>
-                number<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>, ExpressionTemplates>&
-                    import_bits_generic(number<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+                number<cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>, ExpressionTemplates>&
+                    import_bits_generic(number<cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
                                                ExpressionTemplates>& val,
                                         Iterator i, Iterator j, unsigned chunk_size = 0, bool msv_first = true) {
-                    typename number<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+                    typename number<cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
                                     ExpressionTemplates>::backend_type newval;
 
                     using value_type = typename std::iterator_traits<Iterator>::value_type;
@@ -105,7 +105,7 @@ namespace nil {
                     using size_type =
                         typename nil::crypto3::multiprecision::detail::make_unsigned<difference_type>::type;
                     using tag_type =
-                        typename cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>::trivial_tag;
+                        typename cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>::trivial_tag;
 
                     if (!chunk_size)
                         chunk_size = std::numeric_limits<value_type>::digits;
@@ -136,16 +136,16 @@ namespace nil {
                          class Allocator, expression_template_option ExpressionTemplates, class T>
                 inline typename std::enable_if<
                     !nil::crypto3::multiprecision::backends::is_trivial_cpp_int<
-                        cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>>::value,
-                    number<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>, ExpressionTemplates>&>::type
-                    import_bits_fast(number<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+                        cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>>::value,
+                    number<cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>, ExpressionTemplates>&>::type
+                    import_bits_fast(number<cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
                                             ExpressionTemplates>& val,
                                      T* i, T* j, unsigned chunk_size = 0) {
                     std::size_t byte_len = (j - i) * (chunk_size ? chunk_size / CHAR_BIT : sizeof(*i));
                     std::size_t limb_len = byte_len / sizeof(limb_type);
                     if (byte_len % sizeof(limb_type))
                         ++limb_len;
-                    cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>& result = val.backend();
+                    cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>& result = val.backend();
                     result.resize(
                         static_cast<unsigned>(limb_len),
                         static_cast<unsigned>(
@@ -159,12 +159,12 @@ namespace nil {
                          class Allocator, expression_template_option ExpressionTemplates, class T>
                 inline typename std::enable_if<
                     nil::crypto3::multiprecision::backends::is_trivial_cpp_int<
-                        cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>>::value,
-                    number<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>, ExpressionTemplates>&>::type
-                    import_bits_fast(number<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+                        cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>>::value,
+                    number<cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>, ExpressionTemplates>&>::type
+                    import_bits_fast(number<cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
                                             ExpressionTemplates>& val,
                                      T* i, T* j, unsigned chunk_size = 0) {
-                    cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>& result = val.backend();
+                    cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>& result = val.backend();
                     std::size_t byte_len = (j - i) * (chunk_size ? chunk_size / CHAR_BIT : sizeof(*i));
                     std::size_t limb_len = byte_len / sizeof(result.limbs()[0]);
                     if (byte_len % sizeof(result.limbs()[0]))
@@ -182,18 +182,18 @@ namespace nil {
 
             template<unsigned MinBits, unsigned MaxBits, cpp_integer_type SignType, cpp_int_check_type Checked,
                      class Allocator, expression_template_option ExpressionTemplates, class Iterator>
-            inline number<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>, ExpressionTemplates>&
+            inline number<cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>, ExpressionTemplates>&
                 import_bits(
-                    number<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>, ExpressionTemplates>& val,
+                    number<cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>, ExpressionTemplates>& val,
                     Iterator i, Iterator j, unsigned chunk_size = 0, bool msv_first = true) {
                 return detail::import_bits_generic(val, i, j, chunk_size, msv_first);
             }
 
             template<unsigned MinBits, unsigned MaxBits, cpp_integer_type SignType, cpp_int_check_type Checked,
                      class Allocator, expression_template_option ExpressionTemplates, class T>
-            inline number<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>, ExpressionTemplates>&
+            inline number<cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>, ExpressionTemplates>&
                 import_bits(
-                    number<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>, ExpressionTemplates>& val,
+                    number<cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>, ExpressionTemplates>& val,
                     T* i, T* j, unsigned chunk_size = 0, bool msv_first = true) {
 #if BOOST_ENDIAN_LITTLE_BYTE
                 if (((chunk_size % CHAR_BIT) == 0) && !msv_first)
@@ -239,13 +239,13 @@ namespace nil {
             template<unsigned MinBits, unsigned MaxBits, cpp_integer_type SignType, cpp_int_check_type Checked,
                      class Allocator, expression_template_option ExpressionTemplates, class OutputIterator>
             OutputIterator export_bits(
-                const number<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>, ExpressionTemplates>& val,
+                const number<cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>, ExpressionTemplates>& val,
                 OutputIterator out, unsigned chunk_size, bool msv_first = true) {
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4244)
 #endif
-                using tag_type = typename cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>::trivial_tag;
+                using tag_type = typename cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>::trivial_tag;
                 if (!val) {
                     *out = 0;
                     ++out;

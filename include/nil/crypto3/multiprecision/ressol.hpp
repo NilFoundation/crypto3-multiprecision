@@ -157,11 +157,11 @@ namespace nil {
                 }
 
                 template<unsigned MinBits, unsigned MaxBits, cpp_integer_type SignType, cpp_int_check_type Checked>
-                constexpr cpp_int_backend<MinBits, MaxBits, SignType, Checked, void>
-                    eval_ressol(const cpp_int_backend<MinBits, MaxBits, SignType, Checked, void> &a,
-                                const cpp_int_backend<MinBits, MaxBits, SignType, Checked, void> &p) {
-                    using Backend = cpp_int_backend<MinBits, MaxBits, SignType, Checked, void>;
-                    using Backend_padded = cpp_int_backend<MinBits + 1, MaxBits + 1, SignType, Checked, void>;
+                constexpr cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, void>
+                    eval_ressol(const cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, void> &a,
+                                const cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, void> &p) {
+                    using Backend = cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, void>;
+                    using Backend_padded = cpp_int_modular_backend<MinBits + 1, MaxBits + 1, SignType, Checked, void>;
                     using default_ops::eval_add;
                     using default_ops::eval_bit_set;
                     using default_ops::eval_eq;

@@ -177,9 +177,9 @@ namespace nil {
                 }
 
                 template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked>
-                class modular_functions_fixed<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>> {
+                class modular_functions_fixed<modular_fixed_cpp_int_modular_backend<MinBits, SignType, Checked>> {
                 protected:
-                    typedef modular_fixed_cpp_int_backend<MinBits, SignType, Checked> Backend;
+                    typedef modular_fixed_cpp_int_modular_backend<MinBits, SignType, Checked> Backend;
 
                 public:
                     typedef modular_policy<Backend> policy_type;
@@ -327,7 +327,7 @@ namespace nil {
                         barrett_reduce(Backend1 &result, Backend2 input) const {
                         using input_number_type = typename std::conditional<
                             bool(sizeof(Backend2) * CHAR_BIT > MinBits),
-                            number<modular_fixed_cpp_int_backend<sizeof(Backend2) * CHAR_BIT, SignType, Checked>>,
+                            number<modular_fixed_cpp_int_modular_backend<sizeof(Backend2) * CHAR_BIT, SignType, Checked>>,
                             number_type>::type;
 
                         input_number_type input_adjusted(input);

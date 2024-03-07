@@ -5,7 +5,7 @@
 //  (See accompanying file LICENSE_1_0.txt or copy at
 //   https://www.boost.org/LICENSE_1_0.txt)
 //
-// Comparison operators for cpp_int_backend:
+// Comparison operators for cpp_int_modular_backend:
 //
 #ifndef BOOST_MP_CPP_INT_MISC_HPP
 #define BOOST_MP_CPP_INT_MISC_HPP
@@ -92,17 +92,17 @@ namespace nil {
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
                     nil::crypto3::multiprecision::detail::is_integral<R>::value &&
                         !is_trivial_cpp_int<
-                            cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
+                            cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
                     void>::type
                     eval_convert_to(
                         R *result,
-                        const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &backend) {
+                        const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &backend) {
                     using checked_type = std::integral_constant<int, Checked1>;
                     check_in_range<R>(backend, checked_type());
 
                     BOOST_IF_CONSTEXPR(
                         numeric_limits_workaround<R>::digits <
-                        cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits) {
+                        cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits) {
                         if ((backend.sign() && nil::crypto3::multiprecision::detail::is_signed<R>::value &&
                              nil::crypto3::multiprecision::detail::is_integral<R>::value) &&
                             (1 + static_cast<nil::crypto3::multiprecision::limb_type>(
@@ -120,18 +120,18 @@ namespace nil {
                             *result = static_cast<R>(backend.limbs()[0]);
                     }
                     else *result = static_cast<R>(backend.limbs()[0]);
-                    unsigned shift = cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
+                    unsigned shift = cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
                     unsigned i = 1;
                     BOOST_IF_CONSTEXPR(
                         numeric_limits_workaround<R>::digits >
-                        cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits) {
+                        cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits) {
                         while ((i < backend.size()) &&
                                (shift <
                                 static_cast<unsigned>(
                                     numeric_limits_workaround<R>::digits -
-                                    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits))) {
+                                    cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits))) {
                             *result += static_cast<R>(backend.limbs()[i]) << shift;
-                            shift += cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
+                            shift += cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
                             ++i;
                         }
                         //
@@ -141,7 +141,7 @@ namespace nil {
                         if (i < backend.size()) {
                             const limb_type mask =
                                 numeric_limits_workaround<R>::digits - shift ==
-                                        cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::
+                                        cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::
                                             limb_bits ?
                                     ~static_cast<limb_type>(0) :
                                     (static_cast<limb_type>(1u) << (numeric_limits_workaround<R>::digits - shift)) - 1;
@@ -187,19 +187,19 @@ namespace nil {
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
                     std::is_floating_point<R>::value &&
                         !is_trivial_cpp_int<
-                            cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
+                            cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
                     void>::type
                     eval_convert_to(
                         R *result,
-                        const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>
+                        const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>
                             &backend) noexcept(nil::crypto3::multiprecision::detail::is_arithmetic<R>::value) {
-                    typename cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::const_limb_pointer
+                    typename cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::const_limb_pointer
                         p = backend.limbs();
-                    unsigned shift = cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
+                    unsigned shift = cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
                     *result = static_cast<R>(*p);
                     for (unsigned i = 1; i < backend.size(); ++i) {
                         *result += static_cast<R>(std::ldexp(static_cast<long double>(p[i]), shift));
-                        shift += cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
+                        shift += cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
                     }
                     if (backend.sign())
                         *result = -*result;
@@ -211,10 +211,10 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
+                    !is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
                     bool>::type
                     eval_is_zero(
-                        const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val) noexcept {
+                        const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val) noexcept {
                     return (val.size() == 1) && (val.limbs()[0] == 0);
                 }
                 template<unsigned MinBits1,
@@ -223,10 +223,10 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
+                    !is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
                     int>::type
                     eval_get_sign(
-                        const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val) noexcept {
+                        const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val) noexcept {
                     return eval_is_zero(val) ? 0 : val.sign() ? -1 : 1;
                 }
                 template<unsigned MinBits1,
@@ -235,10 +235,10 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
-                    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
-                    eval_abs(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
-                             const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>
-                                 &val) noexcept((is_non_throwing_cpp_int<cpp_int_backend<MinBits1,
+                    cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
+                    eval_abs(cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
+                             const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>
+                                 &val) noexcept((is_non_throwing_cpp_int<cpp_int_modular_backend<MinBits1,
                                                                                          MaxBits1,
                                                                                          SignType1,
                                                                                          Checked1,
@@ -256,9 +256,9 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
+                    !is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
                     unsigned>::type
-                    eval_lsb(const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a) {
+                    eval_lsb(const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a) {
                     using default_ops::eval_get_sign;
                     if (eval_get_sign(a) == 0) {
                         BOOST_THROW_EXCEPTION(std::domain_error("No bits were set in the operand."));
@@ -280,7 +280,7 @@ namespace nil {
                     unsigned result = nil::crypto3::multiprecision::detail::find_lsb(a.limbs()[index]);
 
                     return result +
-                           index * cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
+                           index * cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
                 }
 
                 //
@@ -292,14 +292,14 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
+                    !is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
                     unsigned>::type
-                    eval_msb_imp(const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a) {
+                    eval_msb_imp(const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a) {
                     //
                     // Find the index of the most significant bit that is non-zero:
                     //
                     return (a.size() - 1) *
-                               cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits +
+                               cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits +
                            nil::crypto3::multiprecision::detail::find_msb(a.limbs()[a.size() - 1]);
                 }
 
@@ -309,9 +309,9 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
+                    !is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
                     unsigned>::type
-                    eval_msb(const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a) {
+                    eval_msb(const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a) {
                     using default_ops::eval_get_sign;
                     if (eval_get_sign(a) == 0) {
                         BOOST_THROW_EXCEPTION(std::domain_error("No bits were set in the operand."));
@@ -338,14 +338,14 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
+                    !is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
                     bool>::type
-                    eval_bit_test(const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val,
+                    eval_bit_test(const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val,
                                   unsigned index) noexcept {
                     unsigned offset =
-                        index / cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
+                        index / cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
                     unsigned shift =
-                        index % cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
+                        index % cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
                     limb_type mask = shift ? limb_type(1u) << shift : limb_type(1u);
                     if (offset >= val.size())
                         return false;
@@ -362,13 +362,13 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
-                    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
-                    eval_bit_set(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val,
+                    cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
+                    eval_bit_set(cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val,
                                  unsigned index) {
                     unsigned offset =
-                        index / cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
+                        index / cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
                     unsigned shift =
-                        index % cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
+                        index % cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
                     limb_type mask = shift ? limb_type(1u) << shift : limb_type(1u);
                     if (offset >= val.size()) {
                         unsigned os = val.size();
@@ -387,13 +387,13 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
-                    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
-                    eval_bit_unset(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val,
+                    cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
+                    eval_bit_unset(cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val,
                                    unsigned index) noexcept {
                     unsigned offset =
-                        index / cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
+                        index / cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
                     unsigned shift =
-                        index % cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
+                        index % cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
                     limb_type mask = shift ? limb_type(1u) << shift : limb_type(1u);
                     if (offset >= val.size())
                         return;
@@ -407,13 +407,13 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
-                    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
-                    eval_bit_flip(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val,
+                    cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
+                    eval_bit_flip(cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val,
                                   unsigned index) {
                     unsigned offset =
-                        index / cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
+                        index / cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
                     unsigned shift =
-                        index % cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
+                        index % cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
                     limb_type mask = shift ? limb_type(1u) << shift : limb_type(1u);
                     if (offset >= val.size()) {
                         unsigned os = val.size();
@@ -433,12 +433,12 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
-                    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
-                    eval_qr(const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &x,
-                            const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &y,
-                            cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &q,
-                            cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>
-                                &r) noexcept((is_non_throwing_cpp_int<cpp_int_backend<MinBits1,
+                    cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
+                    eval_qr(const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &x,
+                            const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &y,
+                            cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &q,
+                            cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>
+                                &r) noexcept((is_non_throwing_cpp_int<cpp_int_modular_backend<MinBits1,
                                                                                       MaxBits1,
                                                                                       SignType1,
                                                                                       Checked1,
@@ -454,12 +454,12 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
-                    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
-                    eval_qr(const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &x,
+                    cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
+                    eval_qr(const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &x,
                             limb_type y,
-                            cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &q,
-                            cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>
-                                &r) noexcept((is_non_throwing_cpp_int<cpp_int_backend<MinBits1,
+                            cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &q,
+                            cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>
+                                &r) noexcept((is_non_throwing_cpp_int<cpp_int_modular_backend<MinBits1,
                                                                                       MaxBits1,
                                                                                       SignType1,
                                                                                       Checked1,
@@ -477,17 +477,17 @@ namespace nil {
                          class U>
                 inline BOOST_MP_CXX14_CONSTEXPR
                     typename std::enable_if<nil::crypto3::multiprecision::detail::is_integral<U>::value>::type
-                    eval_qr(const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &x,
+                    eval_qr(const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &x,
                             U y,
-                            cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &q,
-                            cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>
-                                &r) noexcept((is_non_throwing_cpp_int<cpp_int_backend<MinBits1,
+                            cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &q,
+                            cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>
+                                &r) noexcept((is_non_throwing_cpp_int<cpp_int_modular_backend<MinBits1,
                                                                                       MaxBits1,
                                                                                       SignType1,
                                                                                       Checked1,
                                                                                       Allocator1>>::value)) {
                     using default_ops::eval_qr;
-                    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> t;
+                    cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> t;
                     t = y;
                     eval_qr(x, t, q, r);
                 }
@@ -501,9 +501,9 @@ namespace nil {
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
                     nil::crypto3::multiprecision::detail::is_unsigned<Integer>::value &&
                         !is_trivial_cpp_int<
-                            cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
+                            cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
                     Integer>::type
-                    eval_integer_modulus(const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a,
+                    eval_integer_modulus(const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a,
                                          Integer mod) {
                     BOOST_IF_CONSTEXPR(sizeof(Integer) <= sizeof(limb_type)) {
                         if (mod <= (std::numeric_limits<limb_type>::max)()) {
@@ -533,9 +533,9 @@ namespace nil {
                     nil::crypto3::multiprecision::detail::is_signed<Integer>::value &&
                         nil::crypto3::multiprecision::detail::is_integral<Integer>::value &&
                         !is_trivial_cpp_int<
-                            cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
+                            cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
                     Integer>::type
-                    eval_integer_modulus(const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &x,
+                    eval_integer_modulus(const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &x,
                                          Integer val) {
                     return eval_integer_modulus(x, nil::crypto3::multiprecision::detail::unsigned_abs(val));
                 }
@@ -589,9 +589,9 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
-                    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
-                    eval_gcd(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
-                             const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a,
+                    cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
+                    eval_gcd(cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
+                             const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a,
                              limb_type b) {
                     int s = eval_get_sign(a);
                     if (!b || !s) {
@@ -611,9 +611,9 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
-                    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
-                    eval_gcd(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
-                             const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a,
+                    cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
+                    eval_gcd(cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
+                             const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a,
                              double_limb_type b) {
                     int s = eval_get_sign(a);
                     if (!b || !s) {
@@ -627,7 +627,7 @@ namespace nil {
                     if (a.sign() == 0)
                         res = eval_integer_modulus(a, b);
                     else {
-                        cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> t(a);
+                        cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> t(a);
                         t.negate();
                         res = eval_integer_modulus(t, b);
                     }
@@ -641,9 +641,9 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
-                    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
-                    eval_gcd(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
-                             const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a,
+                    cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
+                    eval_gcd(cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
+                             const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a,
                              signed_double_limb_type v) {
                     eval_gcd(result, a, static_cast<double_limb_type>(v < 0 ? -v : v));
                 }
@@ -659,10 +659,10 @@ namespace nil {
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
                     nil::crypto3::multiprecision::detail::is_unsigned<Integer>::value &&
                     (sizeof(Integer) <= sizeof(limb_type)) &&
-                    !is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::
+                    !is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::
                     type
-                    eval_gcd(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
-                             const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a,
+                    eval_gcd(cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
+                             const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a,
                              const Integer &v) {
                     eval_gcd(result, a, static_cast<limb_type>(v));
                 }
@@ -676,10 +676,10 @@ namespace nil {
                     nil::crypto3::multiprecision::detail::is_signed<Integer>::value &&
                     nil::crypto3::multiprecision::detail::is_integral<Integer>::value &&
                     (sizeof(Integer) <= sizeof(limb_type)) &&
-                    !is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::
+                    !is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::
                     type
-                    eval_gcd(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
-                             const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a,
+                    eval_gcd(cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
+                             const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a,
                              const Integer &v) {
                     eval_gcd(result, a, static_cast<limb_type>(v < 0 ? -v : v));
                 }
@@ -724,8 +724,8 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1,
                          class Storage>
-                void eval_gcd_lehmer(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &U,
-                                     cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &V,
+                void eval_gcd_lehmer(cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &U,
+                                     cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &V,
                                      unsigned lu,
                                      Storage &storage) {
                     //
@@ -804,7 +804,7 @@ namespace nil {
                     }
                     if (i == 1) {
                         // No change to U and V we've stalled!
-                        cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> t;
+                        cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> t;
                         eval_modulus(t, U, V);
                         U.swap(V);
                         V.swap(t);
@@ -823,7 +823,7 @@ namespace nil {
                     // even or odd:
                     //
                     unsigned ts = U.size() + 1;
-                    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> t1(storage, ts),
+                    cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> t1(storage, ts),
                         t2(storage, ts), t3(storage, ts);
                     eval_multiply(t1, U, static_cast<limb_type>(x[0]));
                     eval_multiply(t2, V, static_cast<limb_type>(y[0]));
@@ -921,8 +921,8 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1,
                          class Storage>
-                void eval_gcd_lehmer(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &U,
-                                     cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &V,
+                void eval_gcd_lehmer(cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &U,
+                                     cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &V,
                                      unsigned lu,
                                      Storage &storage) {
                     //
@@ -1058,7 +1058,7 @@ namespace nil {
                     }
                     if (i == 1) {
                         // No change to U and V we've stalled!
-                        cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> t;
+                        cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> t;
                         eval_modulus(t, U, V);
                         U.swap(V);
                         V.swap(t);
@@ -1077,7 +1077,7 @@ namespace nil {
                     // even or odd:
                     //
                     unsigned ts = U.size() + 1;
-                    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> t1(storage, ts),
+                    cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> t1(storage, ts),
                         t2(storage, ts), t3(storage, ts);
                     eval_multiply(t1, U, x[0]);
                     eval_multiply(t2, V, y[0]);
@@ -1152,10 +1152,10 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
-                    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
-                    eval_gcd(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
-                             const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a,
-                             const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &b) {
+                    cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
+                    eval_gcd(cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
+                             const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a,
+                             const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &b) {
                     using default_ops::eval_get_sign;
                     using default_ops::eval_is_zero;
                     using default_ops::eval_lsb;
@@ -1169,12 +1169,12 @@ namespace nil {
                         return;
                     }
                     unsigned temp_size = (std::max)(a.size(), b.size()) + 1;
-                    typename cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::scoped_shared_storage
+                    typename cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::scoped_shared_storage
                         storage(a, temp_size * 6);
 
-                    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> U(storage, temp_size);
-                    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> V(storage, temp_size);
-                    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> t(storage, temp_size);
+                    cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> U(storage, temp_size);
+                    cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> V(storage, temp_size);
+                    cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> t(storage, temp_size);
                     U = a;
                     V = b;
 
@@ -1256,10 +1256,10 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<is_trivial_cpp_int<
-                    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
-                    eval_gcd(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
-                             const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a,
-                             const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &b) noexcept {
+                    cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::type
+                    eval_gcd(cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
+                             const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a,
+                             const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &b) noexcept {
                     *result.limbs() = boost::integer::gcd(*a.limbs(), *b.limbs());
                 }
                 // This one is only enabled for unchecked cpp_int's, for checked int's we need the checking in the
@@ -1270,12 +1270,12 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
+                    is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
                     (Checked1 == unchecked)>::type
-                    eval_lcm(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
-                             const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a,
-                             const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>
-                                 &b) noexcept((is_non_throwing_cpp_int<cpp_int_backend<MinBits1,
+                    eval_lcm(cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
+                             const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a,
+                             const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>
+                                 &b) noexcept((is_non_throwing_cpp_int<cpp_int_modular_backend<MinBits1,
                                                                                        MaxBits1,
                                                                                        SignType1,
                                                                                        Checked1,
@@ -1303,13 +1303,13 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
-                    is_signed_number<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
+                    is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
+                    is_signed_number<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
                     std::is_same<
-                        typename cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::local_limb_type,
+                        typename cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::local_limb_type,
                         double_limb_type>::value>::type
                     eval_convert_to(float *result,
-                                    const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val) {
+                                    const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val) {
                     float f = static_cast<std::uint64_t>((*val.limbs()) >> 64);
                     *result = std::ldexp(f, 64);
                     *result += static_cast<std::uint64_t>((*val.limbs()));
@@ -1322,13 +1322,13 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
-                    is_signed_number<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
+                    is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
+                    is_signed_number<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
                     std::is_same<
-                        typename cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::local_limb_type,
+                        typename cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::local_limb_type,
                         double_limb_type>::value>::type
                     eval_convert_to(double *result,
-                                    const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val) {
+                                    const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val) {
                     float f = static_cast<std::uint64_t>((*val.limbs()) >> 64);
                     *result = std::ldexp(f, 64);
                     *result += static_cast<std::uint64_t>((*val.limbs()));
@@ -1341,13 +1341,13 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
-                    is_signed_number<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
+                    is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
+                    is_signed_number<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
                     std::is_same<
-                        typename cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::local_limb_type,
+                        typename cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::local_limb_type,
                         double_limb_type>::value>::type
                     eval_convert_to(long double *result,
-                                    const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val) {
+                                    const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val) {
                     float f = static_cast<std::uint64_t>((*val.limbs()) >> 64);
                     *result = std::ldexp(f, 64);
                     *result += static_cast<std::uint64_t>((*val.limbs()));
@@ -1363,16 +1363,16 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
-                    is_signed_number<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
+                    is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
+                    is_signed_number<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
                     std::is_convertible<
-                        typename cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::local_limb_type,
+                        typename cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::local_limb_type,
                         R>::value>::type
                     eval_convert_to(R *result,
-                                    const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val) {
+                                    const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val) {
                     using common_type = typename std::common_type<
                         R,
-                        typename cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::
+                        typename cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::
                             local_limb_type>::type;
                     BOOST_IF_CONSTEXPR(std::numeric_limits<R>::is_specialized) {
                         if (static_cast<common_type>(*val.limbs()) >
@@ -1385,12 +1385,12 @@ namespace nil {
                                 if (static_cast<common_type>(*val.limbs()) >
                                     -static_cast<common_type>((std::numeric_limits<R>::min)()))
                                     conversion_overflow(
-                                        typename cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::
+                                        typename cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::
                                             checked_type());
                                 *result = (std::numeric_limits<R>::min)();
                             } else {
                                 conversion_overflow(
-                                    typename cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::
+                                    typename cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::
                                         checked_type());
                                 *result = nil::crypto3::multiprecision::detail::is_signed<R>::value &&
                                                   nil::crypto3::multiprecision::detail::is_integral<R>::value ?
@@ -1434,22 +1434,22 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
-                    is_unsigned_number<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
+                    is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
+                    is_unsigned_number<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value &&
                     std::is_convertible<
-                        typename cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::local_limb_type,
+                        typename cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::local_limb_type,
                         R>::value>::type
                     eval_convert_to(R *result,
-                                    const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val) {
+                                    const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val) {
                     using common_type = typename std::common_type<
                         R,
-                        typename cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::
+                        typename cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::
                             local_limb_type>::type;
                     BOOST_IF_CONSTEXPR(std::numeric_limits<R>::is_specialized) {
                         if (static_cast<common_type>(*val.limbs()) >
                             static_cast<common_type>((std::numeric_limits<R>::max)())) {
                             conversion_overflow(
-                                typename cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::
+                                typename cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::
                                     checked_type());
                             *result = nil::crypto3::multiprecision::detail::is_signed<R>::value &&
                                               nil::crypto3::multiprecision::detail::is_integral<R>::value ?
@@ -1467,9 +1467,9 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
+                    is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
                     unsigned>::type
-                    eval_lsb(const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a) {
+                    eval_lsb(const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a) {
                     using default_ops::eval_get_sign;
                     if (eval_get_sign(a) == 0) {
                         BOOST_THROW_EXCEPTION(std::domain_error("No bits were set in the operand."));
@@ -1490,9 +1490,9 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
+                    is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
                     unsigned>::type
-                    eval_msb_imp(const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a) {
+                    eval_msb_imp(const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a) {
                     //
                     // Find the index of the least significant bit within that limb:
                     //
@@ -1505,9 +1505,9 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
+                    is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
                     unsigned>::type
-                    eval_msb(const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a) {
+                    eval_msb(const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &a) {
                     using default_ops::eval_get_sign;
                     if (eval_get_sign(a) == 0) {
                         BOOST_THROW_EXCEPTION(std::domain_error("No bits were set in the operand."));
@@ -1525,7 +1525,7 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR std::size_t hash_value(
-                    const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val) noexcept {
+                    const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &val) noexcept {
                     std::size_t result = 0;
                     for (unsigned i = 0; i < val.size(); ++i) {
                         boost::hash_combine(result, val.limbs()[i]);

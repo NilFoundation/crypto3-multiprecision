@@ -3,7 +3,7 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt
 //
-// Comparison operators for cpp_int_backend:
+// Comparison operators for cpp_int_modular_backend:
 //
 #ifndef BOOST_MP_CPP_INT_LIM_HPP
 #define BOOST_MP_CPP_INT_LIM_HPP
@@ -23,16 +23,16 @@ namespace std {
                  nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
                  nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
         inline BOOST_CXX14_CONSTEXPR_IF_DETECTION nil::crypto3::multiprecision::number<
-            nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+            nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
             ExpressionTemplates>
             get_min(const std::integral_constant<bool, true>&, const std::integral_constant<bool, true>&,
                     const std::integral_constant<bool, true>&) {
             // Bounded, signed, and no allocator.
             using result_type = nil::crypto3::multiprecision::number<
-                nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+                nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
                 ExpressionTemplates>;
             using ui_type = nil::crypto3::multiprecision::number<
-                nil::crypto3::multiprecision::cpp_int_backend<MaxBits, MaxBits,
+                nil::crypto3::multiprecision::cpp_int_modular_backend<MaxBits, MaxBits,
                                                               nil::crypto3::multiprecision::unsigned_magnitude,
                                                               nil::crypto3::multiprecision::unchecked>,
                 ExpressionTemplates>;
@@ -49,16 +49,16 @@ namespace std {
                  nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
                  nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
         inline nil::crypto3::multiprecision::number<
-            nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+            nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
             ExpressionTemplates>
             get_min(const std::integral_constant<bool, true>&, const std::integral_constant<bool, true>&,
                     const std::integral_constant<bool, false>&) {
             // Bounded, signed, and an allocator (can't be constexpr).
             using result_type = nil::crypto3::multiprecision::number<
-                nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+                nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
                 ExpressionTemplates>;
             using ui_type = nil::crypto3::multiprecision::number<
-                nil::crypto3::multiprecision::cpp_int_backend<MaxBits, MaxBits,
+                nil::crypto3::multiprecision::cpp_int_modular_backend<MaxBits, MaxBits,
                                                               nil::crypto3::multiprecision::unsigned_magnitude,
                                                               nil::crypto3::multiprecision::unchecked>,
                 ExpressionTemplates>;
@@ -70,7 +70,7 @@ namespace std {
                  nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
                  nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
         inline BOOST_CXX14_CONSTEXPR_IF_DETECTION nil::crypto3::multiprecision::number<
-            nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+            nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
             ExpressionTemplates>
             get_min(const std::integral_constant<bool, true>&, const std::integral_constant<bool, false>&,
                     const std::integral_constant<bool, true>&) {
@@ -81,7 +81,7 @@ namespace std {
             constexpr
 #endif
                 const nil::crypto3::multiprecision::number<
-                    nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+                    nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
                     ExpressionTemplates>
                     val(0u);
             return val;
@@ -91,13 +91,13 @@ namespace std {
                  nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
                  nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
         inline nil::crypto3::multiprecision::number<
-            nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+            nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
             ExpressionTemplates>
             get_min(const std::integral_constant<bool, true>&, const std::integral_constant<bool, false>&,
                     const std::integral_constant<bool, false>&) {
             // Bounded and unsigned with allocator (no constexpr):
             static const nil::crypto3::multiprecision::number<
-                nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+                nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
                 ExpressionTemplates>
                 val(0u);
             return val;
@@ -107,14 +107,14 @@ namespace std {
                  nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
                  nil::crypto3::multiprecision::expression_template_option ExpressionTemplates, bool has_allocator>
         inline nil::crypto3::multiprecision::number<
-            nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+            nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
             ExpressionTemplates>
             get_min(const std::integral_constant<bool, false>&, const std::integral_constant<bool, true>&,
                     const std::integral_constant<bool, has_allocator>&) {
             // Unbounded and signed, never constexpr because there must be an allocator.
             // There is no minimum value, just return 0:
             static const nil::crypto3::multiprecision::number<
-                nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+                nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
                 ExpressionTemplates>
                 val(0u);
             return val;
@@ -124,13 +124,13 @@ namespace std {
                  nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
                  nil::crypto3::multiprecision::expression_template_option ExpressionTemplates, bool has_allocator>
         inline nil::crypto3::multiprecision::number<
-            nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+            nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
             ExpressionTemplates>
             get_min(const std::integral_constant<bool, false>&, const std::integral_constant<bool, false>&,
                     const std::integral_constant<bool, has_allocator>&) {
             // Unbound and unsigned, never constexpr because there must be an allocator.
             static const nil::crypto3::multiprecision::number<
-                nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+                nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
                 ExpressionTemplates>
                 val(0u);
             return val;
@@ -140,16 +140,16 @@ namespace std {
                  nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
                  nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
         inline BOOST_CXX14_CONSTEXPR_IF_DETECTION nil::crypto3::multiprecision::number<
-            nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+            nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
             ExpressionTemplates>
             get_max(const std::integral_constant<bool, true>&, const std::integral_constant<bool, true>&,
                     const std::integral_constant<bool, true>&) {
             // Bounded and signed, no allocator, can be constexpr.
             using result_type = nil::crypto3::multiprecision::number<
-                nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+                nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
                 ExpressionTemplates>;
             using ui_type = nil::crypto3::multiprecision::number<
-                nil::crypto3::multiprecision::cpp_int_backend<MaxBits, MaxBits,
+                nil::crypto3::multiprecision::cpp_int_modular_backend<MaxBits, MaxBits,
                                                               nil::crypto3::multiprecision::unsigned_magnitude,
                                                               nil::crypto3::multiprecision::unchecked>,
                 ExpressionTemplates>;
@@ -166,16 +166,16 @@ namespace std {
                  nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
                  nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
         inline nil::crypto3::multiprecision::number<
-            nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+            nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
             ExpressionTemplates>
             get_max(const std::integral_constant<bool, true>&, const std::integral_constant<bool, true>&,
                     const std::integral_constant<bool, false>&) {
             // Bounded and signed, has an allocator, never constexpr.
             using result_type = nil::crypto3::multiprecision::number<
-                nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+                nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
                 ExpressionTemplates>;
             using ui_type = nil::crypto3::multiprecision::number<
-                nil::crypto3::multiprecision::cpp_int_backend<MaxBits, MaxBits,
+                nil::crypto3::multiprecision::cpp_int_modular_backend<MaxBits, MaxBits,
                                                               nil::crypto3::multiprecision::unsigned_magnitude,
                                                               nil::crypto3::multiprecision::unchecked>,
                 ExpressionTemplates>;
@@ -187,16 +187,16 @@ namespace std {
                  nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
                  nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
         inline BOOST_CXX14_CONSTEXPR_IF_DETECTION nil::crypto3::multiprecision::number<
-            nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+            nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
             ExpressionTemplates>
             get_max(const std::integral_constant<bool, true>&, const std::integral_constant<bool, false>&,
                     const std::integral_constant<bool, true>&) {
             // Bound and unsigned, no allocator so can be constexpr:
             using result_type = nil::crypto3::multiprecision::number<
-                nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+                nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
                 ExpressionTemplates>;
             using ui_type = nil::crypto3::multiprecision::number<
-                nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits,
+                nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits,
                                                               nil::crypto3::multiprecision::unsigned_magnitude,
                                                               nil::crypto3::multiprecision::unchecked, Allocator>,
                 ExpressionTemplates>;
@@ -213,16 +213,16 @@ namespace std {
                  nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
                  nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
         inline nil::crypto3::multiprecision::number<
-            nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+            nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
             ExpressionTemplates>
             get_max(const std::integral_constant<bool, true>&, const std::integral_constant<bool, false>&,
                     const std::integral_constant<bool, false>&) {
             // Bound and unsigned, has an allocator so can never be constexpr:
             using result_type = nil::crypto3::multiprecision::number<
-                nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+                nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
                 ExpressionTemplates>;
             using ui_type = nil::crypto3::multiprecision::number<
-                nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits,
+                nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits,
                                                               nil::crypto3::multiprecision::unsigned_magnitude,
                                                               nil::crypto3::multiprecision::unchecked, Allocator>,
                 ExpressionTemplates>;
@@ -234,14 +234,14 @@ namespace std {
                  nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
                  nil::crypto3::multiprecision::expression_template_option ExpressionTemplates, bool has_allocator>
         inline nil::crypto3::multiprecision::number<
-            nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+            nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
             ExpressionTemplates>
             get_max(const std::integral_constant<bool, false>&, const std::integral_constant<bool, true>&,
                     const std::integral_constant<bool, has_allocator>&) {
             // Unbounded and signed.
             // There is no maximum value, just return 0:
             static const nil::crypto3::multiprecision::number<
-                nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+                nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
                 ExpressionTemplates>
                 val(0u);
             return val;
@@ -251,13 +251,13 @@ namespace std {
                  nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
                  nil::crypto3::multiprecision::expression_template_option ExpressionTemplates, bool has_allocator>
         inline nil::crypto3::multiprecision::number<
-            nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+            nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
             ExpressionTemplates>
             get_max(const std::integral_constant<bool, false>&, const std::integral_constant<bool, false>&,
                     const std::integral_constant<bool, has_allocator>&) {
             // Unbound and unsigned:
             static const nil::crypto3::multiprecision::number<
-                nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+                nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
                 ExpressionTemplates>
                 val(0u);
             return val;
@@ -269,10 +269,10 @@ namespace std {
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     class numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>> {
         using backend_type =
-            nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>;
+            nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>;
         using number_type = nil::crypto3::multiprecision::number<backend_type, ExpressionTemplates>;
 
     public:
@@ -348,133 +348,133 @@ namespace std {
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr int numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::digits;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr int numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::digits10;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr int numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::max_digits10;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr bool numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::is_signed;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr bool numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::is_integer;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr bool numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::is_exact;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr int numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::radix;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr int numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::min_exponent;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr int numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::min_exponent10;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr int numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::max_exponent;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr int numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::max_exponent10;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr bool numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::has_infinity;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr bool numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::has_quiet_NaN;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr bool numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::has_signaling_NaN;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr float_denorm_style numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::has_denorm;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr bool numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::has_denorm_loss;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr bool numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::is_iec559;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr bool numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::is_bounded;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr bool numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::is_modulo;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr bool numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::traps;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr bool numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::tinyness_before;
     template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType,
              nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
     constexpr float_round_style numeric_limits<nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
         ExpressionTemplates>>::round_style;
 
 #ifdef _MSC_VER

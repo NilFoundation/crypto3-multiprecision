@@ -301,12 +301,12 @@ namespace nil {
                 template<unsigned MinBits, unsigned MaxBits, cpp_integer_type SignType, cpp_int_check_type Checked,
                          typename StorageType>
                 constexpr void eval_subtract(
-                    modular_adaptor<cpp_int_backend<MinBits, MaxBits, SignType, Checked>, StorageType> &result,
-                    const modular_adaptor<cpp_int_backend<MinBits, MaxBits, SignType, Checked>, StorageType> &o) {
+                    modular_adaptor<cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked>, StorageType> &result,
+                    const modular_adaptor<cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked>, StorageType> &o) {
 
                     BOOST_ASSERT(result.mod_data().get_mod() == o.mod_data().get_mod());
                     using ui_type = typename std::tuple_element<
-                        0, typename cpp_int_backend<MinBits, MaxBits, SignType, Checked>::unsigned_types>::type;
+                        0, typename cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked>::unsigned_types>::type;
                     using default_ops::eval_lt;
 
                     // Martun: This is the main operation for substraction when called from fp.hpp. 

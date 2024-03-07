@@ -78,7 +78,7 @@ namespace nil {
                             typename std::conditional<nil::crypto3::multiprecision::detail::is_signed<I>::value &&
                                                           nil::crypto3::multiprecision::detail::is_integral<I>::value,
                                                       signed_double_limb_type, double_limb_type>::type,
-                            number<cpp_int_backend<sizeof(I) * CHAR_BIT * 2, sizeof(I) * CHAR_BIT * 2,
+                            number<cpp_int_modular_backend<sizeof(I) * CHAR_BIT * 2, sizeof(I) * CHAR_BIT * 2,
                                                    (nil::crypto3::multiprecision::detail::is_signed<I>::value ?
                                                         signed_magnitude :
                                                         unsigned_magnitude),

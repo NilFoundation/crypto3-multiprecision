@@ -17,14 +17,14 @@ namespace nil {
     namespace crypto3 {
         namespace multiprecision {
 
-            using backends::modular_fixed_cpp_int_backend;
+            using backends::modular_fixed_cpp_int_modular_backend;
             using default_ops::eval_bit_test;
 
             // fixed precision modular params type which supports compile-time execution
             template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked>
-            class modular_params<modular_fixed_cpp_int_backend<MinBits, SignType, Checked>> {
+            class modular_params<modular_fixed_cpp_int_modular_backend<MinBits, SignType, Checked>> {
             protected:
-                typedef modular_fixed_cpp_int_backend<MinBits, SignType, Checked> Backend;
+                typedef modular_fixed_cpp_int_modular_backend<MinBits, SignType, Checked> Backend;
                 typedef backends::modular_functions_fixed<Backend> modular_logic;
 
             public:
