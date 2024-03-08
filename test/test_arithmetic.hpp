@@ -53,10 +53,10 @@ bool isfloat(T) { return false; }
 namespace detail {
 
 template <class tag, class Arg1, class Arg2, class Arg3, class Arg4>
-typename nil::crypto3::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type
-abs(nil::crypto3::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4> const& v)
+typename boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type
+abs(boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4> const& v)
 {
-   typedef typename nil::crypto3::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type result_type;
+   typedef typename boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type result_type;
    return v < 0 ? result_type(-v) : result_type(v);
 }
 
@@ -461,7 +461,7 @@ void test_integer_overflow()
       {
          BOOST_CHECK_THROW(m.template convert_to<Int>(), std::overflow_error);
       }
-      else if (nil::crypto3::multiprecision::detail::is_signed<Int>::value)
+      else if (boost::multiprecision::detail::is_signed<Int>::value)
       {
          r = m.template convert_to<Int>();
          BOOST_CHECK_EQUAL(r, (std::numeric_limits<Int>::max)());
@@ -478,7 +478,7 @@ void test_integer_overflow()
       {
          BOOST_CHECK_THROW(m.template convert_to<Int>(), std::overflow_error);
       }
-      else if (nil::crypto3::multiprecision::detail::is_signed<Int>::value && nil::crypto3::multiprecision::detail::is_integral<Int>::value)
+      else if (boost::multiprecision::detail::is_signed<Int>::value && boost::multiprecision::detail::is_integral<Int>::value)
       {
          r = m.template convert_to<Int>();
          BOOST_CHECK_EQUAL(r, (std::numeric_limits<Int>::max)());
@@ -489,7 +489,7 @@ void test_integer_overflow()
          BOOST_CHECK_EQUAL(r, 0);
       }
 
-      if (std::numeric_limits<Real>::is_signed && (nil::crypto3::multiprecision::detail::is_signed<Int>::value))
+      if (std::numeric_limits<Real>::is_signed && (boost::multiprecision::detail::is_signed<Int>::value))
       {
          m = (std::numeric_limits<Int>::min)();
          --m;
@@ -517,7 +517,7 @@ void test_integer_overflow()
             BOOST_CHECK_EQUAL(r, (std::numeric_limits<Int>::min)());
          }
       }
-      else if (std::numeric_limits<Real>::is_signed && !nil::crypto3::multiprecision::detail::is_signed<Int>::value)
+      else if (std::numeric_limits<Real>::is_signed && !boost::multiprecision::detail::is_signed<Int>::value)
       {
          // signed to unsigned converison with overflow, it's really not clear what should happen here!
          m = (std::numeric_limits<Int>::max)();
@@ -1430,10 +1430,10 @@ template <class T>
 struct lexical_cast_target_type
 {
    typedef typename std::conditional<
-       nil::crypto3::multiprecision::detail::is_signed<T>::value && nil::crypto3::multiprecision::detail::is_integral<T>::value,
+       boost::multiprecision::detail::is_signed<T>::value && boost::multiprecision::detail::is_integral<T>::value,
        std::intmax_t,
        typename std::conditional<
-           nil::crypto3::multiprecision::detail::is_unsigned<T>::value,
+           boost::multiprecision::detail::is_unsigned<T>::value,
            std::uintmax_t,
            T>::type>::type type;
 };
@@ -1505,7 +1505,7 @@ void test_negative_mixed(std::integral_constant<bool, true> const&)
 {
    typedef typename std::conditional<
        std::is_convertible<Num, Real>::value,
-       typename std::conditional<nil::crypto3::multiprecision::detail::is_integral<Num>::value && (sizeof(Num) < sizeof(int)), int, Num>::type,
+       typename std::conditional<boost::multiprecision::detail::is_integral<Num>::value && (sizeof(Num) < sizeof(int)), int, Num>::type,
        Real>::type cast_type;
    typedef typename std::conditional<
        std::is_convertible<Num, Real>::value,
@@ -1878,7 +1878,7 @@ void test_mixed(const std::integral_constant<bool, true>&)
 {
    typedef typename std::conditional<
        std::is_convertible<Num, Real>::value,
-       typename std::conditional<nil::crypto3::multiprecision::detail::is_integral<Num>::value && (sizeof(Num) < sizeof(int)), int, Num>::type,
+       typename std::conditional<boost::multiprecision::detail::is_integral<Num>::value && (sizeof(Num) < sizeof(int)), int, Num>::type,
        Real>::type cast_type;
    typedef typename std::conditional<
        std::is_convertible<Num, Real>::value,

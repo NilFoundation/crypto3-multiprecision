@@ -15,9 +15,9 @@
 #include <boost/functional/hash_fwd.hpp>
 #include <boost/predef.h>
 
-#include <nil/crypto3/multiprecision/detail/digits.hpp>
-#include <nil/crypto3/multiprecision/detail/number_base.hpp>
-#include <nil/crypto3/multiprecision/number.hpp>
+#include <boost/multiprecision/detail/digits.hpp>
+#include <boost/multiprecision/detail/number_base.hpp>
+#include <boost/multiprecision/number.hpp>
 
 #include <nil/crypto3/multiprecision/modular/modular_params.hpp>
 #include <nil/crypto3/multiprecision/modular/modular_adaptor_fixed.hpp>

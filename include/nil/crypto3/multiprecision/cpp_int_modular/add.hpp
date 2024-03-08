@@ -5,11 +5,11 @@
 //
 // Comparison operators for cpp_int_modular_backend:
 //
-#ifndef BOOST_MP_CPP_INT_ADD_HPP
-#define BOOST_MP_CPP_INT_ADD_HPP
+#ifndef CRYPTO3_CPP_INT_ADD_HPP
+#define CRYPTO3_CPP_INT_ADD_HPP
 
-#include <nil/crypto3/multiprecision/detail/constexpr.hpp>
-#include <nil/crypto3/multiprecision/cpp_int/add_unsigned.hpp>
+#include <boost/multiprecision/detail/constexpr.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular/add_unsigned.hpp>
 
 namespace nil {
     namespace crypto3 {
@@ -220,7 +220,7 @@ namespace nil {
                                                                                       Allocator1>>::value)) {
                     if (o < 0)
                         eval_subtract(result,
-                                      static_cast<limb_type>(nil::crypto3::multiprecision::detail::unsigned_abs(o)));
+                                      static_cast<limb_type>(boost::multiprecision::detail::unsigned_abs(o)));
                     else if (o > 0)
                         eval_add(result, static_cast<limb_type>(o));
                 }
@@ -248,7 +248,7 @@ namespace nil {
                                                                                       Allocator1>>::value)) {
                     if (o < 0)
                         eval_subtract(
-                            result, a, static_cast<limb_type>(nil::crypto3::multiprecision::detail::unsigned_abs(o)));
+                            result, a, static_cast<limb_type>(boost::multiprecision::detail::unsigned_abs(o)));
                     else if (o > 0)
                         eval_add(result, a, static_cast<limb_type>(o));
                     else if (&result != &a)
@@ -318,7 +318,7 @@ namespace nil {
                     if (o) {
                         if (o < 0)
                             eval_add(result,
-                                     static_cast<limb_type>(nil::crypto3::multiprecision::detail::unsigned_abs(o)));
+                                     static_cast<limb_type>(boost::multiprecision::detail::unsigned_abs(o)));
                         else
                             eval_subtract(result, static_cast<limb_type>(o));
                     }
@@ -349,7 +349,7 @@ namespace nil {
                         if (o < 0)
                             eval_add(result,
                                      a,
-                                     static_cast<limb_type>(nil::crypto3::multiprecision::detail::unsigned_abs(o)));
+                                     static_cast<limb_type>(boost::multiprecision::detail::unsigned_abs(o)));
                         else
                             eval_subtract(result, a, static_cast<limb_type>(o));
                     } else if (&result != &a)

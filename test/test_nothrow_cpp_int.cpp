@@ -3,7 +3,7 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#include <nil/crypto3/multiprecision/cpp_int.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular.hpp>
 #include <boost/type_traits/is_nothrow_move_constructible.hpp>
 #include <boost/type_traits/is_nothrow_move_assignable.hpp>
 #include <boost/type_traits/has_nothrow_constructor.hpp>
@@ -231,16 +231,16 @@ BOOST_STATIC_ASSERT(noexcept(std::declval<nil::crypto3::multiprecision::checked_
 
 #endif    // little endian
 
-typedef nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_backend<
+typedef nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_modular_backend<
     32, 32, nil::crypto3::multiprecision::signed_magnitude, nil::crypto3::multiprecision::checked, void>>
     checked_int32_t;
-typedef nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_backend<
+typedef nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_modular_backend<
     32, 32, nil::crypto3::multiprecision::unsigned_magnitude, nil::crypto3::multiprecision::checked, void>>
     checked_uint32_t;
-typedef nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_backend<
+typedef nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_modular_backend<
     32, 32, nil::crypto3::multiprecision::signed_magnitude, nil::crypto3::multiprecision::unchecked, void>>
     unchecked_int32_t;
-typedef nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_backend<
+typedef nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_modular_backend<
     32, 32, nil::crypto3::multiprecision::unsigned_magnitude, nil::crypto3::multiprecision::unchecked, void>>
     unchecked_uint32_t;
 
@@ -276,16 +276,16 @@ BOOST_STATIC_ASSERT(noexcept(std::declval<checked_uint32_t>() = std::declval<boo
 //
 // And finally some things which should *not* be noexcept:
 //
-typedef nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_backend<
+typedef nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_modular_backend<
     30, 30, nil::crypto3::multiprecision::signed_magnitude, nil::crypto3::multiprecision::checked, void>>
     checked_int30_t;
-typedef nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_backend<
+typedef nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_modular_backend<
     30, 30, nil::crypto3::multiprecision::unsigned_magnitude, nil::crypto3::multiprecision::checked, void>>
     checked_uint30_t;
-typedef nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_backend<
+typedef nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_modular_backend<
     30, 30, nil::crypto3::multiprecision::signed_magnitude, nil::crypto3::multiprecision::unchecked, void>>
     unchecked_int30_t;
-typedef nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_backend<
+typedef nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_modular_backend<
     30, 30, nil::crypto3::multiprecision::unsigned_magnitude, nil::crypto3::multiprecision::unchecked, void>>
     unchecked_uint30_t;
 

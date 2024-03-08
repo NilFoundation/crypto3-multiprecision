@@ -692,7 +692,7 @@ namespace nil {
                         eval_multiply(result, a, static_cast<limb_type>(val));
                     else {
                         eval_multiply(result, a,
-                                      static_cast<limb_type>(nil::crypto3::multiprecision::detail::unsigned_abs(val)));
+                                      static_cast<limb_type>(boost::multiprecision::detail::unsigned_abs(val)));
                         result.negate();
                     }
                 }
@@ -747,7 +747,7 @@ namespace nil {
                         }
                     } else if (val >= -static_cast<signed_double_limb_type>((std::numeric_limits<limb_type>::max)())) {
                         eval_multiply(result, a,
-                                      static_cast<limb_type>(nil::crypto3::multiprecision::detail::unsigned_abs(val)));
+                                      static_cast<limb_type>(boost::multiprecision::detail::unsigned_abs(val)));
                         result.negate();
                         return;
                     }
@@ -976,7 +976,7 @@ namespace nil {
                     eval_multiply(cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result,
                                   cpp_int_modular_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> const &a,
                                   cpp_int_modular_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> const &b) {
-                    using canonical_type = typename nil::crypto3::multiprecision::detail::canonical<
+                    using canonical_type = typename boost::multiprecision::detail::canonical<
                         typename cpp_int_modular_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>::local_limb_type,
                         cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::type;
                     eval_multiply(result, static_cast<canonical_type>(*a.limbs()),
@@ -987,8 +987,8 @@ namespace nil {
                 template<unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1,
                          class Allocator1, class SI>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR
-                    typename std::enable_if<nil::crypto3::multiprecision::detail::is_signed<SI>::value &&
-                                            nil::crypto3::multiprecision::detail::is_integral<SI>::value &&
+                    typename std::enable_if<boost::multiprecision::detail::is_signed<SI>::value &&
+                                            boost::multiprecision::detail::is_integral<SI>::value &&
                                             (sizeof(SI) <= sizeof(signed_double_limb_type) / 2)>::type
                     eval_multiply(cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result, SI a,
                                   SI b) {
@@ -998,7 +998,7 @@ namespace nil {
                 template<unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1,
                          class Allocator1, class UI>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR
-                    typename std::enable_if<nil::crypto3::multiprecision::detail::is_unsigned<UI>::value &&
+                    typename std::enable_if<boost::multiprecision::detail::is_unsigned<UI>::value &&
                                             (sizeof(UI) <= sizeof(signed_double_limb_type) / 2)>::type
                     eval_multiply(cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &result, UI a,
                                   UI b) {

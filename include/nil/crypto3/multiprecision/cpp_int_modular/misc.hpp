@@ -10,8 +10,8 @@
 #ifndef BOOST_MP_CPP_INT_MISC_HPP
 #define BOOST_MP_CPP_INT_MISC_HPP
 
-#include <nil/crypto3/multiprecision/detail/constexpr.hpp>
-#include <nil/crypto3/multiprecision/detail/bitscan.hpp>    // lsb etc
+#include <boost/multiprecision/detail/constexpr.hpp>
+#include <boost/multiprecision/detail/bitscan.hpp>    // lsb etc
 #include <boost/integer/common_factor_rt.hpp>               // gcd/lcm
 #include <boost/functional/hash_fwd.hpp>
 #include <numeric>    // std::gcd
@@ -45,10 +45,10 @@ namespace nil {
                 template<class R, class CppInt>
                 BOOST_MP_CXX14_CONSTEXPR void check_in_range(const CppInt &val,
                                                              const std::integral_constant<int, checked> &) {
-                    using cast_type = typename nil::crypto3::multiprecision::detail::canonical<R, CppInt>::type;
+                    using cast_type = typename boost::multiprecision::detail::canonical<R, CppInt>::type;
 
                     if (val.sign()) {
-                        BOOST_IF_CONSTEXPR(nil::crypto3::multiprecision::detail::is_signed<R>::value == false)
+                        BOOST_IF_CONSTEXPR(boost::multiprecision::detail::is_signed<R>::value == false)
                         BOOST_THROW_EXCEPTION(
                             std::range_error("Attempt to assign a negative value to an unsigned type."));
                         if (val.compare(static_cast<cast_type>((numeric_limits_workaround<R>::min)())) < 0)
@@ -90,7 +90,7 @@ namespace nil {
                          cpp_int_check_type Checked1,
                          class Allocator1>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    nil::crypto3::multiprecision::detail::is_integral<R>::value &&
+                    boost::multiprecision::detail::is_integral<R>::value &&
                         !is_trivial_cpp_int<
                             cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
                     void>::type
@@ -103,15 +103,15 @@ namespace nil {
                     BOOST_IF_CONSTEXPR(
                         numeric_limits_workaround<R>::digits <
                         cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits) {
-                        if ((backend.sign() && nil::crypto3::multiprecision::detail::is_signed<R>::value &&
-                             nil::crypto3::multiprecision::detail::is_integral<R>::value) &&
+                        if ((backend.sign() && boost::multiprecision::detail::is_signed<R>::value &&
+                             boost::multiprecision::detail::is_integral<R>::value) &&
                             (1 + static_cast<nil::crypto3::multiprecision::limb_type>(
                                      (std::numeric_limits<R>::max)()) <=
                              backend.limbs()[0])) {
                             *result = (numeric_limits_workaround<R>::min)();
                             return;
-                        } else if (nil::crypto3::multiprecision::detail::is_signed<R>::value &&
-                                   nil::crypto3::multiprecision::detail::is_integral<R>::value && !backend.sign() &&
+                        } else if (boost::multiprecision::detail::is_signed<R>::value &&
+                                   boost::multiprecision::detail::is_integral<R>::value && !backend.sign() &&
                                    static_cast<nil::crypto3::multiprecision::limb_type>(
                                        (std::numeric_limits<R>::max)()) <= backend.limbs()[0]) {
                             *result = (numeric_limits_workaround<R>::max)();
@@ -150,9 +150,9 @@ namespace nil {
                                 (i + 1 < backend.size())) {
                                 // Overflow:
                                 if (backend.sign()) {
-                                    check_is_negative(nil::crypto3::multiprecision::detail::is_signed<R>());
+                                    check_is_negative(boost::multiprecision::detail::is_signed<R>());
                                     *result = (numeric_limits_workaround<R>::min)();
-                                } else if (nil::crypto3::multiprecision::detail::is_signed<R>::value)
+                                } else if (boost::multiprecision::detail::is_signed<R>::value)
                                     *result = (numeric_limits_workaround<R>::max)();
                                 return;
                             }
@@ -161,20 +161,20 @@ namespace nil {
                     else if (backend.size() > 1) {
                         // Overflow:
                         if (backend.sign()) {
-                            check_is_negative(nil::crypto3::multiprecision::detail::is_signed<R>());
+                            check_is_negative(boost::multiprecision::detail::is_signed<R>());
                             *result = (numeric_limits_workaround<R>::min)();
-                        } else if (nil::crypto3::multiprecision::detail::is_signed<R>::value)
+                        } else if (boost::multiprecision::detail::is_signed<R>::value)
                             *result = (numeric_limits_workaround<R>::max)();
                         return;
                     }
                     if (backend.sign()) {
                         check_is_negative(std::integral_constant < bool,
-                                          nil::crypto3::multiprecision::detail::is_signed<R>::value &&
-                                              nil::crypto3::multiprecision::detail::is_integral<R>::value > ());
+                                          boost::multiprecision::detail::is_signed<R>::value &&
+                                              boost::multiprecision::detail::is_integral<R>::value > ());
                         *result = negate_integer(*result,
                                                  std::integral_constant < bool,
-                                                 nil::crypto3::multiprecision::detail::is_signed<R>::value &&
-                                                     nil::crypto3::multiprecision::detail::is_integral<R>::value > ());
+                                                 boost::multiprecision::detail::is_signed<R>::value &&
+                                                     boost::multiprecision::detail::is_integral<R>::value > ());
                     }
                 }
 
@@ -192,7 +192,7 @@ namespace nil {
                     eval_convert_to(
                         R *result,
                         const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>
-                            &backend) noexcept(nil::crypto3::multiprecision::detail::is_arithmetic<R>::value) {
+                            &backend) noexcept(boost::multiprecision::detail::is_arithmetic<R>::value) {
                     typename cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::const_limb_pointer
                         p = backend.limbs();
                     unsigned shift = cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
@@ -277,7 +277,7 @@ namespace nil {
                     //
                     // Find the index of the least significant bit within that limb:
                     //
-                    unsigned result = nil::crypto3::multiprecision::detail::find_lsb(a.limbs()[index]);
+                    unsigned result = boost::multiprecision::detail::find_lsb(a.limbs()[index]);
 
                     return result +
                            index * cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits;
@@ -300,7 +300,7 @@ namespace nil {
                     //
                     return (a.size() - 1) *
                                cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits +
-                           nil::crypto3::multiprecision::detail::find_msb(a.limbs()[a.size() - 1]);
+                           boost::multiprecision::detail::find_msb(a.limbs()[a.size() - 1]);
                 }
 
                 template<unsigned MinBits1,
@@ -476,7 +476,7 @@ namespace nil {
                          class Allocator1,
                          class U>
                 inline BOOST_MP_CXX14_CONSTEXPR
-                    typename std::enable_if<nil::crypto3::multiprecision::detail::is_integral<U>::value>::type
+                    typename std::enable_if<boost::multiprecision::detail::is_integral<U>::value>::type
                     eval_qr(const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &x,
                             U y,
                             cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &q,
@@ -499,7 +499,7 @@ namespace nil {
                          class Allocator1,
                          class Integer>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    nil::crypto3::multiprecision::detail::is_unsigned<Integer>::value &&
+                    boost::multiprecision::detail::is_unsigned<Integer>::value &&
                         !is_trivial_cpp_int<
                             cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
                     Integer>::type
@@ -530,14 +530,14 @@ namespace nil {
                          class Allocator1,
                          class Integer>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    nil::crypto3::multiprecision::detail::is_signed<Integer>::value &&
-                        nil::crypto3::multiprecision::detail::is_integral<Integer>::value &&
+                    boost::multiprecision::detail::is_signed<Integer>::value &&
+                        boost::multiprecision::detail::is_integral<Integer>::value &&
                         !is_trivial_cpp_int<
                             cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value,
                     Integer>::type
                     eval_integer_modulus(const cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> &x,
                                          Integer val) {
-                    return eval_integer_modulus(x, nil::crypto3::multiprecision::detail::unsigned_abs(val));
+                    return eval_integer_modulus(x, boost::multiprecision::detail::unsigned_abs(val));
                 }
 
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR limb_type eval_gcd(limb_type u, limb_type v) {
@@ -551,10 +551,10 @@ namespace nil {
                     return std::gcd(u.get(), v.get());
 #endif
 #else
-                    unsigned shift = nil::crypto3::multiprecision::detail::find_lsb(u | v);
-                    u >>= nil::crypto3::multiprecision::detail::find_lsb(u);
+                    unsigned shift = boost::multiprecision::detail::find_lsb(u | v);
+                    u >>= boost::multiprecision::detail::find_lsb(u);
                     do {
-                        v >>= nil::crypto3::multiprecision::detail::find_lsb(v);
+                        v >>= boost::multiprecision::detail::find_lsb(v);
                         if (u > v)
                             std_constexpr::swap(u, v);
                         v -= u;
@@ -571,10 +571,10 @@ namespace nil {
                     return std::gcd(u.get(), v.get());
 #endif
 #else
-                    unsigned shift = nil::crypto3::multiprecision::detail::find_lsb(u | v);
-                    u >>= nil::crypto3::multiprecision::detail::find_lsb(u);
+                    unsigned shift = boost::multiprecision::detail::find_lsb(u | v);
+                    u >>= boost::multiprecision::detail::find_lsb(u);
                     do {
-                        v >>= nil::crypto3::multiprecision::detail::find_lsb(v);
+                        v >>= boost::multiprecision::detail::find_lsb(v);
                         if (u > v)
                             std_constexpr::swap(u, v);
                         v -= u;
@@ -657,7 +657,7 @@ namespace nil {
                          class Allocator1,
                          class Integer>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    nil::crypto3::multiprecision::detail::is_unsigned<Integer>::value &&
+                    boost::multiprecision::detail::is_unsigned<Integer>::value &&
                     (sizeof(Integer) <= sizeof(limb_type)) &&
                     !is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::
                     type
@@ -673,8 +673,8 @@ namespace nil {
                          class Allocator1,
                          class Integer>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    nil::crypto3::multiprecision::detail::is_signed<Integer>::value &&
-                    nil::crypto3::multiprecision::detail::is_integral<Integer>::value &&
+                    boost::multiprecision::detail::is_signed<Integer>::value &&
+                    boost::multiprecision::detail::is_integral<Integer>::value &&
                     (sizeof(Integer) <= sizeof(limb_type)) &&
                     !is_trivial_cpp_int<cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>>::value>::
                     type
@@ -1379,8 +1379,8 @@ namespace nil {
                             static_cast<common_type>((std::numeric_limits<R>::max)())) {
                             if (val.isneg()) {
                                 check_is_negative(std::integral_constant < bool,
-                                                  (nil::crypto3::multiprecision::detail::is_signed<R>::value &&
-                                                   nil::crypto3::multiprecision::detail::is_integral<R>::value) ||
+                                                  (boost::multiprecision::detail::is_signed<R>::value &&
+                                                   boost::multiprecision::detail::is_integral<R>::value) ||
                                                       (number_category<R>::value == number_kind_floating_point) > ());
                                 if (static_cast<common_type>(*val.limbs()) >
                                     -static_cast<common_type>((std::numeric_limits<R>::min)()))
@@ -1392,8 +1392,8 @@ namespace nil {
                                 conversion_overflow(
                                     typename cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::
                                         checked_type());
-                                *result = nil::crypto3::multiprecision::detail::is_signed<R>::value &&
-                                                  nil::crypto3::multiprecision::detail::is_integral<R>::value ?
+                                *result = boost::multiprecision::detail::is_signed<R>::value &&
+                                                  boost::multiprecision::detail::is_integral<R>::value ?
                                               (std::numeric_limits<R>::max)() :
                                               static_cast<R>(*val.limbs());
                             }
@@ -1401,8 +1401,8 @@ namespace nil {
                             *result = static_cast<R>(*val.limbs());
                             if (val.isneg()) {
                                 check_is_negative(std::integral_constant < bool,
-                                                  (nil::crypto3::multiprecision::detail::is_signed<R>::value &&
-                                                   nil::crypto3::multiprecision::detail::is_integral<R>::value) ||
+                                                  (boost::multiprecision::detail::is_signed<R>::value &&
+                                                   boost::multiprecision::detail::is_integral<R>::value) ||
                                                       (number_category<R>::value == number_kind_floating_point) > ());
                                 *result =
                                     negate_integer(*result,
@@ -1416,8 +1416,8 @@ namespace nil {
                         *result = static_cast<R>(*val.limbs());
                         if (val.isneg()) {
                             check_is_negative(std::integral_constant < bool,
-                                              (nil::crypto3::multiprecision::detail::is_signed<R>::value &&
-                                               nil::crypto3::multiprecision::detail::is_integral<R>::value) ||
+                                              (boost::multiprecision::detail::is_signed<R>::value &&
+                                               boost::multiprecision::detail::is_integral<R>::value) ||
                                                   (number_category<R>::value == number_kind_floating_point) > ());
                             *result = negate_integer(*result,
                                                      std::integral_constant < bool,
@@ -1451,8 +1451,8 @@ namespace nil {
                             conversion_overflow(
                                 typename cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::
                                     checked_type());
-                            *result = nil::crypto3::multiprecision::detail::is_signed<R>::value &&
-                                              nil::crypto3::multiprecision::detail::is_integral<R>::value ?
+                            *result = boost::multiprecision::detail::is_signed<R>::value &&
+                                              boost::multiprecision::detail::is_integral<R>::value ?
                                           (std::numeric_limits<R>::max)() :
                                           static_cast<R>(*val.limbs());
                         } else
@@ -1481,7 +1481,7 @@ namespace nil {
                     //
                     // Find the index of the least significant bit within that limb:
                     //
-                    return nil::crypto3::multiprecision::detail::find_lsb(*a.limbs());
+                    return boost::multiprecision::detail::find_lsb(*a.limbs());
                 }
 
                 template<unsigned MinBits1,
@@ -1496,7 +1496,7 @@ namespace nil {
                     //
                     // Find the index of the least significant bit within that limb:
                     //
-                    return nil::crypto3::multiprecision::detail::find_msb(*a.limbs());
+                    return boost::multiprecision::detail::find_msb(*a.limbs());
                 }
 
                 template<unsigned MinBits1,

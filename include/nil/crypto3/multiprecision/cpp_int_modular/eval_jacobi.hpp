@@ -10,7 +10,7 @@
 #ifndef BOOST_MULTIPRECISION_EVAL_JACOBI_HPP
 #define BOOST_MULTIPRECISION_EVAL_JACOBI_HPP
 
-#include <nil/crypto3/multiprecision/detail/default_ops.hpp>
+#include <boost/multiprecision/detail/default_ops.hpp>
 
 #include <nil/crypto3/multiprecision/modular/modular_functions_fixed.hpp>
 

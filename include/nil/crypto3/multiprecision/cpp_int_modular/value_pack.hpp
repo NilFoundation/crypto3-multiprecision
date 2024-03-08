@@ -13,6 +13,7 @@ namespace nil {
             namespace literals {
                 namespace detail {
 
+                    using namespace boost::multiprecision;
 #ifndef TVM
                     using limb_pack_type = limb_type;
 #else

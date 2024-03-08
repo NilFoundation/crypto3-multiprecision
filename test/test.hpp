@@ -13,19 +13,19 @@
 
 #include <boost/detail/lightweight_test.hpp>
 #include <boost/current_function.hpp>
-#include <nil/crypto3/multiprecision/number.hpp>
+#include <boost/multiprecision/number.hpp>
 
 namespace detail {
 
 template <class T>
-inline typename std::enable_if<!(nil::crypto3::multiprecision::detail::is_unsigned<T>::value || nil::crypto3::multiprecision::is_unsigned_number<T>::value), T>::type
+inline typename std::enable_if<!(boost::multiprecision::detail::is_unsigned<T>::value || nil::crypto3::multiprecision::is_unsigned_number<T>::value), T>::type
 abs(const T& a)
 {
    return a < 0 ? -a : a;
 }
 
 template <class T>
-inline typename std::enable_if<nil::crypto3::multiprecision::detail::is_unsigned<T>::value || nil::crypto3::multiprecision::is_unsigned_number<T>::value, T>::type
+inline typename std::enable_if<boost::multiprecision::detail::is_unsigned<T>::value || nil::crypto3::multiprecision::is_unsigned_number<T>::value, T>::type
 abs(const T& a)
 {
    return a;

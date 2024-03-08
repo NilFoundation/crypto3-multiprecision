@@ -8,7 +8,7 @@
 #ifndef BOOST_MP_CPP_INT_COMPARISON_HPP
 #define BOOST_MP_CPP_INT_COMPARISON_HPP
 
-#include <nil/crypto3/multiprecision/detail/constexpr.hpp>
+#include <boost/multiprecision/detail/constexpr.hpp>
 
 namespace nil {
     namespace crypto3 {
@@ -61,7 +61,7 @@ namespace nil {
                     eval_eq(const cpp_int_modular_backend<MinBits, MaxBits, signed_magnitude, Checked, Allocator>& a,
                             signed_limb_type b) noexcept {
                     return (a.sign() == (b < 0)) && (a.size() == 1) &&
-                           (*a.limbs() == nil::crypto3::multiprecision::detail::unsigned_abs(b));
+                           (*a.limbs() == boost::multiprecision::detail::unsigned_abs(b));
                 }
                 template<unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class Allocator>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR
@@ -108,11 +108,11 @@ namespace nil {
                     if (a.sign()) {
                         if (a.size() > 1)
                             return true;
-                        return *a.limbs() > nil::crypto3::multiprecision::detail::unsigned_abs(b);
+                        return *a.limbs() > boost::multiprecision::detail::unsigned_abs(b);
                     } else {
                         if (a.size() > 1)
                             return false;
-                        return *a.limbs() < nil::crypto3::multiprecision::detail::unsigned_abs(b);
+                        return *a.limbs() < boost::multiprecision::detail::unsigned_abs(b);
                     }
                 }
 
@@ -164,11 +164,11 @@ namespace nil {
                     if (a.sign()) {
                         if (a.size() > 1)
                             return false;
-                        return *a.limbs() < nil::crypto3::multiprecision::detail::unsigned_abs(b);
+                        return *a.limbs() < boost::multiprecision::detail::unsigned_abs(b);
                     } else {
                         if (a.size() > 1)
                             return true;
-                        return *a.limbs() > nil::crypto3::multiprecision::detail::unsigned_abs(b);
+                        return *a.limbs() > boost::multiprecision::detail::unsigned_abs(b);
                     }
                 }
 
@@ -214,7 +214,7 @@ namespace nil {
                 }
                 template<unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class U>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    nil::crypto3::multiprecision::detail::is_unsigned<U>::value &&
+                    boost::multiprecision::detail::is_unsigned<U>::value &&
                         is_trivial_cpp_int<cpp_int_modular_backend<MinBits, MaxBits, signed_magnitude, Checked, void>>::value,
                     bool>::type
                     eval_eq(const cpp_int_modular_backend<MinBits, MaxBits, signed_magnitude, Checked, void>& a, U b) noexcept {
@@ -222,17 +222,17 @@ namespace nil {
                 }
                 template<unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class S>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    nil::crypto3::multiprecision::detail::is_signed<S>::value &&
-                        nil::crypto3::multiprecision::detail::is_integral<S>::value &&
+                    boost::multiprecision::detail::is_signed<S>::value &&
+                        boost::multiprecision::detail::is_integral<S>::value &&
                         is_trivial_cpp_int<cpp_int_modular_backend<MinBits, MaxBits, signed_magnitude, Checked, void>>::value,
                     bool>::type
                     eval_eq(const cpp_int_modular_backend<MinBits, MaxBits, signed_magnitude, Checked, void>& a, S b) noexcept {
                     return (a.sign() == (b < 0)) &&
-                           (*a.limbs() == nil::crypto3::multiprecision::detail::unsigned_abs(b));
+                           (*a.limbs() == boost::multiprecision::detail::unsigned_abs(b));
                 }
                 template<unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class U>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    nil::crypto3::multiprecision::detail::is_unsigned<U>::value &&
+                    boost::multiprecision::detail::is_unsigned<U>::value &&
                         is_trivial_cpp_int<cpp_int_modular_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>>::value,
                     bool>::type
                     eval_eq(const cpp_int_modular_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& a,
@@ -241,13 +241,13 @@ namespace nil {
                 }
                 template<unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class S>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    nil::crypto3::multiprecision::detail::is_signed<S>::value &&
-                        nil::crypto3::multiprecision::detail::is_integral<S>::value &&
+                    boost::multiprecision::detail::is_signed<S>::value &&
+                        boost::multiprecision::detail::is_integral<S>::value &&
                         is_trivial_cpp_int<cpp_int_modular_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>>::value,
                     bool>::type
                     eval_eq(const cpp_int_modular_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& a,
                             S b) noexcept {
-                    using ui_type = typename nil::crypto3::multiprecision::detail::make_unsigned<S>::type;
+                    using ui_type = typename boost::multiprecision::detail::make_unsigned<S>::type;
                     if (b < 0) {
                         cpp_int_modular_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void> t(b);
                         return *a.limbs() == *t.limbs();
@@ -276,7 +276,7 @@ namespace nil {
                 }
                 template<unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class U>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    nil::crypto3::multiprecision::detail::is_unsigned<U>::value &&
+                    boost::multiprecision::detail::is_unsigned<U>::value &&
                         is_trivial_cpp_int<cpp_int_modular_backend<MinBits, MaxBits, signed_magnitude, Checked, void>>::value,
                     bool>::type
                     eval_lt(const cpp_int_modular_backend<MinBits, MaxBits, signed_magnitude, Checked, void>& a, U b) noexcept {
@@ -286,19 +286,19 @@ namespace nil {
                 }
                 template<unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class S>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    nil::crypto3::multiprecision::detail::is_signed<S>::value &&
-                        nil::crypto3::multiprecision::detail::is_integral<S>::value &&
+                    boost::multiprecision::detail::is_signed<S>::value &&
+                        boost::multiprecision::detail::is_integral<S>::value &&
                         is_trivial_cpp_int<cpp_int_modular_backend<MinBits, MaxBits, signed_magnitude, Checked, void>>::value,
                     bool>::type
                     eval_lt(const cpp_int_modular_backend<MinBits, MaxBits, signed_magnitude, Checked, void>& a, S b) noexcept {
                     if (a.sign() != (b < 0))
                         return a.sign();
-                    return a.sign() ? (*a.limbs() > nil::crypto3::multiprecision::detail::unsigned_abs(b)) :
-                                      (*a.limbs() < nil::crypto3::multiprecision::detail::unsigned_abs(b));
+                    return a.sign() ? (*a.limbs() > boost::multiprecision::detail::unsigned_abs(b)) :
+                                      (*a.limbs() < boost::multiprecision::detail::unsigned_abs(b));
                 }
                 template<unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class U>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    nil::crypto3::multiprecision::detail::is_unsigned<U>::value &&
+                    boost::multiprecision::detail::is_unsigned<U>::value &&
                         is_trivial_cpp_int<cpp_int_modular_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>>::value,
                     bool>::type
                     eval_lt(const cpp_int_modular_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& a,
@@ -307,13 +307,13 @@ namespace nil {
                 }
                 template<unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class S>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    nil::crypto3::multiprecision::detail::is_signed<S>::value &&
-                        nil::crypto3::multiprecision::detail::is_integral<S>::value &&
+                    boost::multiprecision::detail::is_signed<S>::value &&
+                        boost::multiprecision::detail::is_integral<S>::value &&
                         is_trivial_cpp_int<cpp_int_modular_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>>::value,
                     bool>::type
                     eval_lt(const cpp_int_modular_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& a,
                             S b) noexcept {
-                    using ui_type = typename nil::crypto3::multiprecision::detail::make_unsigned<S>::type;
+                    using ui_type = typename boost::multiprecision::detail::make_unsigned<S>::type;
                     if (b < 0) {
                         cpp_int_modular_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void> t(b);
                         return *a.limbs() < *t.limbs();
@@ -342,7 +342,7 @@ namespace nil {
                 }
                 template<unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class U>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    nil::crypto3::multiprecision::detail::is_unsigned<U>::value &&
+                    boost::multiprecision::detail::is_unsigned<U>::value &&
                         is_trivial_cpp_int<cpp_int_modular_backend<MinBits, MaxBits, signed_magnitude, Checked, void>>::value,
                     bool>::type
                     eval_gt(const cpp_int_modular_backend<MinBits, MaxBits, signed_magnitude, Checked, void>& a, U b) noexcept {
@@ -352,19 +352,19 @@ namespace nil {
                 }
                 template<unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class S>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    nil::crypto3::multiprecision::detail::is_signed<S>::value &&
-                        nil::crypto3::multiprecision::detail::is_integral<S>::value &&
+                    boost::multiprecision::detail::is_signed<S>::value &&
+                        boost::multiprecision::detail::is_integral<S>::value &&
                         is_trivial_cpp_int<cpp_int_modular_backend<MinBits, MaxBits, signed_magnitude, Checked, void>>::value,
                     bool>::type
                     eval_gt(const cpp_int_modular_backend<MinBits, MaxBits, signed_magnitude, Checked, void>& a, S b) noexcept {
                     if (a.sign() != (b < 0))
                         return !a.sign();
-                    return a.sign() ? (*a.limbs() < nil::crypto3::multiprecision::detail::unsigned_abs(b)) :
-                                      (*a.limbs() > nil::crypto3::multiprecision::detail::unsigned_abs(b));
+                    return a.sign() ? (*a.limbs() < boost::multiprecision::detail::unsigned_abs(b)) :
+                                      (*a.limbs() > boost::multiprecision::detail::unsigned_abs(b));
                 }
                 template<unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class U>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    nil::crypto3::multiprecision::detail::is_unsigned<U>::value &&
+                    boost::multiprecision::detail::is_unsigned<U>::value &&
                         is_trivial_cpp_int<cpp_int_modular_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>>::value,
                     bool>::type
                     eval_gt(const cpp_int_modular_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& a,
@@ -373,13 +373,13 @@ namespace nil {
                 }
                 template<unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class S>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    nil::crypto3::multiprecision::detail::is_signed<S>::value &&
-                        nil::crypto3::multiprecision::detail::is_integral<S>::value &&
+                    boost::multiprecision::detail::is_signed<S>::value &&
+                        boost::multiprecision::detail::is_integral<S>::value &&
                         is_trivial_cpp_int<cpp_int_modular_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>>::value,
                     bool>::type
                     eval_gt(const cpp_int_modular_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& a,
                             S b) noexcept {
-                    using ui_type = typename nil::crypto3::multiprecision::detail::make_unsigned<S>::type;
+                    using ui_type = typename boost::multiprecision::detail::make_unsigned<S>::type;
                     if (b < 0) {
                         cpp_int_modular_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void> t(b);
                         return *a.limbs() > *t.limbs();

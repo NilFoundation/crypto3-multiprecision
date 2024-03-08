@@ -10,8 +10,8 @@
 
 #include "test.hpp"
 
-#include <nil/crypto3/multiprecision/cpp_int.hpp>
-#include <nil/crypto3/multiprecision/cpp_int/literals.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular/literals.hpp>
 
 #include <nil/crypto3/multiprecision/jacobi.hpp>
 

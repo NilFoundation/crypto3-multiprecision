@@ -9,7 +9,7 @@
 
 #include "test.hpp"
 
-#include <nil/crypto3/multiprecision/cpp_int.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular.hpp>
 
 template<class Number>
 void test_specific(const std::integral_constant<int, nil::crypto3::multiprecision::number_kind_integer>&) {
@@ -91,9 +91,9 @@ int main() {
     test<nil::crypto3::multiprecision::cpp_int>();
     test<nil::crypto3::multiprecision::int256_t>();
     test<nil::crypto3::multiprecision::uint512_t>();
-    test<nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_backend<
+    test<nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_modular_backend<
         200, 200, nil::crypto3::multiprecision::unsigned_magnitude, nil::crypto3::multiprecision::checked, void>>>();
-    test<nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_backend<
+    test<nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_modular_backend<
         70, 70, nil::crypto3::multiprecision::signed_magnitude, nil::crypto3::multiprecision::unchecked, void>>>();
     return boost::report_errors();
 }

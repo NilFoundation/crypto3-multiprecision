@@ -495,7 +495,7 @@ namespace nil {
                     cpp_int_modular_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> r;
                     bool s = a.sign() != (b < 0);
                     divide_unsigned_helper(
-                        &result, a, static_cast<limb_type>(nil::crypto3::multiprecision::detail::unsigned_abs(b)), r);
+                        &result, a, static_cast<limb_type>(boost::multiprecision::detail::unsigned_abs(b)), r);
                     result.sign(s);
                 }
 

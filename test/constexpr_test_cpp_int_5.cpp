@@ -7,7 +7,7 @@
 // on factorials.
 
 #include "constexpr_arithmetric_test.hpp"
-#include "nil/crypto3/multiprecision/cpp_int.hpp"
+#include "nil/crypto3/multiprecision/cpp_int_modular.hpp"
 #include "nil/crypto3/multiprecision/integer.hpp"
 #include "test.hpp"
 

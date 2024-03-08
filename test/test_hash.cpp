@@ -9,7 +9,7 @@
 #define _SCL_SECURE_NO_WARNINGS
 #endif
 
-#include <nil/crypto3/multiprecision/cpp_int.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular.hpp>
 
 #include <boost/functional/hash.hpp>
 
@@ -39,7 +39,7 @@ void test() {
 int main() {
     test<nil::crypto3::multiprecision::cpp_int>();
     test<nil::crypto3::multiprecision::checked_int1024_t>();
-    test<nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_backend<
+    test<nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_modular_backend<
         64, 64, nil::crypto3::multiprecision::signed_magnitude, nil::crypto3::multiprecision::checked, void>>>();
 
     return boost::report_errors();

@@ -11,7 +11,7 @@
 #ifndef BOOST_MULTIPRECISION_MODULAR_FUNCTIONS_FIXED_PRECISION_HPP
 #define BOOST_MULTIPRECISION_MODULAR_FUNCTIONS_FIXED_PRECISION_HPP
 
-#include <nil/crypto3/multiprecision/detail/number_base.hpp>
+#include <boost/multiprecision/detail/number_base.hpp>
 #include <nil/crypto3/multiprecision/modular/modular_policy_fixed.hpp>
 
 #include <boost/mpl/if.hpp>

@@ -13,7 +13,7 @@
 #endif
 
 #include <nil/crypto3/multiprecision/gmp.hpp>
-#include <nil/crypto3/multiprecision/cpp_int.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int.hpp>
 #include "test.hpp"
@@ -73,7 +73,7 @@ void test(std::integral_constant<int, N> const&) {
     test(std::integral_constant<int, N + 4>());
 
     typedef nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<N, N, nil::crypto3::multiprecision::unsigned_magnitude>,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<N, N, nil::crypto3::multiprecision::unsigned_magnitude>,
         nil::crypto3::multiprecision::et_off>
         mp_type;
 

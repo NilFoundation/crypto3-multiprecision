@@ -7,7 +7,7 @@
 #ifndef BOOST_MP_ADD_UNSIGNED_ADDC_32_HPP
 #define BOOST_MP_ADD_UNSIGNED_ADDC_32_HPP
 
-#include <nil/crypto3/multiprecision/cpp_int/intel_intrinsics.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular/intel_intrinsics.hpp>
 
 namespace nil {
     namespace crypto3 {
@@ -230,20 +230,20 @@ namespace nil {
                         }
 #else
                         for (; i + 4 <= m; i += 4) {
-                            carry = ::nil::crypto3::multiprecision::detail::addcarry_limb(carry, pa[i + 0], pb[i + 0],
+                            carry = ::boost::multiprecision::detail::addcarry_limb(carry, pa[i + 0], pb[i + 0],
                                                                                           pr + i);
-                            carry = ::nil::crypto3::multiprecision::detail::addcarry_limb(carry, pa[i + 1], pb[i + 1],
+                            carry = ::boost::multiprecision::detail::addcarry_limb(carry, pa[i + 1], pb[i + 1],
                                                                                           pr + i + 1);
-                            carry = ::nil::crypto3::multiprecision::detail::addcarry_limb(carry, pa[i + 2], pb[i + 2],
+                            carry = ::boost::multiprecision::detail::addcarry_limb(carry, pa[i + 2], pb[i + 2],
                                                                                           pr + i + 2);
-                            carry = ::nil::crypto3::multiprecision::detail::addcarry_limb(carry, pa[i + 3], pb[i + 3],
+                            carry = ::boost::multiprecision::detail::addcarry_limb(carry, pa[i + 3], pb[i + 3],
                                                                                           pr + i + 3);
                         }
 #endif
                         for (; i < m; ++i)
-                            carry = ::nil::crypto3::multiprecision::detail::addcarry_limb(carry, pa[i], pb[i], pr + i);
+                            carry = ::boost::multiprecision::detail::addcarry_limb(carry, pa[i], pb[i], pr + i);
                         for (; i < x && carry; ++i)
-                            carry = ::nil::crypto3::multiprecision::detail::addcarry_limb(carry, pa[i], 0, pr + i);
+                            carry = ::boost::multiprecision::detail::addcarry_limb(carry, pa[i], 0, pr + i);
                         if (i == x && carry) {
                             // We overflowed, need to add one more limb:
                             result.resize(x + 1, x + 1);
@@ -328,21 +328,21 @@ namespace nil {
                         }
 #else
                         for (; i + 4 <= m; i += 4) {
-                            borrow = nil::crypto3::multiprecision::detail::subborrow_limb(borrow, pa[i], pb[i], pr + i);
-                            borrow = nil::crypto3::multiprecision::detail::subborrow_limb(borrow, pa[i + 1], pb[i + 1],
+                            borrow = boost::multiprecision::detail::subborrow_limb(borrow, pa[i], pb[i], pr + i);
+                            borrow = boost::multiprecision::detail::subborrow_limb(borrow, pa[i + 1], pb[i + 1],
                                                                                           pr + i + 1);
-                            borrow = nil::crypto3::multiprecision::detail::subborrow_limb(borrow, pa[i + 2], pb[i + 2],
+                            borrow = boost::multiprecision::detail::subborrow_limb(borrow, pa[i + 2], pb[i + 2],
                                                                                           pr + i + 2);
-                            borrow = nil::crypto3::multiprecision::detail::subborrow_limb(borrow, pa[i + 3], pb[i + 3],
+                            borrow = boost::multiprecision::detail::subborrow_limb(borrow, pa[i + 3], pb[i + 3],
                                                                                           pr + i + 3);
                         }
 #endif
                         for (; i < m; ++i)
-                            borrow = nil::crypto3::multiprecision::detail::subborrow_limb(borrow, pa[i], pb[i], pr + i);
+                            borrow = boost::multiprecision::detail::subborrow_limb(borrow, pa[i], pb[i], pr + i);
 
                         // Now where only a has digits, only as long as we've borrowed:
                         while (borrow && (i < x)) {
-                            borrow = nil::crypto3::multiprecision::detail::subborrow_limb(borrow, pa[i], 0, pr + i);
+                            borrow = boost::multiprecision::detail::subborrow_limb(borrow, pa[i], 0, pr + i);
                             ++i;
                         }
                         // Any remaining digits are the same as those in pa:

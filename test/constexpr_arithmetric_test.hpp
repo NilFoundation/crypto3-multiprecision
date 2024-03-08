@@ -4,7 +4,7 @@
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include <boost/config.hpp>
-#include <nil/crypto3/multiprecision/number.hpp>
+#include <boost/multiprecision/number.hpp>
 #include <limits>
 
 // clang-format off

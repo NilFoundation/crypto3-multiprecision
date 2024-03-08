@@ -4,7 +4,7 @@
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include <nil/crypto3/multiprecision/cpp_dec_float.hpp>
-#include <nil/crypto3/multiprecision/cpp_int.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular.hpp>
 #include "test.hpp"
 
 using namespace nil::crypto3::multiprecision;

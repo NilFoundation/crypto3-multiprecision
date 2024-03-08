@@ -10,7 +10,7 @@
 #ifndef BOOST_MULTIPRECISION_MODULAR_POLICY_FIXED_HPP
 #define BOOST_MULTIPRECISION_MODULAR_POLICY_FIXED_HPP
 
-#include <nil/crypto3/multiprecision/cpp_int.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular.hpp>
 
 #include <boost/utility/enable_if.hpp>
 

@@ -12,7 +12,7 @@
 #define BOOST_MULTIPRECISION_RESSOL_HPP
 
 #include <nil/crypto3/multiprecision/jacobi.hpp>
-#include <nil/crypto3/multiprecision/detail/default_ops.hpp>
+#include <boost/multiprecision/detail/default_ops.hpp>
 
 #include <nil/crypto3/multiprecision/modular/modular_adaptor.hpp>
 

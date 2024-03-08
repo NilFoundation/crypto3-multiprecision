@@ -2,7 +2,7 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt
 
-#include <nil/crypto3/multiprecision/cpp_int.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular.hpp>
 #include <nil/crypto3/multiprecision/cpp_dec_float.hpp>
 #include <nil/crypto3/multiprecision/cpp_bin_float.hpp>
 #include <iostream>
@@ -126,11 +126,11 @@ namespace Eigen {
     template<class Backend, nil::crypto3::multiprecision::expression_template_option ExpressionTemplates, class tag,
              class Arg1, class Arg2, class Arg3, class Arg4, typename BinaryOp>
     struct ScalarBinaryOpTraits<nil::crypto3::multiprecision::number<Backend, ExpressionTemplates>,
-                                nil::crypto3::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>,
+                                boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>,
                                 BinaryOp> {
         static_assert(
             boost::is_convertible<
-                typename nil::crypto3::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type,
+                typename boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type,
                 nil::crypto3::multiprecision::number<Backend, ExpressionTemplates>>::value,
             "Interoperability with this arithmetic type is not supported.");
         typedef nil::crypto3::multiprecision::number<Backend, ExpressionTemplates> ReturnType;
@@ -138,11 +138,11 @@ namespace Eigen {
 
     template<class tag, class Arg1, class Arg2, class Arg3, class Arg4, class Backend,
              nil::crypto3::multiprecision::expression_template_option ExpressionTemplates, typename BinaryOp>
-    struct ScalarBinaryOpTraits<nil::crypto3::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>,
+    struct ScalarBinaryOpTraits<boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>,
                                 nil::crypto3::multiprecision::number<Backend, ExpressionTemplates>, BinaryOp> {
         static_assert(
             boost::is_convertible<
-                typename nil::crypto3::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type,
+                typename boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type,
                 nil::crypto3::multiprecision::number<Backend, ExpressionTemplates>>::value,
             "Interoperability with this arithmetic type is not supported.");
         typedef nil::crypto3::multiprecision::number<Backend, ExpressionTemplates> ReturnType;

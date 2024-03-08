@@ -8,7 +8,7 @@
 #ifndef BOOST_MP_CPP_INT_LIM_HPP
 #define BOOST_MP_CPP_INT_LIM_HPP
 
-#include <nil/crypto3/multiprecision/traits/max_digits10.hpp>
+#include <boost/multiprecision/traits/max_digits10.hpp>
 
 namespace std {
 
@@ -300,8 +300,8 @@ namespace std {
             nil::crypto3::multiprecision::backends::max_precision<backend_type>::value == UINT_MAX ?
                 INT_MAX :
                 nil::crypto3::multiprecision::backends::max_precision<backend_type>::value;
-        static constexpr int digits10 = nil::crypto3::multiprecision::detail::calc_digits10<digits>::value;
-        static constexpr int max_digits10 = nil::crypto3::multiprecision::detail::calc_max_digits10<digits>::value;
+        static constexpr int digits10 = boost::multiprecision::detail::calc_digits10<digits>::value;
+        static constexpr int max_digits10 = boost::multiprecision::detail::calc_max_digits10<digits>::value;
         static constexpr bool is_signed = nil::crypto3::multiprecision::is_signed_number<backend_type>::value;
         static constexpr bool is_integer = true;
         static constexpr bool is_exact = true;

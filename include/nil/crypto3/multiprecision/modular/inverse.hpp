@@ -13,7 +13,7 @@
 #include <boost/container/vector.hpp>
 #include <boost/type_traits/is_integral.hpp>
 
-#include <nil/crypto3/multiprecision/detail/default_ops.hpp>
+#include <boost/multiprecision/detail/default_ops.hpp>
 
 namespace nil {
     namespace crypto3 {

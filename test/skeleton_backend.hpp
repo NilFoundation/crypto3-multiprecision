@@ -6,7 +6,7 @@
 #ifndef BOOST_MATH_SKELETON_BACKEND_HPP
 #define BOOST_MATH_SKELETON_BACKEND_HPP
 
-#include <nil/crypto3/multiprecision/number.hpp>
+#include <boost/multiprecision/number.hpp>
 #include <boost/container_hash/hash.hpp>
 
 namespace boost {

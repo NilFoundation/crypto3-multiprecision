@@ -30,7 +30,7 @@
 #include <nil/crypto3/multiprecision/tommath.hpp>
 #endif
 #ifdef TEST_CPP_INT
-#include <nil/crypto3/multiprecision/cpp_int.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular.hpp>
 #endif
 
 #include <boost/algorithm/string/case_conv.hpp>
@@ -54,10 +54,10 @@ template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_i
          nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
          nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
 struct unchecked_type<nil::crypto3::multiprecision::number<
-    nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
+    nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>,
     ExpressionTemplates>> {
     typedef nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType,
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType,
                                                       nil::crypto3::multiprecision::unchecked, Allocator>,
         ExpressionTemplates>
         type;
@@ -165,9 +165,9 @@ int main() {
     test_round_trip<nil::crypto3::multiprecision::cpp_int>();
     test_round_trip<nil::crypto3::multiprecision::checked_int1024_t>();
     test_round_trip<nil::crypto3::multiprecision::checked_uint512_t>();
-    test_round_trip<nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_backend<
+    test_round_trip<nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_modular_backend<
         32, 32, nil::crypto3::multiprecision::signed_magnitude, nil::crypto3::multiprecision::checked, void>>>();
-    test_round_trip<nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_backend<
+    test_round_trip<nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::cpp_int_modular_backend<
         32, 32, nil::crypto3::multiprecision::unsigned_magnitude, nil::crypto3::multiprecision::checked, void>>>();
 #endif
     return boost::report_errors();

@@ -12,7 +12,7 @@
 
 #include <nil/crypto3/multiprecision/modular/modular_params.hpp>
 #include <nil/crypto3/multiprecision/modular/modular_adaptor.hpp>
-#include <nil/crypto3/multiprecision/cpp_int.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular.hpp>
 
 namespace nil {
     namespace crypto3 {

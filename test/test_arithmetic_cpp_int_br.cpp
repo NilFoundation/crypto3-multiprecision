@@ -5,14 +5,14 @@
 
 #define BOOST_MP_NOT_TESTING_NUMBER
 
-#include <nil/crypto3/multiprecision/cpp_int.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular.hpp>
 
 #include "test_arithmetic.hpp"
 
 template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_integer_type SignType, class Allocator,
          nil::crypto3::multiprecision::expression_template_option ExpressionTemplates>
 struct is_twos_complement_integer<nil::crypto3::multiprecision::number<
-    nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, nil::crypto3::multiprecision::checked,
+    nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, nil::crypto3::multiprecision::checked,
                                                   Allocator>,
     ExpressionTemplates>> : public std::integral_constant<bool, false> { };
 
@@ -24,9 +24,9 @@ template<unsigned MinBits, unsigned MaxBits, nil::crypto3::multiprecision::cpp_i
          nil::crypto3::multiprecision::cpp_int_check_type Checked, class Allocator,
          nil::crypto3::multiprecision::expression_template_option ET>
 struct related_type<nil::crypto3::multiprecision::number<
-    nil::crypto3::multiprecision::cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>, ET>> {
+    nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>, ET>> {
     typedef nil::crypto3::multiprecision::number<
-        nil::crypto3::multiprecision::cpp_int_backend<MinBits / 2, MaxBits / 2, SignType, Checked, Allocator>, ET>
+        nil::crypto3::multiprecision::cpp_int_modular_backend<MinBits / 2, MaxBits / 2, SignType, Checked, Allocator>, ET>
         type;
 };
 

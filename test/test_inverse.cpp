@@ -20,15 +20,15 @@
 
 #include "test.hpp"
 
-#include <nil/crypto3/multiprecision/cpp_int.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular.hpp>
 
 #include <nil/crypto3/multiprecision/inverse.hpp>
 #include <nil/crypto3/multiprecision/modular/modular_adaptor.hpp>
 #include <nil/crypto3/multiprecision/modular/modular_params.hpp>
-#include <nil/crypto3/multiprecision/number.hpp>
+#include <boost/multiprecision/number.hpp>
 #include <nil/crypto3/multiprecision/cpp_modular.hpp>
 
-#include <nil/crypto3/multiprecision/cpp_int/literals.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular/literals.hpp>
 
 using namespace nil::crypto3::multiprecision;
 
@@ -216,7 +216,7 @@ void test_monty_inverse() {
 }
 
 template<typename T>
-void test_cpp_int_backend() {
+void test_cpp_int_modular_backend() {
 
     using namespace nil::crypto3::multiprecision;
     number<T> res;
@@ -276,8 +276,8 @@ void test_cpp_int_backend() {
                 "650367370131035732951388159175971890099247228360312965057735541872892978783707133028552644759681714224"
                 "704381891573964406129272600659255700500824412025869294370532513154961039220948194823131817745018177622"
                 "2904306153521050324221361215524333142914455291939319"));
-    number<cpp_int_backend<255, 255>> t1("46183318524466423714385242700212935662232011232920767824642233133732825160423");
-    number<cpp_int_backend<255, 255>> t2("52435875175126190479447740508185965837690552500527637822603658699938581184513");
+    number<cpp_int_modular_backend<255, 255>> t1("46183318524466423714385242700212935662232011232920767824642233133732825160423");
+    number<cpp_int_modular_backend<255, 255>> t2("52435875175126190479447740508185965837690552500527637822603658699938581184513");
     std::cout << "res1=" << inverse_mod(t1, t2) << std::endl;
     std::cout << std::endl;
     std::cout << "res1=" << inverse_mod(number<backends::modular_adaptor<T, backends::modular_params_rt<T>>>(t1, t2)) << std::endl;
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE(inverse_tests) {
     test_monty_inverse<nil::crypto3::multiprecision::cpp_int>();
     test_inverse_mod<nil::crypto3::multiprecision::cpp_int>();
     test_inverse_extended_euclidean_algorithm<nil::crypto3::multiprecision::cpp_int>();
-    test_cpp_int_backend<nil::crypto3::multiprecision::cpp_int_backend<>>();
+    test_cpp_int_modular_backend<nil::crypto3::multiprecision::cpp_int_modular_backend<>>();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE(static_tests)
 
 BOOST_AUTO_TEST_CASE(cpp_int_fixed_test) {
-    using Backend = cpp_int_backend<585, 585>;
+    using Backend = cpp_int_modular_backend<585, 585>;
     using Backend_modular = modular_adaptor<Backend, backends::modular_params_rt<Backend>>;
     using modular_number = number<Backend_modular>;
 

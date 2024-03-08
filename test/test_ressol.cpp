@@ -14,11 +14,11 @@
 
 #include "test.hpp"
 
-#include <nil/crypto3/multiprecision/cpp_int.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular.hpp>
 #include <nil/crypto3/multiprecision/cpp_modular.hpp>
 
 #include <nil/crypto3/multiprecision/ressol.hpp>
-#include <nil/crypto3/multiprecision/cpp_int/literals.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular/literals.hpp>
 
 BOOST_MP_DEFINE_SIZED_CPP_INT_LITERAL(4);
 BOOST_MP_DEFINE_SIZED_CPP_INT_LITERAL(7);
@@ -236,16 +236,16 @@ constexpr bool test_static() {
 }
 
 constexpr bool test_backend_static() {
-    using cpp521 = backends::cpp_int_backend<521, 521>;
-    using cpp315 = backends::cpp_int_backend<315, 315>;
-    using cpp224 = backends::cpp_int_backend<224, 224>;
-    using cpp18 = backends::cpp_int_backend<18, 18>;
-    using cpp16 = backends::cpp_int_backend<16, 16>;
-    using cpp15 = backends::cpp_int_backend<15, 15>;
-    using cpp13 = backends::cpp_int_backend<13, 13>;
-    using cpp8 = backends::cpp_int_backend<8, 8>;
-    using cpp7 = backends::cpp_int_backend<7, 7>;
-    using cpp4 = backends::cpp_int_backend<4, 4>;
+    using cpp521 = backends::cpp_int_modular_backend<521, 521>;
+    using cpp315 = backends::cpp_int_modular_backend<315, 315>;
+    using cpp224 = backends::cpp_int_modular_backend<224, 224>;
+    using cpp18 = backends::cpp_int_modular_backend<18, 18>;
+    using cpp16 = backends::cpp_int_modular_backend<16, 16>;
+    using cpp15 = backends::cpp_int_modular_backend<15, 15>;
+    using cpp13 = backends::cpp_int_modular_backend<13, 13>;
+    using cpp8 = backends::cpp_int_modular_backend<8, 8>;
+    using cpp7 = backends::cpp_int_modular_backend<7, 7>;
+    using cpp4 = backends::cpp_int_modular_backend<4, 4>;
 
     constexpr auto a1_m =
         number<backends::modular_adaptor<cpp4, backends::modular_params_rt<cpp4>>>(0x5_cppi4, 0xb_cppi4);
@@ -333,7 +333,7 @@ constexpr bool test_backend_static() {
 
 int main() {
     test<nil::crypto3::multiprecision::cpp_int>();
-    test_backend<nil::crypto3::multiprecision::cpp_int_backend<>>();
+    test_backend<nil::crypto3::multiprecision::cpp_int_modular_backend<>>();
     constexpr bool res1 = test_static();
     constexpr bool res2 = test_backend_static();
     return boost::report_errors();

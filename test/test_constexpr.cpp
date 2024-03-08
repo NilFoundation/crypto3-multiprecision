@@ -3,7 +3,7 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#include <nil/crypto3/multiprecision/cpp_int.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular.hpp>
 #if defined(HAVE_FLOAT128)
 #include <nil/crypto3/multiprecision/float128.hpp>
 #endif
@@ -47,10 +47,10 @@ void test3() {
 
 using namespace nil::crypto3::multiprecision;
 
-template void test1<number<cpp_int_backend<64, 64, unsigned_magnitude, unchecked, void>, et_off>>();
-template void test1<number<cpp_int_backend<64, 64, signed_magnitude, unchecked, void>, et_off>>();
-template void test3<number<cpp_int_backend<2048, 2048, unsigned_magnitude, unchecked, void>, et_off>>();
-template void test2<number<cpp_int_backend<2048, 2048, signed_magnitude, unchecked, void>, et_off>>();
+template void test1<number<cpp_int_modular_backend<64, 64, unsigned_magnitude, unchecked, void>, et_off>>();
+template void test1<number<cpp_int_modular_backend<64, 64, signed_magnitude, unchecked, void>, et_off>>();
+template void test3<number<cpp_int_modular_backend<2048, 2048, unsigned_magnitude, unchecked, void>, et_off>>();
+template void test2<number<cpp_int_modular_backend<2048, 2048, signed_magnitude, unchecked, void>, et_off>>();
 
 #if defined(HAVE_FLOAT128)
 template void test1<float128>();

@@ -15,8 +15,8 @@
 
 #include <boost/type_traits/is_integral.hpp>
 
-#include <nil/crypto3/multiprecision/cpp_int.hpp>
-#include <nil/crypto3/multiprecision/cpp_int/cpp_int_config.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular.hpp>
+#include <boost/multiprecision/cpp_int/cpp_int_config.hpp>
 #include <nil/crypto3/multiprecision/modular/base_params.hpp>
 #include <nil/crypto3/multiprecision/modular/barrett_params.hpp>
 

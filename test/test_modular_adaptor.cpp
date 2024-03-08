@@ -20,7 +20,7 @@
 #include <nil/crypto3/multiprecision/modular/modular_params.hpp>
 
 #ifdef TEST_CPP_INT
-#include <nil/crypto3/multiprecision/cpp_int.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular.hpp>
 #include <nil/crypto3/multiprecision/cpp_modular.hpp>
 #endif
 
@@ -29,7 +29,7 @@
 using namespace nil::crypto3::multiprecision;
 
 #ifdef TEST_CPP_INT
-        using Backend = cpp_int_backend<>;
+        using Backend = cpp_int_modular_backend<>;
 #endif
 
 static const std::string even_mod[] = {

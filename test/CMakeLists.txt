@@ -305,23 +305,10 @@ target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_cpp_int_import_export no
 add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_misc ${CURRENT_PROJECT_NAME}_test_test_cpp_int_import_export)
 set_target_properties(${CURRENT_PROJECT_NAME}_test_test_cpp_int_import_export PROPERTIES CXX_STANDARD 14)
 
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_include_test_cpp_int_include_test SOURCES ${CURRENT_TEST_SOURCES_DIR}/include_test/cpp_int_include_test.cpp COMPILE_ONLY)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_misc ${CURRENT_PROJECT_NAME}_test_include_test_cpp_int_include_test)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_include_test_cpp_int_include_test PROPERTIES CXX_STANDARD 14)
-
 cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_checked_mixed_cpp_int SOURCES ${CURRENT_TEST_SOURCES_DIR}/test_checked_mixed_cpp_int.cpp)
 target_link_libraries(${CURRENT_PROJECT_NAME}_test_test_checked_mixed_cpp_int no_eh_support)
 add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_misc ${CURRENT_PROJECT_NAME}_test_test_checked_mixed_cpp_int)
 set_target_properties(${CURRENT_PROJECT_NAME}_test_test_checked_mixed_cpp_int PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_bug11922 SOURCES ${CURRENT_TEST_SOURCES_DIR}/bug11922.cpp COMPILE_ONLY)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_misc ${CURRENT_PROJECT_NAME}_test_bug11922)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_bug11922 PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_bug12039 SOURCES ${CURRENT_TEST_SOURCES_DIR}/bug12039.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_bug12039 no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_misc ${CURRENT_PROJECT_NAME}_test_bug12039)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_bug12039 PROPERTIES CXX_STANDARD 14)
 
 cm_test(NAME ${CURRENT_PROJECT_NAME}_test_git_issue_30 SOURCES ${CURRENT_TEST_SOURCES_DIR}/git_issue_30.cpp COMPILE_ONLY)
 add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_misc ${CURRENT_PROJECT_NAME}_test_git_issue_30)
@@ -339,23 +326,6 @@ cm_test(NAME ${CURRENT_PROJECT_NAME}_test_test_optional_compat SOURCES ${CURRENT
 add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_misc ${CURRENT_PROJECT_NAME}_test_test_optional_compat)
 set_target_properties(${CURRENT_PROJECT_NAME}_test_test_optional_compat PROPERTIES CXX_STANDARD 14)
 
-if(BUILD_WITH_SOURCES_DIR)
-    file(GLOB TEST_FILES ${CURRENT_TEST_SOURCES_DIR}/concepts/*.cpp)
-    foreach(FILEB ${TEST_FILES})
-        get_filename_component(NAME ${FILEB} NAME_WE)
-
-        cm_test(NAME ${CURRENT_PROJECT_NAME}_test_concepts_${NAME}_backend_concept SOURCES ${FILEB} COMPILE_ONLY)
-        target_compile_definitions(${CURRENT_PROJECT_NAME}_test_concepts_${NAME}_backend_concept PUBLIC -DTEST_BACKEND)
-        target_include_directories(${CURRENT_PROJECT_NAME}_test_concepts_${NAME}_backend_concept PRIVATE ${BUILD_WITH_SOURCES_DIR})
-        add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_concepts ${CURRENT_PROJECT_NAME}_test_concepts_${NAME}_backend_concept)
-
-        cm_test(NAME ${CURRENT_PROJECT_NAME}_test_concepts_${NAME}_logged_adaptor SOURCES ${FILEB} COMPILE_ONLY)
-        target_compile_definitions(${CURRENT_PROJECT_NAME}_test_concepts_${NAME}_logged_adaptor PUBLIC -DTEST_LOGGED_ADAPTER)
-        target_include_directories(${CURRENT_PROJECT_NAME}_test_concepts_${NAME}_logged_adaptor PRIVATE ${BUILD_WITH_SOURCES_DIR})
-        add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_concepts ${CURRENT_PROJECT_NAME}_test_concepts_${NAME}_logged_adaptor)
-    endforeach()
-endif()
-
 #test-suite examples
 
 cm_test(NAME ${CURRENT_PROJECT_NAME}_test_cpp_int_snips SOURCES ${CURRENT_TEST_SOURCES_DIR}/../example/cpp_int_snips.cpp)
@@ -367,11 +337,6 @@ cm_test(NAME ${CURRENT_PROJECT_NAME}_test_cpp_int_import_export SOURCES ${CURREN
 target_link_libraries(${CURRENT_PROJECT_NAME}_test_cpp_int_import_export no_eh_support)
 add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_examples ${CURRENT_PROJECT_NAME}_test_cpp_int_import_export)
 set_target_properties(${CURRENT_PROJECT_NAME}_test_cpp_int_import_export PROPERTIES CXX_STANDARD 14)
-
-cm_test(NAME ${CURRENT_PROJECT_NAME}_test_debug_adaptor_snips SOURCES ${CURRENT_TEST_SOURCES_DIR}/../example/debug_adaptor_snips.cpp)
-target_link_libraries(${CURRENT_PROJECT_NAME}_test_debug_adaptor_snips no_eh_support)
-add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_examples ${CURRENT_PROJECT_NAME}_test_debug_adaptor_snips)
-set_target_properties(${CURRENT_PROJECT_NAME}_test_debug_adaptor_snips PROPERTIES CXX_STANDARD 14)
 
 cm_test(NAME ${CURRENT_PROJECT_NAME}_test_integer_examples SOURCES ${CURRENT_TEST_SOURCES_DIR}/../example/integer_examples.cpp)
 target_link_libraries(${CURRENT_PROJECT_NAME}_test_integer_examples no_eh_support)

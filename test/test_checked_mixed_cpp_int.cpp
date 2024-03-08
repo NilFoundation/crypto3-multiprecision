@@ -7,7 +7,7 @@
 #define _SCL_SECURE_NO_WARNINGS
 #endif
 
-#include <nil/crypto3/multiprecision/cpp_int.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular.hpp>
 #include "test.hpp"
 
 template<class T, class U>
@@ -26,7 +26,7 @@ int main() {
         typedef nil::crypto3::multiprecision::checked_int1024_t big_type;
         typedef nil::crypto3::multiprecision::checked_int512_t small_type;
         typedef nil::crypto3::multiprecision::number<
-            nil::crypto3::multiprecision::cpp_int_backend<32, 32, nil::crypto3::multiprecision::signed_magnitude,
+            nil::crypto3::multiprecision::cpp_int_modular_backend<32, 32, nil::crypto3::multiprecision::signed_magnitude,
                                                           nil::crypto3::multiprecision::checked, void>,
             nil::crypto3::multiprecision::et_off>
             little_type;
