@@ -21,13 +21,13 @@
 #include <boost/core/empty_value.hpp>
 #include <boost/integer/static_min_max.hpp>
 
+#include <boost/multiprecision/cpp_int/checked.hpp>
 #include <boost/multiprecision/number.hpp>
 #include <boost/multiprecision/detail/integer_ops.hpp>
 #include <boost/multiprecision/detail/rebind.hpp>
 #include <boost/multiprecision/traits/is_byte_container.hpp>
 #include <boost/multiprecision/detail/constexpr.hpp>
 
-#include <boost/multiprecision/cpp_int/checked.hpp>
 #include <nil/crypto3/multiprecision/cpp_int_modular/value_pack.hpp>
 #include <nil/crypto3/multiprecision/cpp_int_modular/cpp_int_modular_config.hpp>
 
@@ -92,7 +92,7 @@ namespace boost {
 
                 template<unsigned Bits>
                 struct min_precision<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>> {
-                    static constexpr const unsigned value =i boost::static_unsigned_max<Bits, MaxBits>::value;
+                    static constexpr const unsigned value = boost::static_unsigned_max<Bits, MaxBits>::value;
                 };
 
                 //
@@ -132,15 +132,11 @@ namespace boost {
                 template<class T, class U>
                 struct is_implicit_cpp_int_conversion;
 
-                template<unsigned Bits, unsigned Bits2>
+                template<unsigned Bits>
                 struct is_implicit_cpp_int_conversion<
                     nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>,
-                    nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits2>> {
-                    using t1 = nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>;
-                    using t2 = nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits2>;
-                    static constexpr const bool value = 
-                        (boost::multiprecision::detail::max_precision<t1>::value <= 
-                            boost::multiprecision::detail::max_precision<t2>::value);
+                    nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>> {
+                    static constexpr const bool value = true;
                 };
 
                 //
@@ -170,7 +166,7 @@ namespace boost {
 
                     inline BOOST_MP_CXX14_CONSTEXPR void verify_new_size(unsigned new_size,
                                                                          unsigned min_size,
-                                                                         const std::integral_constant<int, checked>&) {
+                                                                         const std::integral_constant<int>&) {
                         if (new_size < min_size)
                             BOOST_THROW_EXCEPTION(
                                 std::overflow_error("Unable to allocate sufficient storage for the value of the "
@@ -179,12 +175,12 @@ namespace boost {
                     inline BOOST_MP_CXX14_CONSTEXPR void
                         verify_new_size(unsigned /*new_size*/,
                                         unsigned /*min_size*/,
-                                        const std::integral_constant<int, unchecked>&) {
+                                        const std::integral_constant<int>&) {
                     }
 
                     template<class U>
                     inline BOOST_MP_CXX14_CONSTEXPR void
-                        verify_limb_mask(bool b, U limb, U mask, const std::integral_constant<int, checked>&) {
+                        verify_limb_mask(bool b, U limb, U mask, const std::integral_constant<int>&) {
                         // When we mask out "limb" with "mask", do we loose bits?  If so it's an overflow error:
                         if (b && (limb & ~mask))
                             BOOST_THROW_EXCEPTION(
@@ -196,7 +192,7 @@ namespace boost {
                         verify_limb_mask(bool /*b*/,
                                          U /*limb*/,
                                          U /*mask*/,
-                                         const std::integral_constant<int, unchecked>&) {
+                                         const std::integral_constant<int>&) {
                     }
                 }    // namespace detail
         }    // namespace detail
@@ -215,7 +211,6 @@ namespace nil {
                 struct cpp_int_modular_base<Bits, false> {
                     using limb_pointer = limb_type*;
                     using const_limb_pointer = const limb_type*;
-                    using checked_type = std::integral_constant<int, Checked>;
 
                     struct scoped_shared_storage {
                         BOOST_MP_CXX14_CONSTEXPR scoped_shared_storage(const cpp_int_modular_base&, unsigned) {
@@ -439,7 +434,7 @@ namespace nil {
 
                     local_limb_type m_data;
 
-                    using checked_type = std::integral_constant<int, Checked>;
+                    using checked_type = std::integral_constant<int>;
 
                     //
                     // Interface invariants:
@@ -454,7 +449,7 @@ namespace nil {
                         typename std::enable_if<!(std::numeric_limits<T>::is_specialized &&
                                                   (std::numeric_limits<T>::digits <= (int)Bits))>::type
                         check_in_range(T val,
-                                       const std::integral_constant<int, checked>&,
+                                       const std::integral_constant<int>&,
                                        const std::integral_constant<bool, false>&) {
                         using common_type = typename std::common_type<T, local_limb_type>::type;
 
@@ -464,7 +459,7 @@ namespace nil {
                     }
                     template<class T>
                     BOOST_MP_CXX14_CONSTEXPR void check_in_range(T val,
-                                                                 const std::integral_constant<int, checked>&,
+                                                                 const std::integral_constant<int>&,
                                                                  const std::integral_constant<bool, true>&) {
                         using common_type = typename std::common_type<T, local_limb_type>::type;
 
@@ -500,8 +495,7 @@ namespace nil {
                     BOOST_MP_FORCEINLINE constexpr cpp_int_modular_base(
                         SI i,
                         typename std::enable_if<boost::multiprecision::detail::is_signed<SI>::value &&
-                                                boost::multiprecision::detail::is_integral<SI>::value &&
-                                                (Checked == unchecked)>::type const* = 0) noexcept :
+                                                boost::multiprecision::detail::is_integral<SI>::value>::type const* = 0) noexcept :
                         m_data(i < 0 ? (1 + ~static_cast<local_limb_type>(-i & limb_mask)) & limb_mask :
                                        static_cast<local_limb_type>(i & limb_mask)) {
                     }
@@ -509,8 +503,8 @@ namespace nil {
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_base(
                         SI i,
                         typename std::enable_if<boost::multiprecision::detail::is_signed<SI>::value &&
-                                                boost::multiprecision::detail::is_integral<SI>::value &&
-                                                (Checked == checked)>::type const* =
+                                                boost::multiprecision::detail::is_integral<SI>::value
+                                                >::type const* =
                             0) noexcept(noexcept(std::declval<cpp_int_modular_base>().check_in_range(std::declval<SI>()))) :
                         m_data(i < 0 ? 1 + ~static_cast<local_limb_type>(-i & limb_mask) :
                                        static_cast<local_limb_type>(i & limb_mask)) {
@@ -519,15 +513,15 @@ namespace nil {
                     template<class UI>
                     BOOST_MP_FORCEINLINE constexpr cpp_int_modular_base(
                         UI i,
-                        typename std::enable_if<boost::multiprecision::detail::is_unsigned<UI>::value &&
-                                                (Checked == unchecked)>::type const* = 0) noexcept :
+                        typename std::enable_if<boost::multiprecision::detail::is_unsigned<UI>::value
+                                                >::type const* = 0) noexcept :
                         m_data(static_cast<local_limb_type>(i & limb_mask)) {
                     }
                     template<class UI>
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_base(
                         UI i,
-                        typename std::enable_if<boost::multiprecision::detail::is_unsigned<UI>::value &&
-                                                (Checked == checked)>::type const* =
+                        typename std::enable_if<boost::multiprecision::detail::is_unsigned<UI>::value
+                                                >::type const* =
                             0) noexcept(noexcept(std::declval<cpp_int_modular_base>().check_in_range(std::declval<UI>()))) :
                         m_data(static_cast<local_limb_type>(i & limb_mask)) {
                         check_in_range(i);
@@ -537,8 +531,8 @@ namespace nil {
                     BOOST_MP_FORCEINLINE constexpr cpp_int_modular_base(
                         SI i,
                         typename std::enable_if<boost::multiprecision::detail::is_signed<SI>::value &&
-                                                boost::multiprecision::detail::is_integral<SI>::value &&
-                                                (Checked == unchecked)>::type const* = 0) noexcept :
+                                                boost::multiprecision::detail::is_integral<SI>::value
+                                                >::type const* = 0) noexcept :
                         m_data(i < 0 ? (1 + ~static_cast<local_limb_type>(-i)) & limb_mask :
                                        static_cast<local_limb_type>(i) & limb_mask) {
                     }
@@ -546,8 +540,8 @@ namespace nil {
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_base(
                         SI i,
                         typename std::enable_if<boost::multiprecision::detail::is_signed<SI>::value &&
-                                                boost::multiprecision::detail::is_integral<SI>::value &&
-                                                (Checked == checked)>::type const* =
+                                                boost::multiprecision::detail::is_integral<SI>::value
+                                                >::type const* =
                             0) noexcept(noexcept(std::declval<cpp_int_modular_base>().check_in_range(std::declval<SI>()))) :
                         m_data(i < 0 ? 1 + ~static_cast<local_limb_type>(-i) : static_cast<local_limb_type>(i)) {
                         check_in_range(i);
@@ -555,15 +549,15 @@ namespace nil {
                     template<class UI>
                     BOOST_MP_FORCEINLINE constexpr cpp_int_modular_base(
                         UI i,
-                        typename std::enable_if<boost::multiprecision::detail::is_unsigned<UI>::value &&
-                                                (Checked == unchecked)>::type const* = 0) noexcept :
+                        typename std::enable_if<boost::multiprecision::detail::is_unsigned<UI>::value
+                                                >::type const* = 0) noexcept :
                         m_data(static_cast<local_limb_type>(i) & limb_mask) {
                     }
                     template<class UI>
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_base(
                         UI i,
-                        typename std::enable_if<boost::multiprecision::detail::is_unsigned<UI>::value &&
-                                                (Checked == checked)>::type const* =
+                        typename std::enable_if<boost::multiprecision::detail::is_unsigned<UI>::value
+                                                >::type const* =
                             0) noexcept(noexcept(std::declval<cpp_int_modular_base>().check_in_range(std::declval<UI>()))) :
                         m_data(static_cast<local_limb_type>(i)) {
                         check_in_range(i);
@@ -573,7 +567,7 @@ namespace nil {
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR
                         cpp_int_modular_base(F i,
                                      typename std::enable_if<std::is_floating_point<F>::value>::type const* =
-                                         0) noexcept((Checked == unchecked)) :
+                                         0) noexcept:
                         m_data(static_cast<local_limb_type>(std::fabs(i)) & limb_mask) {
                         check_in_range(i);
                         if (i < 0)
@@ -612,30 +606,28 @@ namespace nil {
                     BOOST_MP_FORCEINLINE constexpr bool sign() const noexcept {
                         return false;
                     }
-                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void sign(bool b) noexcept((Checked == unchecked)) {
+                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void sign(bool b) noexcept {
                         if (b)
                             negate();
                     }
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void resize(unsigned, unsigned min_size) {
                         boost::multiprecision::backends::detail::verify_new_size(2, min_size, checked_type());
                     }
-                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void normalize() noexcept((Checked == unchecked)) {
+                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void normalize() noexcept {
                         detail::verify_limb_mask(true, m_data, limb_mask, checked_type());
                         m_data &= limb_mask;
                     }
 
                     BOOST_MP_FORCEINLINE constexpr cpp_int_modular_base() noexcept : m_data(0) {
                     }
-                    BOOST_MP_FORCEINLINE constexpr cpp_int_modular_base(const cpp_int_modular_base& o) noexcept : m_data(o.m_data) {
+                    BOOST_MP_FORCEINLINE constexpr cpp_int_modular_base(const cpp_int_modular_base& o) noexcept
+                        : m_data(o.m_data) {
                     }
                     //~cpp_int_modular_base() noexcept {}
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void assign(const cpp_int_modular_base& o) noexcept {
                         m_data = o.m_data;
                     }
-                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void negate() noexcept((Checked == unchecked)) {
-                        BOOST_IF_CONSTEXPR(Checked == checked) {
-                            BOOST_THROW_EXCEPTION(std::range_error("Attempt to negate an unsigned type."));
-                        }
+                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void negate() noexcept {
                         m_data = ~m_data;
                         ++m_data;
                     }
@@ -732,12 +724,12 @@ namespace nil {
                     BOOST_MP_FORCEINLINE constexpr cpp_int_modular_backend(cpp_int_modular_backend&& o) noexcept
                         : base_type(static_cast<base_type&&>(o)) {
                     }
-                    template<unsigned Bits2>
+                    template<unsigned Bits>
                     BOOST_MP_FORCEINLINE BOOST_CXX14_CONSTEXPR cpp_int_modular_backend(
-                        cpp_int_modular_backend<Bits2>&& o,
+                        cpp_int_modular_backend<Bits>&& o,
                         typename std::enable_if<
-                            is_implicit_cpp_int_conversion<cpp_int_modular_backend<Bits2>, self_type>::value>::type* = 0) noexcept {
-                        *this = static_cast<cpp_int_modular_backend<Bits2>&&>(o);
+                            is_implicit_cpp_int_conversion<cpp_int_modular_backend<Bits>, self_type>::value>::type* = 0) noexcept {
+                        *this = static_cast<cpp_int_modular_backend<Bits>&&>(o);
                     }
                     //
                     // Direct construction from arithmetic type:
@@ -755,14 +747,7 @@ namespace nil {
                     }
 
                     template<class Arg, typename std::enable_if_t<std::is_integral<Arg>::value &&
-                                                                  std::is_convertible<Arg, signed_limb_type>::value &&
-                                                                  std::is_signed<Arg>::value> const * = nullptr>
-                    BOOST_MP_FORCEINLINE constexpr cpp_int_modular_backend(Arg i) : base_type((signed_limb_type)i) {
-                    }
-
-                    template<class Arg, typename std::enable_if_t<std::is_integral<Arg>::value &&
-                                                                  std::is_convertible<Arg, limb_type>::value &&
-                                                                  !std::is_signed<Arg>::value> const * = nullptr>
+                                                                  std::is_convertible<Arg, limb_type>::value> const * = nullptr>
                     BOOST_MP_FORCEINLINE constexpr cpp_int_modular_backend(Arg i) : base_type((limb_type)i) {
                     }
 #else
@@ -785,98 +770,80 @@ namespace nil {
                         base_type(data, offset, len) {
                         this->normalize();
                     }
-                    explicit constexpr cpp_int_modular_backend(typename base_type::scoped_shared_storage& data,
-                                                       unsigned len) noexcept :
-                        base_type(data, len) {
+                    explicit constexpr cpp_int_modular_backend(
+                            typename base_type::scoped_shared_storage& data,
+                            unsigned len) noexcept
+                        : base_type(data, len) {
                     }
 
                 private:
-                    template<unsigned Bits2>
+                    template<unsigned Bits>
                     BOOST_MP_CXX14_CONSTEXPR void
-                        do_assign(const cpp_int_modular_backend<Bits2>& other,
+                        do_assign(const cpp_int_modular_backend<Bits>& other,
                                   std::integral_constant<bool, true> const&,
                                   std::integral_constant<bool, true> const&) {
                         // Assigning trivial type to trivial type:
                         this->check_in_range(*other.limbs());
                         *this->limbs() = static_cast<typename self_type::local_limb_type>(*other.limbs());
-                        this->sign(other.sign());
                         this->normalize();
                     }
-                    template<unsigned Bits2>
+                    template<unsigned Bits>
                     BOOST_MP_CXX14_CONSTEXPR void
-                        do_assign(const cpp_int_modular_backend<Bits2>& other,
+                        do_assign(const cpp_int_modular_backend<Bits>& other,
                                   std::integral_constant<bool, true> const&,
                                   std::integral_constant<bool, false> const&) {
                         // non-trivial to trivial narrowing conversion:
                         double_limb_type v = *other.limbs();
                         if (other.size() > 1) {
                             v |= static_cast<double_limb_type>(other.limbs()[1]) << bits_per_limb;
-                            BOOST_IF_CONSTEXPR(Checked == checked) {
-                                if (other.size() > 2) {
-                                    BOOST_THROW_EXCEPTION(std::range_error(
-                                        "Assignment of a cpp_int that is out of range for the target type."));
-                                }
-                            }
                         }
                         *this = v;
                         this->normalize();
                     }
-                    template<unsigned Bits2>
+                    template<unsigned Bits>
                     BOOST_MP_CXX14_CONSTEXPR void
-                        do_assign(const cpp_int_modular_backend<Bits2>& other,
+                        do_assign(const cpp_int_modular_backend<Bits>& other,
                                   std::integral_constant<bool, false> const&,
                                   std::integral_constant<bool, true> const&) {
                         // trivial to non-trivial, treat the trivial argument as if it were an unsigned arithmetic type,
                         // then set the sign afterwards:
                         *this = static_cast<typename boost::multiprecision::detail::canonical<
-                            typename cpp_int_modular_backend<Bits2>::
+                            typename cpp_int_modular_backend<Bits>::
                                 local_limb_type,
                             cpp_int_modular_backend<Bits>>::type>(*other.limbs());
-                        this->sign(other.sign());
                     }
-                    template<unsigned Bits2,
-                             unsigned MaxBits2,
-                             cpp_integer_type SignType2,
-                             cpp_int_check_type Checked2,
-                             class Allocator2>
+
                     BOOST_MP_CXX14_CONSTEXPR void
-                        do_assign(const cpp_int_modular_backend<Bits2>& other,
+                        do_assign(const cpp_int_modular_backend<Bits>& other,
                                   std::integral_constant<bool, false> const&,
                                   std::integral_constant<bool, false> const&) {
                         // regular non-trivial to non-trivial assign:
-                        this->resize(other.size(), other.size());
 
 #if !defined(BOOST_MP_HAS_IS_CONSTANT_EVALUATED) && !defined(BOOST_MP_HAS_BUILTIN_IS_CONSTANT_EVALUATED) && \
     !defined(BOOST_NO_CXX14_CONSTEXPR)
-                        unsigned count = (std::min)(other.size(), this->size());
+                        unsigned count = this->size();
                         for (unsigned i = 0; i < count; ++i)
                             this->limbs()[i] = other.limbs()[i];
 #else
 #ifndef BOOST_MP_NO_CONSTEXPR_DETECTION
                         if (BOOST_MP_IS_CONST_EVALUATED(other.size())) {
-                            unsigned count = (std::min)(other.size(), this->size());
+                            unsigned count = this->size();
                             for (unsigned i = 0; i < count; ++i)
                                 this->limbs()[i] = other.limbs()[i];
                         } else
 #endif
                             std::memcpy(this->limbs(),
                                         other.limbs(),
-                                        (std::min)(other.size(), this->size()) * limb_size);
+                                        this->size() * limb_size);
 #endif
-                        this->sign(other.sign());
                         this->normalize();
                     }
 
                 public:
-                    template<unsigned Bits2,
-                             unsigned MaxBits2,
-                             cpp_integer_type SignType2,
-                             cpp_int_check_type Checked2,
-                             class Allocator2>
                     BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_backend(
-                        const cpp_int_modular_backend<Bits2>& other,
+                        const cpp_int_modular_backend<Bits>& other,
                         typename std::enable_if<is_implicit_cpp_int_conversion<
-                            cpp_int_modular_backend<Bits2>,
+                            cpp_int_modular_backend<Bits>,
                             self_type>::value>::type* = 0) :
                         base_type() {
                         do_assign(
@@ -885,17 +852,12 @@ namespace nil {
                             std::integral_constant<
                                 bool,
                                 is_trivial_cpp_int<
-                                    cpp_int_modular_backend<Bits2>>::value>());
+                                    cpp_int_modular_backend<Bits>>::value>());
                     }
-                    template<unsigned Bits2,
-                             unsigned MaxBits2,
-                             cpp_integer_type SignType2,
-                             cpp_int_check_type Checked2,
-                             class Allocator2>
                     explicit BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_backend(
-                        const cpp_int_modular_backend<Bits2>& other,
+                        const cpp_int_modular_backend<Bits>& other,
                         typename std::enable_if<!(is_implicit_cpp_int_conversion<
-                                                  cpp_int_modular_backend<Bits2>,
+                                                  cpp_int_modular_backend<Bits>,
                                                   self_type>::value)>::type* = 0) :
                         base_type() {
                         do_assign(
@@ -904,26 +866,18 @@ namespace nil {
                             std::integral_constant<
                                 bool,
                                 is_trivial_cpp_int<
-                                    cpp_int_modular_backend<Bits2>>::value>());
+                                    cpp_int_modular_backend<Bits>>::value>());
                     }
-                    template<unsigned Bits2,
-                             unsigned MaxBits2,
-                             cpp_integer_type SignType2,
-                             cpp_int_check_type Checked2,
-                             class Allocator2>
-                    BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_backend&
-                        operator=(const cpp_int_modular_backend<Bits2>& other) {
+                    BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_backend<Bits>&
+                        operator=(const cpp_int_modular_backend<Bits>& other) {
                         do_assign(
                             other,
                             std::integral_constant<bool, is_trivial_cpp_int<self_type>::value>(),
                             std::integral_constant<
                                 bool,
                                 is_trivial_cpp_int<
-                                    cpp_int_modular_backend<Bits2>>::value>());
+                                    cpp_int_modular_backend<Bits>>::value>());
                         return *this;
-                    }
-                    constexpr cpp_int_modular_backend(const cpp_int_modular_backend& a, const literals::detail::negate_tag& tag) :
-                        base_type(static_cast<const base_type&>(a), tag) {
                     }
 
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_backend&
@@ -939,21 +893,6 @@ namespace nil {
                         *static_cast<base_type*>(this) = static_cast<base_type&&>(o);
                         return *this;
                     }
-                    template<unsigned Bits2,
-                             unsigned MaxBits2,
-                             cpp_integer_type SignType2,
-                             cpp_int_check_type Checked2>
-                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR
-                        typename std::enable_if<((MaxBits2 <= MaxBits) || (MaxBits == 0)) &&
-                                                    !std::is_void<Allocator>::value,
-                                                cpp_int_modular_backend&>::type
-                        operator=(cpp_int_modular_backend<Bits2, MaxBits2, SignType2, Checked2, Allocator>&& o) noexcept {
-                        *static_cast<base_type*>(this) =
-                            static_cast<typename cpp_int_modular_backend<Bits2, MaxBits2, SignType2, Checked2>::base_type&&>(
-                                o);
-                        return *this;
-                    }
-
                 private:
                     template<class A>
                     BOOST_MP_CXX14_CONSTEXPR
@@ -962,7 +901,6 @@ namespace nil {
                             noexcept(std::declval<cpp_int_modular_backend>().check_in_range(std::declval<A>()))) {
                         this->check_in_range(val);
                         *this->limbs() = static_cast<typename self_type::local_limb_type>(val);
-                        this->sign(false);
                         this->normalize();
                     }
                     template<class A>
@@ -976,7 +914,6 @@ namespace nil {
                         *this->limbs() = (val < 0) ? static_cast<typename self_type::local_limb_type>(
                                                          boost::multiprecision::detail::unsigned_abs(val)) :
                                                      static_cast<typename self_type::local_limb_type>(val);
-                        this->sign(val < 0);
                         this->normalize();
                     }
                     template<class A>
@@ -987,21 +924,12 @@ namespace nil {
                         *this->limbs() = (val < 0) ? static_cast<typename self_type::local_limb_type>(
                                                          boost::multiprecision::detail::abs(val)) :
                                                      static_cast<typename self_type::local_limb_type>(val);
-                        this->sign(val < 0);
                         this->normalize();
                     }
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void
                         do_assign_arithmetic(limb_type i, const std::integral_constant<bool, false>&) noexcept {
                         this->resize(1, 1);
                         *this->limbs() = i;
-                        this->sign(false);
-                    }
-                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void
-                        do_assign_arithmetic(signed_limb_type i, const std::integral_constant<bool, false>&) noexcept(
-                            noexcept(std::declval<cpp_int_modular_backend>().sign(true))) {
-                        this->resize(1, 1);
-                        *this->limbs() = static_cast<limb_type>(boost::multiprecision::detail::unsigned_abs(i));
-                        this->sign(i < 0);
                     }
                     BOOST_MP_CXX14_CONSTEXPR void
                         do_assign_arithmetic(double_limb_type i, const std::integral_constant<bool, false>&) noexcept {
@@ -1015,9 +943,9 @@ namespace nil {
 #else
                         *p = static_cast<limb_type>(i);
 #endif
+                        // TODO(martun): check this, we don't have resize any more.
                         p[1] = static_cast<limb_type>(i >> base_type::limb_bits);
-                        this->resize(p[1] ? 2 : 1, p[1] ? 2 : 1);
-                        this->sign(false);
+                        // this->resize(p[1] ? 2 : 1, p[1] ? 2 : 1);
                     }
                     BOOST_MP_CXX14_CONSTEXPR void do_assign_arithmetic(
                         signed_double_limb_type i,
@@ -1039,8 +967,8 @@ namespace nil {
                         *p = static_cast<limb_type>(ui);
 #endif
                         p[1] = static_cast<limb_type>(ui >> base_type::limb_bits);
-                        this->resize(p[1] ? 2 : 1, p[1] ? 2 : 1);
-                        this->sign(s);
+                        // TODO(martun): check this, we don't have resize any more.
+                        // this->resize(p[1] ? 2 : 1, p[1] ? 2 : 1);
                     }
 
 #ifdef TVM
@@ -1048,82 +976,7 @@ namespace nil {
                         do_assign_arithmetic(unsigned i, const std::integral_constant<bool, false>& tag) noexcept {
                         do_assign_arithmetic(double_limb_type(i), tag);
                     }
-                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void
-                        do_assign_arithmetic(int i, const std::integral_constant<bool, false>& tag) noexcept {
-                        do_assign_arithmetic(signed_double_limb_type(i), tag);
-                    }
 #endif
-
-                    BOOST_MP_CXX14_CONSTEXPR void do_assign_arithmetic(long double a,
-                                                                       const std::integral_constant<bool, false>&) {
-                        using default_ops::eval_add;
-                        using default_ops::eval_subtract;
-                        using std::floor;
-                        using std::frexp;
-                        using std::ldexp;
-
-                        if (a < 0) {
-                            do_assign_arithmetic(-a, std::integral_constant<bool, false>());
-                            this->sign(true);
-                            return;
-                        }
-
-                        if (a == 0) {
-                            *this = static_cast<limb_type>(0u);
-                        }
-
-                        if (a == 1) {
-                            *this = static_cast<limb_type>(1u);
-                        }
-
-                        if ((boost::math::isinf)(a) || (boost::math::isnan)(a)) {
-                            BOOST_THROW_EXCEPTION(
-                                std::runtime_error("Cannot convert a non-finite number to an integer."));
-                        }
-
-                        int e = 0;
-                        long double f(0), term(0);
-                        *this = static_cast<limb_type>(0u);
-
-                        f = frexp(a, &e);
-
-#if !(defined(__clang__) && (__clang_major__ <= 7))
-                        constexpr limb_type shift = std::numeric_limits<limb_type>::digits;
-#else
-                        // clang 7 has an issue converting long double to unsigned long long in
-                        // release mode (bits get dropped, conversion appears to go via float)
-                        // Never extract more than double bits at a time:
-                        constexpr limb_type shift =
-                            std::numeric_limits<limb_type>::digits > std::numeric_limits<double>::digits ?
-                                std::numeric_limits<double>::digits :
-                                std::numeric_limits<limb_type>::digits;
-#endif
-
-                        while (f) {
-                            // extract int sized bits from f:
-                            f = ldexp(f, shift);
-                            term = floor(f);
-                            e -= shift;
-                            eval_left_shift(*this, shift);
-#if !(defined(__clang__) && (__clang_major__ <= 7))
-                            if (term > 0)
-                                eval_add(*this, static_cast<limb_type>(term));
-                            else
-                                eval_subtract(*this, static_cast<limb_type>(-term));
-#else
-                            // clang 7 requires extra cast to double to avoid buggy code generation:
-                            if (term > 0)
-                                eval_add(*this, static_cast<limb_type>(static_cast<double>(term)));
-                            else
-                                eval_subtract(*this, static_cast<limb_type>(static_cast<double>(-term)));
-#endif
-                            f -= term;
-                        }
-                        if (e > 0)
-                            eval_left_shift(*this, e);
-                        else if (e < 0)
-                            eval_right_shift(*this, -e);
-                    }
 
                 public:
                     template<class Arithmetic>
@@ -1184,9 +1037,8 @@ namespace nil {
                                 ++s;
                             }
                         }
-                        if (isneg)
-                            this->negate();
                     }
+
                     void do_assign_string(const char* s, const std::integral_constant<bool, false>&) {
                         using default_ops::eval_add;
                         using default_ops::eval_multiply;
@@ -1324,8 +1176,6 @@ namespace nil {
                                 }
                             }
                         }
-                        if (isneg)
-                            result.negate();
                         result.swap(*this);
                     }
 
@@ -1345,17 +1195,11 @@ namespace nil {
                         using io_type = typename std::conditional<sizeof(typename base_type::local_limb_type) == 1,
                                                                   unsigned,
                                                                   typename base_type::local_limb_type>::type;
-                        if (this->sign() && (((f & std::ios_base::hex) == std::ios_base::hex) ||
-                                             ((f & std::ios_base::oct) == std::ios_base::oct)))
-                            BOOST_THROW_EXCEPTION(
-                                std::runtime_error("Base 8 or 16 printing of negative numbers is not supported."));
                         std::stringstream ss;
                         ss.flags(f & ~std::ios_base::showpos);
                         ss << static_cast<io_type>(*this->limbs());
                         std::string result;
-                        if (this->sign())
-                            result += '-';
-                        else if (f & std::ios_base::showpos)
+                        if (f & std::ios_base::showpos)
                             result += '+';
                         result += ss.str();
                         return result;
@@ -1373,9 +1217,6 @@ namespace nil {
                         unsigned Bits = sizeof(typename base_type::local_limb_type) * CHAR_BIT;
 
                         if (base == 8 || base == 16) {
-                            if (this->sign())
-                                BOOST_THROW_EXCEPTION(
-                                    std::runtime_error("Base 8 or 16 printing of negative numbers is not supported."));
                             limb_type shift = base == 8 ? 3 : 4;
                             limb_type mask = static_cast<limb_type>((1u << shift) - 1);
                             typename base_type::local_limb_type v = *this->limbs();
@@ -1445,7 +1286,6 @@ namespace nil {
                     }
                     std::string do_get_string(std::ios_base::fmtflags f,
                                               const std::integral_constant<bool, false>&) const {
-                        using default_ops::eval_get_sign;
                         int base = 10;
                         if ((f & std::ios_base::oct) == std::ios_base::oct)
                             base = 8;
@@ -1456,9 +1296,6 @@ namespace nil {
                         unsigned Bits = this->size() * base_type::limb_bits;
 
                         if (base == 8 || base == 16) {
-                            if (this->sign())
-                                BOOST_THROW_EXCEPTION(
-                                    std::runtime_error("Base 8 or 16 printing of negative numbers is not supported."));
                             limb_type shift = base == 8 ? 3 : 4;
                             limb_type mask = static_cast<limb_type>((1u << shift) - 1);
                             cpp_int_modular_backend t(*this);
@@ -1495,11 +1332,6 @@ namespace nil {
                             std::string::difference_type pos = result.size() - 1;
                             cpp_int_modular_backend t(*this);
                             cpp_int_modular_backend r;
-                            bool neg = false;
-                            if (t.sign()) {
-                                t.negate();
-                                neg = true;
-                            }
                             if (this->size() == 1) {
                                 result = boost::lexical_cast<std::string>(t.limbs()[0]);
                             } else {
@@ -1523,9 +1355,7 @@ namespace nil {
                             result.erase(0, n);
                             if (result.empty())
                                 result = "0";
-                            if (neg)
-                                result.insert(static_cast<std::string::size_type>(0), 1, '-');
-                            else if (f & std::ios_base::showpos)
+                            if (f & std::ios_base::showpos)
                                 result.insert(static_cast<std::string::size_type>(0), 1, '+');
                         }
                         return result;
@@ -1548,7 +1378,8 @@ namespace nil {
                             ++newsize;
                         }
                         if (newsize) {
-                            this->resize(newsize, newsize);    // May throw
+                            // TODO(martun): We can not resize, the size must match.
+                            // this->resize(newsize, newsize);    // May throw
                             std::memset(this->limbs(), 0, this->size());
                             typename Container::const_iterator i(c.begin()), j(c.end());
                             unsigned byte_location = static_cast<unsigned>(c.size() - 1);
@@ -1599,95 +1430,41 @@ namespace nil {
                         //
                         construct_from_container(c, trivial_tag());
                     }
-                    template<unsigned Bits2,
-                             unsigned MaxBits2,
-                             cpp_integer_type SignType2,
-                             cpp_int_check_type Checked2,
-                             class Allocator2>
-                    BOOST_MP_CXX14_CONSTEXPR int
-                        compare_imp(const cpp_int_modular_backend<Bits2>& o,
+                   BOOST_MP_CXX14_CONSTEXPR int
+                        compare_imp(const cpp_int_modular_backend<Bits>& o,
                                     const std::integral_constant<bool, false>&,
                                     const std::integral_constant<bool, false>&) const noexcept {
-                        if (this->sign() != o.sign())
-                            return this->sign() ? -1 : 1;
-
-                        // Only do the compare if the same sign:
-                        int result = compare_unsigned(o);
-
-                        if (this->sign())
-                            result = -result;
-                        return result;
+                        return compare_unsigned(o);
                     }
-                    template<unsigned Bits2,
-                             unsigned MaxBits2,
-                             cpp_integer_type SignType2,
-                             cpp_int_check_type Checked2,
-                             class Allocator2>
                     BOOST_MP_CXX14_CONSTEXPR int
-                        compare_imp(const cpp_int_modular_backend<Bits2>& o,
+                        compare_imp(const cpp_int_modular_backend<Bits>& o,
                                     const std::integral_constant<bool, true>&,
                                     const std::integral_constant<bool, false>&) const {
-                        cpp_int_modular_backend<Bits2> t(*this);
+                        cpp_int_modular_backend<Bits> t(*this);
                         return t.compare(o);
                     }
-                    template<unsigned Bits2,
-                             unsigned MaxBits2,
-                             cpp_integer_type SignType2,
-                             cpp_int_check_type Checked2,
-                             class Allocator2>
                     BOOST_MP_CXX14_CONSTEXPR int
-                        compare_imp(const cpp_int_modular_backend<Bits2>& o,
+                        compare_imp(const cpp_int_modular_backend<Bits>& o,
                                     const std::integral_constant<bool, false>&,
                                     const std::integral_constant<bool, true>&) const {
                         cpp_int_modular_backend<Bits> t(o);
                         return compare(t);
                     }
-                    template<unsigned Bits2,
-                             unsigned MaxBits2,
-                             cpp_integer_type SignType2,
-                             cpp_int_check_type Checked2,
-                             class Allocator2>
                     BOOST_MP_CXX14_CONSTEXPR int
-                        compare_imp(const cpp_int_modular_backend<Bits2>& o,
+                        compare_imp(const cpp_int_modular_backend<Bits>& o,
                                     const std::integral_constant<bool, true>&,
                                     const std::integral_constant<bool, true>&) const noexcept {
-                        if (this->sign()) {
-                            if (o.sign()) {
-                                return *this->limbs() < *o.limbs() ? 1 : (*this->limbs() > *o.limbs() ? -1 : 0);
-                            } else
-                                return -1;
-                        } else {
-                            if (o.sign())
-                                return 1;
-                            return *this->limbs() < *o.limbs() ? -1 : (*this->limbs() > *o.limbs() ? 1 : 0);
-                        }
+                        return *this->limbs() < *o.limbs() ? 1 : (*this->limbs() > *o.limbs() ? -1 : 0);
                     }
-                    template<unsigned Bits2,
-                             unsigned MaxBits2,
-                             cpp_integer_type SignType2,
-                             cpp_int_check_type Checked2,
-                             class Allocator2>
                     BOOST_MP_CXX14_CONSTEXPR int compare(
-                        const cpp_int_modular_backend<Bits2>& o) const noexcept {
-                        using t1 = std::integral_constant<
+                        const cpp_int_modular_backend<Bits>& o) const noexcept {
+                        using t = std::integral_constant<
                             bool,
                             is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value>;
-                        using t2 = std::integral_constant<
-                            bool,
-                            is_trivial_cpp_int<
-                                cpp_int_modular_backend<Bits2>>::value>;
-                        return compare_imp(o, t1(), t2());
+                        return compare_imp(o, t(), t());
                     }
-                    template<unsigned Bits2,
-                             unsigned MaxBits2,
-                             cpp_integer_type SignType2,
-                             cpp_int_check_type Checked2,
-                             class Allocator2>
                     BOOST_MP_CXX14_CONSTEXPR int compare_unsigned(
-                        const cpp_int_modular_backend<Bits2>& o) const noexcept {
-                        if (this->size() != o.size()) {
-                            return this->size() > o.size() ? 1 : -1;
-                        }
+                        const cpp_int_modular_backend<Bits>& o) const noexcept {
                         typename base_type::const_limb_pointer pa = this->limbs();
                         typename base_type::const_limb_pointer pb = o.limbs();
                         for (int i = this->size() - 1; i >= 0; --i) {
@@ -1710,61 +1487,36 @@ namespace nil {
 
             }    // namespace backends
 
-            namespace default_ops {
+// TODO(martun): delete this, looks unnecessary.
+//            namespace default_ops {
+//
+//                template<class Backend>
+//                struct double_precision_type;
+//
+//                template<unsigned Bits>
+//                struct double_precision_type<
+//                    cpp_int_modular_backend<Bits>> {
+//                    using type = typename std::conditional<
+//                        backends::is_fixed_precision<
+//                            cpp_int_modular_backend<Bits>>::value,
+//                        cpp_int_modular_backend<
+//                            (std::is_void<Allocator>::value ?
+//                                 2 * backends::max_precision<
+//                                         cpp_int_modular_backend<Bits>>::
+//                                         value :
+//                                 Bits),
+//                            2 * backends::max_precision<
+//                                    cpp_int_modular_backend<Bits>>::value,
+//                            SignType,
+//                            Checked,
+//                            Allocator>,
+//                        cpp_int_modular_backend<Bits>>::type;
+//                };
+//
+//            }    // namespace default_ops
 
-                template<class Backend>
-                struct double_precision_type;
-
-                template<unsigned Bits,
-                         unsigned MaxBits,
-                         cpp_integer_type SignType,
-                         cpp_int_check_type Checked,
-                         class Allocator>
-                struct double_precision_type<
-                    cpp_int_modular_backend<Bits>> {
-                    using type = typename std::conditional<
-                        backends::is_fixed_precision<
-                            cpp_int_modular_backend<Bits>>::value,
-                        cpp_int_modular_backend<
-                            (std::is_void<Allocator>::value ?
-                                 2 * backends::max_precision<
-                                         cpp_int_modular_backend<Bits>>::
-                                         value :
-                                 Bits),
-                            2 * backends::max_precision<
-                                    cpp_int_modular_backend<Bits>>::value,
-                            SignType,
-                            Checked,
-                            Allocator>,
-                        cpp_int_modular_backend<Bits>>::type;
-                };
-
-            }    // namespace default_ops
-
-            template<unsigned Bits,
-                     unsigned MaxBits,
-                     cpp_integer_type SignType,
-                     cpp_int_check_type Checked,
-                     class Allocator,
-                     unsigned Bits2,
-                     unsigned MaxBits2,
-                     cpp_integer_type SignType2,
-                     cpp_int_check_type Checked2,
-                     class Allocator2>
-            struct is_equivalent_number_type<
-                cpp_int_modular_backend<Bits>,
-                cpp_int_modular_backend<Bits2>>
-                : public std::integral_constant<
-                      bool,
-                      std::numeric_limits<
-                          number<cpp_int_modular_backend<Bits>,
-                                 et_on>>::digits ==
-                          std::numeric_limits<
-                              number<cpp_int_modular_backend<Bits2>,
-                                     et_on>>::digits> { };
-
-            template<unsigned Bits, unsigned MaxBits, cpp_integer_type SignType, cpp_int_check_type Checked>
-            struct expression_template_default<cpp_int_modular_backend<Bits, MaxBits, SignType, Checked, void>> {
+            template<unsigned Bits>
+            struct expression_template_default<cpp_int_modular_backend<Bits>> {
                 static constexpr const expression_template_option value = et_off;
             };
 
@@ -1774,7 +1526,7 @@ namespace nil {
             struct number_category<cpp_int_modular_backend<Bits>>
                 : public std::integral_constant<int, number_kind_integer> { };
 
-            using cpp_int = number<cpp_int_modular_backend<>>;
+            using cpp_int_modular = number<cpp_int_modular_backend<>>;
 
             // Fixed precision unsigned types:
             using uint128_t  = number<cpp_int_modular_backend<128>>;
