@@ -242,7 +242,7 @@ namespace nil {
 #else
 #define BOOST_MP_DEFINE_SIZED_CPP_INT_LITERAL(Bits)                                                                   \
     template<char... STR>                                                                                             \
-    constexpr nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<           \
+    constexpr boost::multiprecision::number<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<           \
         Bits, Bits, nil::crypto3::multiprecision::signed_magnitude, nil::crypto3::multiprecision::unchecked, void>>   \
         operator"" BOOST_JOIN(_cppi, Bits)() {                                                                        \
         using pt = typename nil::crypto3::multiprecision::literals::detail::make_packed_value_from_str<STR...>::type; \
@@ -252,7 +252,7 @@ namespace nil {
                     nil::crypto3::multiprecision::unchecked, void>>::value;                                           \
     }                                                                                                                 \
     template<char... STR>                                                                                             \
-    constexpr nil::crypto3::multiprecision::number<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<           \
+    constexpr boost::multiprecision::number<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<           \
         Bits, Bits, nil::crypto3::multiprecision::unsigned_magnitude, nil::crypto3::multiprecision::unchecked, void>> \
         operator"" BOOST_JOIN(_cppui, Bits)() {                                                                       \
         using pt = typename nil::crypto3::multiprecision::literals::detail::make_packed_value_from_str<STR...>::type; \

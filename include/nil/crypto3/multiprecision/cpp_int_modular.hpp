@@ -92,7 +92,7 @@ namespace boost {
 
                 template<unsigned Bits>
                 struct min_precision<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>> {
-                    static constexpr const unsigned value = boost::static_unsigned_max<Bits, MaxBits>::value;
+                    static constexpr const unsigned value = boost::static_unsigned_max<Bits, Bits>::value;
                 };
 
                 //
@@ -161,40 +161,6 @@ namespace boost {
                           bool,
                           boost::multiprecision::detail::max_precision<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>>::value !=
                               UINT_MAX> { };
-
-                namespace detail {
-
-                    inline BOOST_MP_CXX14_CONSTEXPR void verify_new_size(unsigned new_size,
-                                                                         unsigned min_size,
-                                                                         const std::integral_constant<int>&) {
-                        if (new_size < min_size)
-                            BOOST_THROW_EXCEPTION(
-                                std::overflow_error("Unable to allocate sufficient storage for the value of the "
-                                                    "result: value overflows the maximum allowable magnitude."));
-                    }
-                    inline BOOST_MP_CXX14_CONSTEXPR void
-                        verify_new_size(unsigned /*new_size*/,
-                                        unsigned /*min_size*/,
-                                        const std::integral_constant<int>&) {
-                    }
-
-                    template<class U>
-                    inline BOOST_MP_CXX14_CONSTEXPR void
-                        verify_limb_mask(bool b, U limb, U mask, const std::integral_constant<int>&) {
-                        // When we mask out "limb" with "mask", do we loose bits?  If so it's an overflow error:
-                        if (b && (limb & ~mask))
-                            BOOST_THROW_EXCEPTION(
-                                std::overflow_error("Overflow in cpp_int arithmetic: there is insufficient precision "
-                                                    "in the target type to hold all of the bits of the result."));
-                    }
-                    template<class U>
-                    inline BOOST_MP_CXX14_CONSTEXPR void
-                        verify_limb_mask(bool /*b*/,
-                                         U /*limb*/,
-                                         U /*mask*/,
-                                         const std::integral_constant<int>&) {
-                    }
-                }    // namespace detail
         }    // namespace detail
     } // namespace multiprecision
 } // namespace boost
@@ -242,8 +208,8 @@ namespace nil {
                         limb_type m_first_limb;
                         double_limb_type m_double_first_limb;
 
-                        constexpr data_type() {
-                        }
+                        constexpr data_type() = default;
+
                         constexpr data_type(limb_type i) : m_data {i} {
                         }
 #ifndef BOOST_MP_NO_CONSTEXPR_DETECTION
@@ -320,10 +286,6 @@ namespace nil {
 
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void normalize() noexcept {
                         limb_pointer p = limbs();
-                        detail::verify_limb_mask(m_limbs == internal_limb_count,
-                                                 p[internal_limb_count - 1],
-                                                 upper_limb_mask,
-                                                 checked_type());
                         p[internal_limb_count - 1] &= upper_limb_mask;
                         while ((m_limbs - 1) && !p[m_limbs - 1])
                             --m_limbs;
@@ -434,8 +396,6 @@ namespace nil {
 
                     local_limb_type m_data;
 
-                    using checked_type = std::integral_constant<int>;
-
                     //
                     // Interface invariants:
                     //
@@ -448,9 +408,7 @@ namespace nil {
                     BOOST_MP_CXX14_CONSTEXPR
                         typename std::enable_if<!(std::numeric_limits<T>::is_specialized &&
                                                   (std::numeric_limits<T>::digits <= (int)Bits))>::type
-                        check_in_range(T val,
-                                       const std::integral_constant<int>&,
-                                       const std::integral_constant<bool, false>&) {
+                        check_in_range(T val) {
                         using common_type = typename std::common_type<T, local_limb_type>::type;
 
                         if (static_cast<common_type>(val) > limb_mask)
@@ -458,9 +416,7 @@ namespace nil {
                                 "The argument to a cpp_int constructor exceeded the largest value it can represent."));
                     }
                     template<class T>
-                    BOOST_MP_CXX14_CONSTEXPR void check_in_range(T val,
-                                                                 const std::integral_constant<int>&,
-                                                                 const std::integral_constant<bool, true>&) {
+                    BOOST_MP_CXX14_CONSTEXPR void check_in_range(T val) {
                         using common_type = typename std::common_type<T, local_limb_type>::type;
 
                         if (static_cast<common_type>(val) > limb_mask)
@@ -470,108 +426,16 @@ namespace nil {
                             BOOST_THROW_EXCEPTION(
                                 std::range_error("The argument to an unsigned cpp_int constructor was negative."));
                     }
-                    template<class T, int C, bool B>
-                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void
-                        check_in_range(T,
-                                       const std::integral_constant<int, C>&,
-                                       const std::integral_constant<bool, B>&) noexcept {
-                    }
-
-                    template<class T>
-                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void
-                        check_in_range(T val) noexcept(noexcept(std::declval<cpp_int_modular_base>().check_in_range(
-                            std::declval<T>(),
-                            checked_type(),
-                            boost::multiprecision::detail::is_signed<T>()))) {
-                        check_in_range(val, checked_type(), boost::multiprecision::detail::is_signed<T>());
-                    }
-
                 public:
                     //
                     // Direct construction:
                     //
-#ifdef __MSVC_RUNTIME_CHECKS
-                    template<class SI>
-                    BOOST_MP_FORCEINLINE constexpr cpp_int_modular_base(
-                        SI i,
-                        typename std::enable_if<boost::multiprecision::detail::is_signed<SI>::value &&
-                                                boost::multiprecision::detail::is_integral<SI>::value>::type const* = 0) noexcept :
-                        m_data(i < 0 ? (1 + ~static_cast<local_limb_type>(-i & limb_mask)) & limb_mask :
-                                       static_cast<local_limb_type>(i & limb_mask)) {
-                    }
-                    template<class SI>
-                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_base(
-                        SI i,
-                        typename std::enable_if<boost::multiprecision::detail::is_signed<SI>::value &&
-                                                boost::multiprecision::detail::is_integral<SI>::value
-                                                >::type const* =
-                            0) noexcept(noexcept(std::declval<cpp_int_modular_base>().check_in_range(std::declval<SI>()))) :
-                        m_data(i < 0 ? 1 + ~static_cast<local_limb_type>(-i & limb_mask) :
-                                       static_cast<local_limb_type>(i & limb_mask)) {
-                        check_in_range(i);
-                    }
-                    template<class UI>
-                    BOOST_MP_FORCEINLINE constexpr cpp_int_modular_base(
-                        UI i,
-                        typename std::enable_if<boost::multiprecision::detail::is_unsigned<UI>::value
-                                                >::type const* = 0) noexcept :
-                        m_data(static_cast<local_limb_type>(i & limb_mask)) {
-                    }
-                    template<class UI>
-                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_base(
-                        UI i,
-                        typename std::enable_if<boost::multiprecision::detail::is_unsigned<UI>::value
-                                                >::type const* =
-                            0) noexcept(noexcept(std::declval<cpp_int_modular_base>().check_in_range(std::declval<UI>()))) :
-                        m_data(static_cast<local_limb_type>(i & limb_mask)) {
-                        check_in_range(i);
-                    }
-#else
-                    template<class SI>
-                    BOOST_MP_FORCEINLINE constexpr cpp_int_modular_base(
-                        SI i,
-                        typename std::enable_if<boost::multiprecision::detail::is_signed<SI>::value &&
-                                                boost::multiprecision::detail::is_integral<SI>::value
-                                                >::type const* = 0) noexcept :
-                        m_data(i < 0 ? (1 + ~static_cast<local_limb_type>(-i)) & limb_mask :
-                                       static_cast<local_limb_type>(i) & limb_mask) {
-                    }
-                    template<class SI>
-                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_base(
-                        SI i,
-                        typename std::enable_if<boost::multiprecision::detail::is_signed<SI>::value &&
-                                                boost::multiprecision::detail::is_integral<SI>::value
-                                                >::type const* =
-                            0) noexcept(noexcept(std::declval<cpp_int_modular_base>().check_in_range(std::declval<SI>()))) :
-                        m_data(i < 0 ? 1 + ~static_cast<local_limb_type>(-i) : static_cast<local_limb_type>(i)) {
-                        check_in_range(i);
-                    }
                     template<class UI>
                     BOOST_MP_FORCEINLINE constexpr cpp_int_modular_base(
                         UI i,
                         typename std::enable_if<boost::multiprecision::detail::is_unsigned<UI>::value
                                                 >::type const* = 0) noexcept :
                         m_data(static_cast<local_limb_type>(i) & limb_mask) {
-                    }
-                    template<class UI>
-                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_base(
-                        UI i,
-                        typename std::enable_if<boost::multiprecision::detail::is_unsigned<UI>::value
-                                                >::type const* =
-                            0) noexcept(noexcept(std::declval<cpp_int_modular_base>().check_in_range(std::declval<UI>()))) :
-                        m_data(static_cast<local_limb_type>(i)) {
-                        check_in_range(i);
-                    }
-#endif
-                    template<class F>
-                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR
-                        cpp_int_modular_base(F i,
-                                     typename std::enable_if<std::is_floating_point<F>::value>::type const* =
-                                         0) noexcept:
-                        m_data(static_cast<local_limb_type>(std::fabs(i)) & limb_mask) {
-                        check_in_range(i);
-                        if (i < 0)
-                            negate();
                     }
                     constexpr cpp_int_modular_base(literals::detail::value_pack<>) noexcept :
                         m_data(static_cast<local_limb_type>(0u)) {
@@ -595,6 +459,7 @@ namespace nil {
                     // Helper functions for getting at our internal data, and manipulating storage:
                     //
                     BOOST_MP_FORCEINLINE constexpr unsigned size() const noexcept {
+// TODO(martun): why does this return 1?
                         return 1;
                     }
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR limb_pointer limbs() noexcept {
@@ -603,18 +468,7 @@ namespace nil {
                     BOOST_MP_FORCEINLINE constexpr const_limb_pointer limbs() const noexcept {
                         return &m_data;
                     }
-                    BOOST_MP_FORCEINLINE constexpr bool sign() const noexcept {
-                        return false;
-                    }
-                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void sign(bool b) noexcept {
-                        if (b)
-                            negate();
-                    }
-                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void resize(unsigned, unsigned min_size) {
-                        boost::multiprecision::backends::detail::verify_new_size(2, min_size, checked_type());
-                    }
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void normalize() noexcept {
-                        detail::verify_limb_mask(true, m_data, limb_mask, checked_type());
                         m_data &= limb_mask;
                     }
 
@@ -626,13 +480,6 @@ namespace nil {
                     //~cpp_int_modular_base() noexcept {}
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void assign(const cpp_int_modular_base& o) noexcept {
                         m_data = o.m_data;
-                    }
-                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void negate() noexcept {
-                        m_data = ~m_data;
-                        ++m_data;
-                    }
-                    BOOST_MP_FORCEINLINE constexpr bool isneg() const noexcept {
-                        return false;
                     }
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void do_swap(cpp_int_modular_base& o) noexcept {
                         std_constexpr::swap(m_data, o.m_data);
@@ -724,33 +571,9 @@ namespace nil {
                     BOOST_MP_FORCEINLINE constexpr cpp_int_modular_backend(cpp_int_modular_backend&& o) noexcept
                         : base_type(static_cast<base_type&&>(o)) {
                     }
-                    template<unsigned Bits>
-                    BOOST_MP_FORCEINLINE BOOST_CXX14_CONSTEXPR cpp_int_modular_backend(
-                        cpp_int_modular_backend<Bits>&& o,
-                        typename std::enable_if<
-                            is_implicit_cpp_int_conversion<cpp_int_modular_backend<Bits>, self_type>::value>::type* = 0) noexcept {
-                        *this = static_cast<cpp_int_modular_backend<Bits>&&>(o);
-                    }
                     //
                     // Direct construction from arithmetic type:
                     //
-#ifdef __EVM__
-                    // For EVM backend we need to distingwish signed and unsigned integral types, otherwise frontend
-                    // cannot decide which version(__int128_t or __uint128_t) of cpp_int_modular_base's constructor to use.
-                    // Separating constructors via of `std::is_signed`, we help frontend to handle that.
-                    template<class Arg>
-                    BOOST_MP_FORCEINLINE constexpr cpp_int_modular_backend(
-                        Arg i,
-                        typename std::enable_if<!std::is_integral<Arg>::value &&
-                                                is_allowed_cpp_int_modular_base_conversion<Arg, base_type>::value>::
-                            type const* = 0) : base_type(i) {
-                    }
-
-                    template<class Arg, typename std::enable_if_t<std::is_integral<Arg>::value &&
-                                                                  std::is_convertible<Arg, limb_type>::value> const * = nullptr>
-                    BOOST_MP_FORCEINLINE constexpr cpp_int_modular_backend(Arg i) : base_type((limb_type)i) {
-                    }
-#else
                     template<class Arg>
                     BOOST_MP_FORCEINLINE constexpr cpp_int_modular_backend(
                         Arg i,
@@ -758,7 +581,6 @@ namespace nil {
                             type const* = 0) noexcept(noexcept(base_type(std::declval<Arg>()))) :
                         base_type(i) {
                     }
-#endif  // __EVM__
                     //
                     // Aliasing constructor: the result will alias the memory referenced, unless
                     // we have fixed precision and storage, in which case we copy the memory:
@@ -777,42 +599,6 @@ namespace nil {
                     }
 
                 private:
-                    template<unsigned Bits>
-                    BOOST_MP_CXX14_CONSTEXPR void
-                        do_assign(const cpp_int_modular_backend<Bits>& other,
-                                  std::integral_constant<bool, true> const&,
-                                  std::integral_constant<bool, true> const&) {
-                        // Assigning trivial type to trivial type:
-                        this->check_in_range(*other.limbs());
-                        *this->limbs() = static_cast<typename self_type::local_limb_type>(*other.limbs());
-                        this->normalize();
-                    }
-                    template<unsigned Bits>
-                    BOOST_MP_CXX14_CONSTEXPR void
-                        do_assign(const cpp_int_modular_backend<Bits>& other,
-                                  std::integral_constant<bool, true> const&,
-                                  std::integral_constant<bool, false> const&) {
-                        // non-trivial to trivial narrowing conversion:
-                        double_limb_type v = *other.limbs();
-                        if (other.size() > 1) {
-                            v |= static_cast<double_limb_type>(other.limbs()[1]) << bits_per_limb;
-                        }
-                        *this = v;
-                        this->normalize();
-                    }
-                    template<unsigned Bits>
-                    BOOST_MP_CXX14_CONSTEXPR void
-                        do_assign(const cpp_int_modular_backend<Bits>& other,
-                                  std::integral_constant<bool, false> const&,
-                                  std::integral_constant<bool, true> const&) {
-                        // trivial to non-trivial, treat the trivial argument as if it were an unsigned arithmetic type,
-                        // then set the sign afterwards:
-                        *this = static_cast<typename boost::multiprecision::detail::canonical<
-                            typename cpp_int_modular_backend<Bits>::
-                                local_limb_type,
-                            cpp_int_modular_backend<Bits>>::type>(*other.limbs());
-                    }
-
                     BOOST_MP_CXX14_CONSTEXPR void
                         do_assign(const cpp_int_modular_backend<Bits>& other,
                                   std::integral_constant<bool, false> const&,
@@ -868,17 +654,6 @@ namespace nil {
                                 is_trivial_cpp_int<
                                     cpp_int_modular_backend<Bits>>::value>());
                     }
-                    BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_backend<Bits>&
-                        operator=(const cpp_int_modular_backend<Bits>& other) {
-                        do_assign(
-                            other,
-                            std::integral_constant<bool, is_trivial_cpp_int<self_type>::value>(),
-                            std::integral_constant<
-                                bool,
-                                is_trivial_cpp_int<
-                                    cpp_int_modular_backend<Bits>>::value>());
-                        return *this;
-                    }
 
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_backend&
                         operator=(const cpp_int_modular_backend& o) noexcept(
@@ -897,42 +672,18 @@ namespace nil {
                     template<class A>
                     BOOST_MP_CXX14_CONSTEXPR
                         typename std::enable_if<boost::multiprecision::detail::is_unsigned<A>::value>::type
-                        do_assign_arithmetic(A val, const std::integral_constant<bool, true>&) noexcept(
-                            noexcept(std::declval<cpp_int_modular_backend>().check_in_range(std::declval<A>()))) {
-                        this->check_in_range(val);
+                        do_assign_arithmetic(A val, const std::integral_constant<bool, true>&) noexcept {
                         *this->limbs() = static_cast<typename self_type::local_limb_type>(val);
                         this->normalize();
                     }
-                    template<class A>
-                    BOOST_MP_CXX14_CONSTEXPR
-                        typename std::enable_if<!(boost::multiprecision::detail::is_unsigned<A>::value ||
-                                                  !boost::multiprecision::detail::is_integral<A>::value)>::type
-                        do_assign_arithmetic(A val, const std::integral_constant<bool, true>&) noexcept(
-                            noexcept(std::declval<cpp_int_modular_backend>().check_in_range(std::declval<A>())) && noexcept(
-                                std::declval<cpp_int_modular_backend>().sign(true))) {
-                        this->check_in_range(val);
-                        *this->limbs() = (val < 0) ? static_cast<typename self_type::local_limb_type>(
-                                                         boost::multiprecision::detail::unsigned_abs(val)) :
-                                                     static_cast<typename self_type::local_limb_type>(val);
-                        this->normalize();
-                    }
-                    template<class A>
-                    BOOST_MP_CXX14_CONSTEXPR
-                        typename std::enable_if<!boost::multiprecision::detail::is_integral<A>::value>::type
-                        do_assign_arithmetic(A val, const std::integral_constant<bool, true>&) {
-                        this->check_in_range(val);
-                        *this->limbs() = (val < 0) ? static_cast<typename self_type::local_limb_type>(
-                                                         boost::multiprecision::detail::abs(val)) :
-                                                     static_cast<typename self_type::local_limb_type>(val);
-                        this->normalize();
-                    }
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void
-                        do_assign_arithmetic(limb_type i, const std::integral_constant<bool, false>&) noexcept {
-                        this->resize(1, 1);
+                        do_assign_arithmetic(limb_type i) noexcept {
+                        // TODO(martun): we cannot resize here.
+                        // this->resize(1, 1);
                         *this->limbs() = i;
                     }
                     BOOST_MP_CXX14_CONSTEXPR void
-                        do_assign_arithmetic(double_limb_type i, const std::integral_constant<bool, false>&) noexcept {
+                        do_assign_arithmetic(double_limb_type i) noexcept {
 #ifndef TVM
                         static_assert(sizeof(i) == 2 * sizeof(limb_type), "Failed integer size check");
 #endif // TVM
@@ -947,30 +698,6 @@ namespace nil {
                         p[1] = static_cast<limb_type>(i >> base_type::limb_bits);
                         // this->resize(p[1] ? 2 : 1, p[1] ? 2 : 1);
                     }
-                    BOOST_MP_CXX14_CONSTEXPR void do_assign_arithmetic(
-                        signed_double_limb_type i,
-                        const std::integral_constant<bool, false>&) noexcept(noexcept(std::declval<cpp_int_modular_backend>()
-                                                                                          .sign(true))) {
-#ifndef TVM
-                        static_assert(sizeof(i) == 2 * sizeof(limb_type), "double limb type size check failed");
-#endif
-                        static_assert(base_type::internal_limb_count >= 2, "Failed internal limb count check");
-                        bool s = false;
-                        if (i < 0)
-                            s = true;
-                        double_limb_type ui =
-                            static_cast<double_limb_type>(boost::multiprecision::detail::unsigned_abs(i));
-                        typename base_type::limb_pointer p = this->limbs();
-#ifdef __MSVC_RUNTIME_CHECKS
-                        *p = static_cast<limb_type>(ui & ~static_cast<limb_type>(0));
-#else
-                        *p = static_cast<limb_type>(ui);
-#endif
-                        p[1] = static_cast<limb_type>(ui >> base_type::limb_bits);
-                        // TODO(martun): check this, we don't have resize any more.
-                        // this->resize(p[1] ? 2 : 1, p[1] ? 2 : 1);
-                    }
-
 #ifdef TVM
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void
                         do_assign_arithmetic(unsigned i, const std::integral_constant<bool, false>& tag) noexcept {
@@ -983,9 +710,7 @@ namespace nil {
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
                         !boost::multiprecision::detail::is_byte_container<Arithmetic>::value,
                         cpp_int_modular_backend&>::type
-                        operator=(Arithmetic val) noexcept(
-                            noexcept(std::declval<cpp_int_modular_backend>().do_assign_arithmetic(std::declval<Arithmetic>(),
-                                                                                          trivial_tag()))) {
+                        operator=(Arithmetic val) noexcept {
                         do_assign_arithmetic(val, trivial_tag());
                         return *this;
                     }
@@ -1026,14 +751,8 @@ namespace nil {
                                     BOOST_THROW_EXCEPTION(
                                         std::runtime_error("Unexpected content found while parsing character string."));
                                 }
-                                *this->limbs() =
-                                    detail::checked_multiply(*this->limbs(),
-                                                             static_cast<typename base_type::local_limb_type>(radix),
-                                                             checked_type());
-                                *this->limbs() =
-                                    detail::checked_add(*this->limbs(),
-                                                        static_cast<typename base_type::local_limb_type>(val),
-                                                        checked_type());
+                                *this->limbs() *= static_cast<typename base_type::local_limb_type>(radix);
+                                *this->limbs() += static_cast<typename base_type::local_limb_type>(val);
                                 ++s;
                             }
                         }
@@ -1214,8 +933,6 @@ namespace nil {
                             base = 16;
                         std::string result;
 
-                        unsigned Bits = sizeof(typename base_type::local_limb_type) * CHAR_BIT;
-
                         if (base == 8 || base == 16) {
                             limb_type shift = base == 8 ? 3 : 4;
                             limb_type mask = static_cast<limb_type>((1u << shift) - 1);
@@ -1252,10 +969,6 @@ namespace nil {
                             result.assign(Bits / 3 + 1, '0');
                             std::string::difference_type pos = result.size() - 1;
                             typename base_type::local_limb_type v(*this->limbs());
-                            bool neg = false;
-                            if (this->sign()) {
-                                neg = true;
-                            }
                             while (v) {
                                 result[pos] = (v % 10) + '0';
                                 --pos;
@@ -1265,9 +978,7 @@ namespace nil {
                             result.erase(0, n);
                             if (result.empty())
                                 result = "0";
-                            if (neg)
-                                result.insert(static_cast<std::string::size_type>(0), 1, '-');
-                            else if (f & std::ios_base::showpos)
+                            if (f & std::ios_base::showpos)
                                 result.insert(static_cast<std::string::size_type>(0), 1, '+');
                         }
                         return result;
@@ -1292,8 +1003,6 @@ namespace nil {
                         else if ((f & std::ios_base::hex) == std::ios_base::hex)
                             base = 16;
                         std::string result;
-
-                        unsigned Bits = this->size() * base_type::limb_bits;
 
                         if (base == 8 || base == 16) {
                             limb_type shift = base == 8 ? 3 : 4;
@@ -1487,60 +1196,33 @@ namespace nil {
 
             }    // namespace backends
 
-// TODO(martun): delete this, looks unnecessary.
-//            namespace default_ops {
-//
-//                template<class Backend>
-//                struct double_precision_type;
-//
-//                template<unsigned Bits>
-//                struct double_precision_type<
-//                    cpp_int_modular_backend<Bits>> {
-//                    using type = typename std::conditional<
-//                        backends::is_fixed_precision<
-//                            cpp_int_modular_backend<Bits>>::value,
-//                        cpp_int_modular_backend<
-//                            (std::is_void<Allocator>::value ?
-//                                 2 * backends::max_precision<
-//                                         cpp_int_modular_backend<Bits>>::
-//                                         value :
-//                                 Bits),
-//                            2 * backends::max_precision<
-//                                    cpp_int_modular_backend<Bits>>::value,
-//                            SignType,
-//                            Checked,
-//                            Allocator>,
-//                        cpp_int_modular_backend<Bits>>::type;
-//                };
-//
-//            }    // namespace default_ops
+// TODO(martun): check if we need this somewhere else.
+//            template<unsigned Bits>
+//            struct expression_template_default<backends::cpp_int_modular_backend<Bits>> {
+//                static constexpr const expression_template_option value = et_off;
+//            };
 
-            template<unsigned Bits>
-            struct expression_template_default<cpp_int_modular_backend<Bits>> {
-                static constexpr const expression_template_option value = et_off;
-            };
-
-            using cpp_int_modular_backend;
-
-            template<unsigned Bits>
-            struct number_category<cpp_int_modular_backend<Bits>>
-                : public std::integral_constant<int, number_kind_integer> { };
-
-            using cpp_int_modular = number<cpp_int_modular_backend<>>;
-
-            // Fixed precision unsigned types:
-            using uint128_t  = number<cpp_int_modular_backend<128>>;
-            using uint256_t  = number<cpp_int_modular_backend<256>>;
-            using uint512_t  = number<cpp_int_modular_backend<512>>;
-            using uint1024_t = number<cpp_int_modular_backend<1024>>;
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
 
         }    // namespace multiprecision
     }        // namespace crypto3
 }    // namespace nil
+
+
+namespace boost {
+    namespace multiprecision {
+        using nil::crypto3::multiprecision::backends::cpp_int_modular_backend;
+
+        template<unsigned Bits>
+        struct number_category<cpp_int_modular_backend<Bits>>
+            : public std::integral_constant<int, number_kind_integer> { };
+
+    } // namespace multiprecision
+} // namespace boost
+
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 //
 // Last of all we include the implementations of all the eval_* non member functions:

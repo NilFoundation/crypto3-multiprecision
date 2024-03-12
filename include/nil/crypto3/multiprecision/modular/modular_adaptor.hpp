@@ -665,7 +665,7 @@ namespace nil {
 
             template<class Backend, typename StorageType>
             struct number_category<modular_adaptor<Backend, StorageType>>
-                : public std::integral_constant<int, nil::crypto3::multiprecision::number_kind_modular> { };
+                : public std::integral_constant<int, boost::multiprecision::number_kind_modular> { };
 
             template<class Backend, typename StorageType, expression_template_option ExpressionTemplates>
             struct component_type<number<modular_adaptor<Backend, StorageType>, ExpressionTemplates>> {
