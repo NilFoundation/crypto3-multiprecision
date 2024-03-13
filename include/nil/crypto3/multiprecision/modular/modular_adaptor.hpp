@@ -116,7 +116,6 @@ namespace nil {
                         return m_mod;
                     }
 
-                    typedef typename Backend::signed_types signed_types;
                     typedef typename Backend::unsigned_types unsigned_types;
 
                     modular_adaptor() {
@@ -132,12 +131,6 @@ namespace nil {
                     }
 
 #endif
-                    // TODO: implement create_internal_representation
-                    // modular_adaptor(const Backend& val, const modular_params<Backend>& mod) : m_mod(mod),
-                    // m_base(mod.create_internal_representation(val))
-                    // {
-                    //
-                    // }
 
                     modular_adaptor(const Backend &val, const Backend &mod) : m_base(val), m_mod(mod) {
                     }

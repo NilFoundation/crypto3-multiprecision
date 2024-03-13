@@ -4,9 +4,10 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt
 
-#ifndef BOOST_MP_ADD_UNSIGNED_ADDC_32_HPP
-#define BOOST_MP_ADD_UNSIGNED_ADDC_32_HPP
+#ifndef CRYPTO3_MP_ADD_UNSIGNED_ADDC_32_HPP
+#define CRYPTO3_MP_ADD_UNSIGNED_ADDC_32_HPP
 
+#include <boost/multiprecision/detail/constexpr.hpp>
 #include <nil/crypto3/multiprecision/cpp_int_modular/intel_intrinsics.hpp>
 
 namespace nil {
@@ -14,11 +15,11 @@ namespace nil {
         namespace multiprecision {
             namespace backends {
 
-                template<class CppInt1, class CppInt2, class CppInt3>
+                template<class CppInt>
                 inline BOOST_MP_CXX14_CONSTEXPR void
-                    add_unsigned_constexpr(CppInt1& result, const CppInt2& a,
-                                           const CppInt3& b) noexcept(is_non_throwing_cpp_int<CppInt1>::value) {
-                    using ::nil::crypto3::multiprecision::std_constexpr::swap;
+                    add_unsigned_constexpr(CppInt& result, const CppInt& a,
+                                           const CppInt& b) noexcept(is_non_throwing_cpp_int<CppInt>::value) {
+                    using boost::multiprecision::std_constexpr::swap;
                     //
                     // This is the generic, C++ only version of addition.
                     // It's also used for all constexpr branches, hence the name.
@@ -36,10 +37,10 @@ namespace nil {
                         return;
                     }
                     result.resize(x, x);
-                    typename CppInt2::const_limb_pointer pa = a.limbs();
-                    typename CppInt3::const_limb_pointer pb = b.limbs();
-                    typename CppInt1::limb_pointer pr = result.limbs();
-                    typename CppInt1::limb_pointer pr_end = pr + m;
+                    typename CppInt::const_limb_pointer pa = a.limbs();
+                    typename CppInt::const_limb_pointer pb = b.limbs();
+                    typename CppInt::limb_pointer pr = result.limbs();
+                    typename CppInt::limb_pointer pr_end = pr + m;
 
                     if (as < bs)
                         swap(pa, pb);
@@ -52,7 +53,7 @@ namespace nil {
 #else
                         *pr = static_cast<limb_type>(carry);
 #endif
-                        carry >>= CppInt1::limb_bits;
+                        carry >>= CppInt::limb_bits;
                         ++pr, ++pa, ++pb;
                     }
                     pr_end += x - m;
@@ -69,7 +70,7 @@ namespace nil {
 #else
                         *pr = static_cast<limb_type>(carry);
 #endif
-                        carry >>= CppInt1::limb_bits;
+                        carry >>= CppInt::limb_bits;
                         ++pr, ++pa;
                     }
                     if (carry) {
@@ -84,11 +85,11 @@ namespace nil {
                 //
                 // Core subtraction routine for all non-trivial cpp_int's:
                 //
-                template<class CppInt1, class CppInt2, class CppInt3>
+                template<class CppInt>
                 inline BOOST_MP_CXX14_CONSTEXPR void
-                    subtract_unsigned_constexpr(CppInt1& result, const CppInt2& a,
-                                                const CppInt3& b) noexcept(is_non_throwing_cpp_int<CppInt1>::value) {
-                    using ::nil::crypto3::multiprecision::std_constexpr::swap;
+                    subtract_unsigned_constexpr(CppInt& result, const CppInt& a,
+                                                const CppInt& b) noexcept(is_non_throwing_cpp_int<CppInt>::value) {
+                    using boost::multiprecision::std_constexpr::swap;
                     //
                     // This is the generic, C++ only version of subtraction.
                     // It's also used for all constexpr branches, hence the name.
@@ -105,7 +106,7 @@ namespace nil {
                         limb_type al = *a.limbs();
                         limb_type bl = *b.limbs();
                         if (bl > al) {
-                            ::nil::crypto3::multiprecision::std_constexpr::swap(al, bl);
+                            boost::multiprecision::std_constexpr::swap(al, bl);
                             s = !s;
                         }
                         result = al - bl;
@@ -118,9 +119,9 @@ namespace nil {
                     // Set up the result vector:
                     result.resize(x, x);
                     // Now that a, b, and result are stable, get pointers to their limbs:
-                    typename CppInt2::const_limb_pointer pa = a.limbs();
-                    typename CppInt3::const_limb_pointer pb = b.limbs();
-                    typename CppInt1::limb_pointer pr = result.limbs();
+                    typename CppInt::const_limb_pointer pa = a.limbs();
+                    typename CppInt::const_limb_pointer pb = b.limbs();
+                    typename CppInt::limb_pointer pr = result.limbs();
                     bool swapped = false;
                     if (c < 0) {
                         swap(pa, pb);
@@ -135,14 +136,14 @@ namespace nil {
                     while (i < m) {
                         borrow = static_cast<double_limb_type>(pa[i]) - static_cast<double_limb_type>(pb[i]) - borrow;
                         pr[i] = static_cast<limb_type>(borrow);
-                        borrow = (borrow >> CppInt1::limb_bits) & 1u;
+                        borrow = (borrow >> CppInt::limb_bits) & 1u;
                         ++i;
                     }
                     // Now where only a has digits, only as long as we've borrowed:
                     while (borrow && (i < x)) {
                         borrow = static_cast<double_limb_type>(pa[i]) - borrow;
                         pr[i] = static_cast<limb_type>(borrow);
-                        borrow = (borrow >> CppInt1::limb_bits) & 1u;
+                        borrow = (borrow >> CppInt::limb_bits) & 1u;
                         ++i;
                     }
                     // Any remaining digits are the same as those in pa:
@@ -176,10 +177,10 @@ namespace nil {
                 // for basically all x86 processors.  That means gcc-9, clang-9, msvc-14.2 and up
                 // are required to support these intrinsics.
                 //
-                template<class CppInt1, class CppInt2, class CppInt3>
+                template<class CppInt>
                 inline BOOST_MP_CXX14_CONSTEXPR void
-                    add_unsigned(CppInt1& result, const CppInt2& a,
-                                 const CppInt3& b) noexcept(is_non_throwing_cpp_int<CppInt1>::value) {
+                    add_unsigned(CppInt& result, const CppInt& a,
+                                 const CppInt& b) noexcept(is_non_throwing_cpp_int<CppInt>::value) {
 #ifndef BOOST_MP_NO_CONSTEXPR_DETECTION
                     if (BOOST_MP_IS_CONST_EVALUATED(a.size())) {
                         add_unsigned_constexpr(result, a, b);
@@ -201,9 +202,9 @@ namespace nil {
                             return;
                         }
                         result.resize(x, x);
-                        typename CppInt2::const_limb_pointer pa = a.limbs();
-                        typename CppInt3::const_limb_pointer pb = b.limbs();
-                        typename CppInt1::limb_pointer pr = result.limbs();
+                        typename CppInt::const_limb_pointer pa = a.limbs();
+                        typename CppInt::const_limb_pointer pb = b.limbs();
+                        typename CppInt::limb_pointer pr = result.limbs();
 
                         if (as < bs)
                             swap(pa, pb);
@@ -256,10 +257,10 @@ namespace nil {
                     }
                 }
 
-                template<class CppInt1, class CppInt2, class CppInt3>
+                template<class CppInt>
                 inline BOOST_MP_CXX14_CONSTEXPR void
-                    subtract_unsigned(CppInt1& result, const CppInt2& a,
-                                      const CppInt3& b) noexcept(is_non_throwing_cpp_int<CppInt1>::value) {
+                    subtract_unsigned(CppInt& result, const CppInt& a,
+                                      const CppInt& b) noexcept(is_non_throwing_cpp_int<CppInt>::value) {
 #ifndef BOOST_MP_NO_CONSTEXPR_DETECTION
                     if (BOOST_MP_IS_CONST_EVALUATED(a.size())) {
                         subtract_unsigned_constexpr(result, a, b);
@@ -279,7 +280,7 @@ namespace nil {
                             limb_type al = *a.limbs();
                             limb_type bl = *b.limbs();
                             if (bl > al) {
-                                ::nil::crypto3::multiprecision::std_constexpr::swap(al, bl);
+                                boost::multiprecision::std_constexpr::swap(al, bl);
                                 s = !s;
                             }
                             result = al - bl;
@@ -292,9 +293,9 @@ namespace nil {
                         // Set up the result vector:
                         result.resize(x, x);
                         // Now that a, b, and result are stable, get pointers to their limbs:
-                        typename CppInt2::const_limb_pointer pa = a.limbs();
-                        typename CppInt3::const_limb_pointer pb = b.limbs();
-                        typename CppInt1::limb_pointer pr = result.limbs();
+                        typename CppInt::const_limb_pointer pa = a.limbs();
+                        typename CppInt::const_limb_pointer pb = b.limbs();
+                        typename CppInt::limb_pointer pr = result.limbs();
                         bool swapped = false;
                         if (c < 0) {
                             swap(pa, pb);
@@ -362,17 +363,17 @@ namespace nil {
 
 #else
 
-                template<class CppInt1, class CppInt2, class CppInt3>
+                template<class CppInt>
                 inline BOOST_MP_CXX14_CONSTEXPR void
-                    add_unsigned(CppInt1& result, const CppInt2& a,
-                                 const CppInt3& b) noexcept(is_non_throwing_cpp_int<CppInt1>::value) {
+                    add_unsigned(CppInt& result, const CppInt& a,
+                                 const CppInt& b) noexcept(is_non_throwing_cpp_int<CppInt>::value) {
                     add_unsigned_constexpr(result, a, b);
                 }
 
-                template<class CppInt1, class CppInt2, class CppInt3>
+                template<class CppInt>
                 inline BOOST_MP_CXX14_CONSTEXPR void
-                    subtract_unsigned(CppInt1& result, const CppInt2& a,
-                                      const CppInt3& b) noexcept(is_non_throwing_cpp_int<CppInt1>::value) {
+                    subtract_unsigned(CppInt& result, const CppInt& a,
+                                      const CppInt& b) noexcept(is_non_throwing_cpp_int<CppInt>::value) {
                     subtract_unsigned_constexpr(result, a, b);
                 }
 

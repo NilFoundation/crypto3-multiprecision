@@ -3,8 +3,8 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt
 
-#ifndef BOOST_MP_CPP_INT_CORE_HPP
-#define BOOST_MP_CPP_INT_CORE_HPP
+#ifndef CRYPTO3_MP_CPP_INT_CORE_HPP
+#define CRYPTO3_MP_CPP_INT_CORE_HPP
 
 #include <boost/integer.hpp>
 #include <boost/integer_traits.hpp>
@@ -215,4 +215,4 @@ namespace nil {
     }        // namespace crypto3
 }    // namespace nil
 
-#endif    // BOOST_MP_CPP_INT_CORE_HPP
+#endif    // CRYPTO3_MP_CPP_INT_CORE_HPP

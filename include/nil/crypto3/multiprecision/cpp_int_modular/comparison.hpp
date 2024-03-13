@@ -5,8 +5,8 @@
 //
 // Comparison operators for cpp_int_modular_backend:
 //
-#ifndef BOOST_MP_CPP_INT_COMPARISON_HPP
-#define BOOST_MP_CPP_INT_COMPARISON_HPP
+#ifndef CRYPTO3_MP_CPP_INT_COMPARISON_HPP
+#define CRYPTO3_MP_CPP_INT_COMPARISON_HPP
 
 #include <boost/multiprecision/detail/constexpr.hpp>
 

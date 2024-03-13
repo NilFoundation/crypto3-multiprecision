@@ -7,8 +7,8 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //---------------------------------------------------------------------------//
 
-#ifndef BOOST_MULTIPRECISION_EVAL_JACOBI_HPP
-#define BOOST_MULTIPRECISION_EVAL_JACOBI_HPP
+#ifndef CRYPTO3_MULTIPRECISION_EVAL_JACOBI_HPP
+#define CRYPTO3_MULTIPRECISION_EVAL_JACOBI_HPP
 
 #include <boost/multiprecision/detail/default_ops.hpp>
 
@@ -83,4 +83,4 @@ namespace nil {
     }        // namespace crypto3
 }    // namespace nil
 
-#endif    // BOOST_MULTIPRECISION_EVAL_JACOBI_HPP
+#endif    // CRYPTO3_MULTIPRECISION_EVAL_JACOBI_HPP

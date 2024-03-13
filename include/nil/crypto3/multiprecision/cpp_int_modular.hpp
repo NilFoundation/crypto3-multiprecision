@@ -236,7 +236,7 @@ namespace nil {
 
                     // This is a temporary value which is set when carry has happend during addition.
                     // If this value is true, reduction by modulus must happen next.
-                    bool carry = false;
+                    bool m_carry = false;
 
                 public:
                     //
@@ -283,7 +283,12 @@ namespace nil {
                     BOOST_MP_FORCEINLINE constexpr bool sign() const noexcept {
                         return false;
                     }
-
+                    BOOST_MP_FORCEINLINE constexpr bool has_carry() const noexcept {
+                        return m_carry;
+                    }
+                    BOOST_MP_FORCEINLINE constexpr void set_carry(bool carry) noexcept {
+                        m_carry = carry;
+                    }
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void normalize() noexcept {
                         limb_pointer p = limbs();
                         p[internal_limb_count - 1] &= upper_limb_mask;
@@ -1196,11 +1201,10 @@ namespace nil {
 
             }    // namespace backends
 
-// TODO(martun): check if we need this somewhere else.
-//            template<unsigned Bits>
-//            struct expression_template_default<backends::cpp_int_modular_backend<Bits>> {
-//                static constexpr const expression_template_option value = et_off;
-//            };
+            template<unsigned Bits>
+            struct expression_template_default<backends::cpp_int_modular_backend<Bits>> {
+                static constexpr const expression_template_option value = boost::multiprecision::et_off;
+            };
 
 
         }    // namespace multiprecision
@@ -1230,8 +1234,6 @@ namespace boost {
 #include <nil/crypto3/multiprecision/cpp_int_modular/limits.hpp>
 #include <nil/crypto3/multiprecision/cpp_int_modular/comparison.hpp>
 #include <nil/crypto3/multiprecision/cpp_int_modular/add.hpp>
-#include <nil/crypto3/multiprecision/cpp_int_modular/multiply.hpp>
-#include <nil/crypto3/multiprecision/cpp_int_modular/divide.hpp>
 #include <nil/crypto3/multiprecision/cpp_int_modular/bitwise.hpp>
 #include <nil/crypto3/multiprecision/cpp_int_modular/misc.hpp>
 #include <nil/crypto3/multiprecision/cpp_int_modular/literals.hpp>

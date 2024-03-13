@@ -318,11 +318,12 @@ namespace nil {
             using backends::modular_adaptor;
             using backends::modular_fixed_cpp_int_modular_backend;
 
-            template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked, typename StorageType>
+            template<unsigned Bits, typename StorageType>
             struct expression_template_default<
-                modular_adaptor<modular_fixed_cpp_int_modular_backend<MinBits, SignType, Checked>, StorageType>> {
-                static const expression_template_option value = et_off;
+                modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits, StorageType>> {
+                static const expression_template_option value = boost::multiprecision::et_off;
             };
+
         }    // namespace multiprecision
     }        // namespace crypto3
 }    // namespace nil
