@@ -631,35 +631,6 @@ namespace nil {
                     }
 
                 public:
-                    BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_backend(
-                        const cpp_int_modular_backend<Bits>& other,
-                        typename std::enable_if<is_implicit_cpp_int_conversion<
-                            cpp_int_modular_backend<Bits>,
-                            self_type>::value>::type* = 0) :
-                        base_type() {
-                        do_assign(
-                            other,
-                            std::integral_constant<bool, is_trivial_cpp_int<self_type>::value>(),
-                            std::integral_constant<
-                                bool,
-                                is_trivial_cpp_int<
-                                    cpp_int_modular_backend<Bits>>::value>());
-                    }
-                    explicit BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_backend(
-                        const cpp_int_modular_backend<Bits>& other,
-                        typename std::enable_if<!(is_implicit_cpp_int_conversion<
-                                                  cpp_int_modular_backend<Bits>,
-                                                  self_type>::value)>::type* = 0) :
-                        base_type() {
-                        do_assign(
-                            other,
-                            std::integral_constant<bool, is_trivial_cpp_int<self_type>::value>(),
-                            std::integral_constant<
-                                bool,
-                                is_trivial_cpp_int<
-                                    cpp_int_modular_backend<Bits>>::value>());
-                    }
-
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_backend&
                         operator=(const cpp_int_modular_backend& o) noexcept(
                             noexcept(std::declval<cpp_int_modular_backend>().assign(std::declval<const cpp_int_modular_backend&>()))) {
@@ -674,6 +645,7 @@ namespace nil {
                         return *this;
                     }
                 private:
+                    // Second argument "std::integral_constant<bool, true>" is set to true to indicate A being a "trivial cpp_int type".
                     template<class A>
                     BOOST_MP_CXX14_CONSTEXPR
                         typename std::enable_if<boost::multiprecision::detail::is_unsigned<A>::value>::type
@@ -681,9 +653,10 @@ namespace nil {
                         *this->limbs() = static_cast<typename self_type::local_limb_type>(val);
                         this->normalize();
                     }
+
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void
-                        do_assign_arithmetic(limb_type i) noexcept {
-                        // TODO(martun): we cannot resize here.
+                        do_assign_arithmetic(limb_type i, const std::integral_constant<bool, false>&) noexcept {
+// TODO(martun): we cannot resize here.
                         // this->resize(1, 1);
                         *this->limbs() = i;
                     }
@@ -1201,10 +1174,6 @@ namespace nil {
 
             }    // namespace backends
 
-            template<unsigned Bits>
-            struct expression_template_default<backends::cpp_int_modular_backend<Bits>> {
-                static constexpr const expression_template_option value = boost::multiprecision::et_off;
-            };
 
 
         }    // namespace multiprecision
@@ -1219,6 +1188,11 @@ namespace boost {
         template<unsigned Bits>
         struct number_category<cpp_int_modular_backend<Bits>>
             : public std::integral_constant<int, number_kind_integer> { };
+
+        template<unsigned Bits>
+        struct expression_template_default<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>> {
+            static constexpr const expression_template_option value = boost::multiprecision::et_off;
+        };
 
     } // namespace multiprecision
 } // namespace boost

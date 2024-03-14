@@ -30,7 +30,8 @@ namespace nil {
                     unsigned os = o.size();
                     unsigned m(0), x(0);
                     minmax(rs, os, m, x);
-                    result.resize(x, x);
+// TODO(martun): we cannot resize any more.
+                    // result.resize(x, x);
                     typename CppInt1::limb_pointer pr = result.limbs();
                     typename CppInt2::const_limb_pointer po = o.limbs();
                     for (unsigned i = rs; i < x; ++i)
@@ -99,7 +100,8 @@ namespace nil {
                         cpp_int_modular_backend<Bits>& result,
                         limb_type l) noexcept {
                     result.limbs()[0] &= l;
-                    result.resize(1, 1);
+// TODO(martun): we cannot resize any more.
+                    // result.resize(1, 1);
                 }
 
                 template<unsigned Bits>
@@ -128,7 +130,8 @@ namespace nil {
                         const cpp_int_modular_backend<Bits>&
                             o) noexcept {
                     unsigned os = o.size();
-                    result.resize(UINT_MAX, os);
+// TODO(martun): we cannot resize any more.
+                    // result.resize(UINT_MAX, os);
                     for (unsigned i = 0; i < os; ++i)
                         result.limbs()[i] = ~o.limbs()[i];
                     for (unsigned i = os; i < result.size(); ++i)
@@ -147,7 +150,8 @@ namespace nil {
                     if (shift && (result.limbs()[ors - 1] >> (Int::limb_bits - shift)))
                         ++rs;    // Most significant limb will overflow when shifted
                     rs += offset;
-                    result.resize(rs, rs);
+// TODO(martun): we cannot resize any more.
+                    // result.resize(rs, rs);
                     rs = result.size();
 
                     typename Int::limb_pointer pr = result.limbs();
@@ -178,7 +182,8 @@ namespace nil {
                     if (shift && (result.limbs()[ors - 1] >> (Int::limb_bits - shift)))
                         ++rs;    // Most significant limb will overflow when shifted
                     rs += offset;
-                    result.resize(rs, rs);
+// TODO(martun): we cannot resize any more.
+                    // result.resize(rs, rs);
 
                     typename Int::limb_pointer pr = result.limbs();
 
@@ -207,7 +212,8 @@ namespace nil {
                     if (shift && (result.limbs()[ors - 1] >> (Int::limb_bits - shift)))
                         ++rs;    // Most significant limb will overflow when shifted
                     rs += offset;
-                    result.resize(rs, rs);
+// TODO(martun): we cannot resize any more.
+                    // result.resize(rs, rs);
                     bool truncated = result.size() != rs;
 
                     typename Int::limb_pointer pr = result.limbs();
@@ -250,11 +256,10 @@ namespace nil {
                     eval_left_shift(
                         cpp_int_modular_backend<Bits>& result,
                         double_limb_type s) noexcept {
-                    is_valid_bitwise_op(result);
                     if (!s)
                         return;
 
-#if BOOST_ENDIAN_LITTLE_BYTE && defined(BOOST_MP_USE_LIMB_SHIFT)
+#if BOOST_ENDIAN_LITTLE_BYTE && defined(CRYPTO3_MP_USE_LIMB_SHIFT)
                     constexpr const limb_type limb_shift_mask =
                         cpp_int_modular_backend<Bits>::limb_bits - 1;
                     constexpr const limb_type byte_shift_mask = CHAR_BIT - 1;
@@ -262,7 +267,7 @@ namespace nil {
                     if ((s & limb_shift_mask) == 0) {
                         left_shift_limb(result, s);
                     }
-#ifdef BOOST_MP_NO_CONSTEXPR_DETECTION
+#ifdef CRYPTO3_MP_NO_CONSTEXPR_DETECTION
                     else if ((s & byte_shift_mask) == 0)
 #else
                     else if (((s & byte_shift_mask) == 0) && !BOOST_MP_IS_CONST_EVALUATED(s))
@@ -273,7 +278,7 @@ namespace nil {
 #elif BOOST_ENDIAN_LITTLE_BYTE
                     constexpr const limb_type byte_shift_mask = CHAR_BIT - 1;
 
-#ifdef BOOST_MP_NO_CONSTEXPR_DETECTION
+#ifdef CRYPTO3_MP_NO_CONSTEXPR_DETECTION
                     if ((s & byte_shift_mask) == 0)
 #else
                     constexpr limb_type limb_shift_mask =
@@ -325,7 +330,7 @@ namespace nil {
                             --rs;
                     }
 // TODO(martun): remove this resize, we cannot resize any more.
-                    result.resize(rs, rs);
+                    // result.resize(rs, rs);
                 }
 #endif
 
@@ -344,8 +349,8 @@ namespace nil {
                     unsigned i = 0;
                     for (; i < rs; ++i)
                         pr[i] = pr[i + offset];
-// TODO(martun): remove this resize, we cannot resize any more.
-                    result.resize(rs, rs);
+// TODO(martun): we cannot resize any more.
+                    // result.resize(rs, rs);
                 }
 
                 template<class Int>
@@ -375,7 +380,8 @@ namespace nil {
                         pr[i] |= pr[i + offset + 1] << (Int::limb_bits - shift);
                     }
                     pr[i] = pr[i + offset] >> shift;
-                    result.resize(rs, rs);
+// TODO(martun): we cannot resize any more.
+                    // result.resize(rs, rs);
                 }
 
                 template<unsigned Bits>
@@ -384,17 +390,16 @@ namespace nil {
                     eval_right_shift(
                         cpp_int_modular_backend<Bits>& result,
                         double_limb_type s) noexcept {
-                    is_valid_bitwise_op(result);
                     if (!s)
                         return;
 
-#if BOOST_ENDIAN_LITTLE_BYTE && defined(BOOST_MP_USE_LIMB_SHIFT) && !defined(TVM)
+#if BOOST_ENDIAN_LITTLE_BYTE && defined(CRYPTO3_MP_USE_LIMB_SHIFT) && !defined(TVM)
                     constexpr const limb_type limb_shift_mask = cpp_int_modular_backend<Bits>::limb_bits - 1;
                     constexpr const limb_type byte_shift_mask = CHAR_BIT - 1;
 
                     if ((s & limb_shift_mask) == 0)
                         right_shift_limb(result, s);
-#ifdef BOOST_MP_NO_CONSTEXPR_DETECTION
+#ifdef CRYPTO3_MP_NO_CONSTEXPR_DETECTION
                     else if ((s & byte_shift_mask) == 0)
 #else
                     else if (((s & byte_shift_mask) == 0) && !BOOST_MP_IS_CONST_EVALUATED(s))
@@ -403,7 +408,7 @@ namespace nil {
 #elif BOOST_ENDIAN_LITTLE_BYTE && !defined(TVM)
                     constexpr const limb_type byte_shift_mask = CHAR_BIT - 1;
 
-#ifdef BOOST_MP_NO_CONSTEXPR_DETECTION
+#ifdef CRYPTO3_MP_NO_CONSTEXPR_DETECTION
                     if ((s & byte_shift_mask) == 0)
 #else
                     constexpr limb_type limb_shift_mask =
@@ -434,7 +439,6 @@ namespace nil {
                     eval_left_shift(
                         cpp_int_modular_backend<Bits>& result,
                         T s) noexcept {
-                    is_valid_bitwise_op(result);
                     *result.limbs() <<= s;
                     result.normalize();
                 }
@@ -446,7 +450,6 @@ namespace nil {
                         cpp_int_modular_backend<Bits>& result,
                         T s) noexcept {
                     // Nothing to check here... just make sure we don't invoke undefined behavior:
-                    is_valid_bitwise_op(result);
                     *result.limbs() = (static_cast<unsigned>(s) >= sizeof(*result.limbs()) * CHAR_BIT) ?
                                           0 :
                                           (*result.limbs() >> s);

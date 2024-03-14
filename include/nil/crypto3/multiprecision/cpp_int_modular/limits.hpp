@@ -5,8 +5,8 @@
 //
 // Comparison operators for cpp_int_modular_backend:
 //
-#ifndef BOOST_MP_CPP_INT_LIM_HPP
-#define BOOST_MP_CPP_INT_LIM_HPP
+#ifndef CRYPTO3_MP_CPP_INT_LIM_HPP
+#define CRYPTO3_MP_CPP_INT_LIM_HPP
 
 #include <boost/multiprecision/traits/max_digits10.hpp>
 
@@ -32,7 +32,7 @@ namespace std {
             using ui_type = boost::multiprecision::number<
                 nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>,
                 ExpressionTemplates>;
-#ifdef BOOST_MP_NO_CONSTEXPR_DETECTION
+#ifdef CRYPTO3_MP_NO_CONSTEXPR_DETECTION
             static
 #else
             constexpr
@@ -64,7 +64,7 @@ namespace std {
             ExpressionTemplates>
             get_min() {
             // Bounded, unsigned, no allocator (can be constexpr):
-#ifdef BOOST_MP_NO_CONSTEXPR_DETECTION
+#ifdef CRYPTO3_MP_NO_CONSTEXPR_DETECTION
             static
 #else
             constexpr
@@ -89,7 +89,7 @@ namespace std {
             using ui_type = boost::multiprecision::number<
                 nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>,
                 ExpressionTemplates>;
-#ifdef BOOST_MP_NO_CONSTEXPR_DETECTION
+#ifdef CRYPTO3_MP_NO_CONSTEXPR_DETECTION
             static
 #else
             constexpr

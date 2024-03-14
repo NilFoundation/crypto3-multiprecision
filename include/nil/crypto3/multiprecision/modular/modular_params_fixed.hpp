@@ -21,10 +21,10 @@ namespace nil {
             using default_ops::eval_bit_test;
 
             // fixed precision modular params type which supports compile-time execution
-            template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked>
-            class modular_params<modular_fixed_cpp_int_modular_backend<MinBits, SignType, Checked>> {
+            template<unsigned Bits>
+            class modular_params<modular_fixed_cpp_int_modular_backend<Bits>> {
             protected:
-                typedef modular_fixed_cpp_int_modular_backend<MinBits, SignType, Checked> Backend;
+                typedef modular_fixed_cpp_int_modular_backend<Bits> Backend;
                 typedef backends::modular_functions_fixed<Backend> modular_logic;
 
             public:

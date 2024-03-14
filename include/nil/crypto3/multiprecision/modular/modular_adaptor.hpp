@@ -291,15 +291,14 @@ namespace nil {
                     }
                 }
 
-                template<unsigned MinBits, unsigned MaxBits, cpp_integer_type SignType, cpp_int_check_type Checked,
-                         typename StorageType>
+                template<unsigned Bits, typename StorageType>
                 constexpr void eval_subtract(
-                    modular_adaptor<cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked>, StorageType> &result,
-                    const modular_adaptor<cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked>, StorageType> &o) {
+                    modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &result,
+                    const modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &o) {
 
                     BOOST_ASSERT(result.mod_data().get_mod() == o.mod_data().get_mod());
                     using ui_type = typename std::tuple_element<
-                        0, typename cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked>::unsigned_types>::type;
+                        0, typename cpp_int_modular_backend<Bits>::unsigned_types>::type;
                     using default_ops::eval_lt;
 
                     // Martun: This is the main operation for substraction when called from fp.hpp. 
@@ -654,25 +653,35 @@ namespace nil {
 
             }    // namespace backends
 
-            using nil::crypto3::multiprecision::backends::modular_adaptor;
-
-            template<class Backend, typename StorageType>
-            struct number_category<modular_adaptor<Backend, StorageType>>
-                : public std::integral_constant<int, boost::multiprecision::number_kind_modular> { };
-
-            template<class Backend, typename StorageType, expression_template_option ExpressionTemplates>
-            struct component_type<number<modular_adaptor<Backend, StorageType>, ExpressionTemplates>> {
-                typedef number<Backend, ExpressionTemplates> type;
-            };
-
-            template<class T>
-            struct is_modular_number : public std::integral_constant<bool, false> { };
-
-            template<class Backend, typename StorageType, expression_template_option ExpressionTemplates>
-            struct is_modular_number<number<backends::modular_adaptor<Backend, StorageType>, ExpressionTemplates>>
-                : public std::integral_constant<bool, true> { };
         }    // namespace multiprecision
     }        // namespace crypto3
 }    // namespace nil
+
+
+namespace boost {
+    namespace multiprecision {
+        using nil::crypto3::multiprecision::backends::modular_adaptor;
+
+        // Martun: temporarily commenting this out, doesn't look like we need this type-traits. If we want to have them, we need to add 
+        // 'number_kind_modular' in detail/number_base.hpp, which was deleted.
+
+        //template<class Backend, typename StorageType>
+        //struct number_category<modular_adaptor<Backend, StorageType>>
+        //    : public std::integral_constant<int, boost::multiprecision::number_kind_modular> { };
+
+        //template<class Backend, typename StorageType, expression_template_option ExpressionTemplates>
+        //struct component_type<number<modular_adaptor<Backend, StorageType>, ExpressionTemplates>> {
+        //    typedef number<Backend, ExpressionTemplates> type;
+        //};
+
+        //template<class T>
+        //struct is_modular_number : public std::integral_constant<bool, false> { };
+
+        //template<class Backend, typename StorageType, expression_template_option ExpressionTemplates>
+        //struct is_modular_number<number<backends::modular_adaptor<Backend, StorageType>, ExpressionTemplates>>
+        //    : public std::integral_constant<bool, true> { };
+
+    } // namespace multiprecision
+} // namespace boost
 
 #endif

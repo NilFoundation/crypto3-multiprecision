@@ -151,7 +151,7 @@ namespace nil {
             }
 
 // Can't do formatted IO on an __int128
-#define BOOST_MP_NO_DOUBLE_LIMB_TYPE_IO
+#define CRYPTO3_MP_NO_DOUBLE_LIMB_TYPE_IO
 
             // Need to specialise integer_traits for __int128 as it's not a normal native type:
         }

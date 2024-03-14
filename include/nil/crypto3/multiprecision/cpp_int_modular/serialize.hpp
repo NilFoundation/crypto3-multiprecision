@@ -3,8 +3,8 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt
 
-#ifndef BOOST_MP_CPP_INT_SERIALIZE_HPP
-#define BOOST_MP_CPP_INT_SERIALIZE_HPP
+#ifndef CRYPTO3_MP_CPP_INT_SERIALIZE_HPP
+#define CRYPTO3_MP_CPP_INT_SERIALIZE_HPP
 
 namespace boost {
 
@@ -182,15 +182,13 @@ namespace boost {
 
         }    // namespace cpp_int_detail
 
-        template<class Archive, unsigned MinBits, unsigned MaxBits, mp::cpp_integer_type SignType,
-                 mp::cpp_int_check_type Checked, class Allocator>
-        void serialize(Archive& ar, mp::cpp_int_modular_backend<MinBits, MaxBits, SignType, Checked, Allocator>& val,
+        template<class Archive, unsigned Bits>
+        void serialize(Archive& ar, mp::backends::cpp_int_modular_backend<Bits>& val,
                        const unsigned int /*version*/) {
             using archive_save_tag = typename Archive::is_saving;
             using save_tag = std::integral_constant<bool, archive_save_tag::value>;
-            using trivial_tag =
-                std::integral_constant<bool, mp::backends::is_trivial_cpp_int<mp::cpp_int_modular_backend<
-                                                 MinBits, MaxBits, SignType, Checked, Allocator>>::value>;
+            using trivial_tag = std::integral_constant<bool, 
+                mp::backends::is_trivial_cpp_int<mp::backends::cpp_int_modular_backend<Bits>>::value>;
             using binary_tag = typename cpp_int_detail::is_binary_archive<Archive>::type;
 
             // Just dispatch to the correct method:
@@ -200,4 +198,4 @@ namespace boost {
     }    // namespace serialization
 }    // namespace boost
 
-#endif    // BOOST_MP_CPP_INT_SERIALIZE_HPP
+#endif    // CRYPTO3_MP_CPP_INT_SERIALIZE_HPP

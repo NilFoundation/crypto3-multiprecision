@@ -26,8 +26,7 @@ namespace nil {
                                  const limb_type& o) noexcept {
                     // Addition using modular arithmetic.
                     // Nothing fancy, just let uintmax_t take the strain:
-                    if (&result != &a)
-                        result.resize(a.size(), a.size());
+
                     double_limb_type carry = o;
                     typename CppInt::limb_pointer pr = result.limbs();
                     typename CppInt::const_limb_pointer pa = a.limbs();

@@ -8,8 +8,8 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //---------------------------------------------------------------------------//
 
-#ifndef BOOST_MULTIPRECISION_MODULAR_FUNCTIONS_FIXED_PRECISION_HPP
-#define BOOST_MULTIPRECISION_MODULAR_FUNCTIONS_FIXED_PRECISION_HPP
+#ifndef CRYPTO3_MULTIPRECISION_MODULAR_FUNCTIONS_FIXED_PRECISION_HPP
+#define CRYPTO3_MULTIPRECISION_MODULAR_FUNCTIONS_FIXED_PRECISION_HPP
 
 #include <boost/multiprecision/detail/number_base.hpp>
 #include <nil/crypto3/multiprecision/modular/modular_policy_fixed.hpp>
@@ -176,10 +176,10 @@ namespace nil {
                     }
                 }
 
-                template<unsigned MinBits, cpp_integer_type SignType, cpp_int_check_type Checked>
-                class modular_functions_fixed<modular_fixed_cpp_int_modular_backend<MinBits, SignType, Checked>> {
+                template<unsigned Bits>
+                class modular_functions_fixed<modular_fixed_cpp_int_modular_backend<Bits>> {
                 protected:
-                    typedef modular_fixed_cpp_int_modular_backend<MinBits, SignType, Checked> Backend;
+                    typedef modular_fixed_cpp_int_modular_backend<Bits> Backend;
 
                 public:
                     typedef modular_policy<Backend> policy_type;
@@ -326,14 +326,15 @@ namespace nil {
                     constexpr typename std::enable_if<std::is_integral<Backend2>::value>::type
                         barrett_reduce(Backend1 &result, Backend2 input) const {
                         using input_number_type = typename std::conditional<
-                            bool(sizeof(Backend2) * CHAR_BIT > MinBits),
-                            number<modular_fixed_cpp_int_modular_backend<sizeof(Backend2) * CHAR_BIT, SignType, Checked>>,
+                            bool(sizeof(Backend2) * CHAR_BIT > Bits),
+                            number<modular_fixed_cpp_int_modular_backend<sizeof(Backend2) * CHAR_BIT>>,
                             number_type>::type;
 
                         input_number_type input_adjusted(input);
                         barrett_reduce(result, input_adjusted.backend());
                     }
 
+// TODO(martun): check if we need this now.
                     //
                     // this overloaded barrett_reduce is intended to work with input Backend2 type of less precision
                     // than modular Backend to satisfy constraints of core barrett_reduce overloading
@@ -668,4 +669,4 @@ namespace nil {
     }            // namespace crypto3
 }    // namespace nil
 
-#endif    // BOOST_MULTIPRECISION_MODULAR_FUNCTIONS_FIXED_PRECISION_HPP
+#endif    // CRYPTO3_MULTIPRECISION_MODULAR_FUNCTIONS_FIXED_PRECISION_HPP

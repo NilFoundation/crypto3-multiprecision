@@ -160,7 +160,7 @@ namespace nil {
                         result.negate();
                 }
 
-#ifdef BOOST_MP_HAS_IMMINTRIN_H
+#ifdef CRYPTO3_MP_HAS_IMMINTRIN_H
                 //
                 // This is the key addition routine where all the argument types are non-trivial cpp_int's:
                 //
@@ -181,7 +181,7 @@ namespace nil {
                 inline BOOST_MP_CXX14_CONSTEXPR void
                     add_unsigned(CppInt& result, const CppInt& a,
                                  const CppInt& b) noexcept(is_non_throwing_cpp_int<CppInt>::value) {
-#ifndef BOOST_MP_NO_CONSTEXPR_DETECTION
+#ifndef CRYPTO3_MP_NO_CONSTEXPR_DETECTION
                     if (BOOST_MP_IS_CONST_EVALUATED(a.size())) {
                         add_unsigned_constexpr(result, a, b);
                     } else
@@ -261,7 +261,7 @@ namespace nil {
                 inline BOOST_MP_CXX14_CONSTEXPR void
                     subtract_unsigned(CppInt& result, const CppInt& a,
                                       const CppInt& b) noexcept(is_non_throwing_cpp_int<CppInt>::value) {
-#ifndef BOOST_MP_NO_CONSTEXPR_DETECTION
+#ifndef CRYPTO3_MP_NO_CONSTEXPR_DETECTION
                     if (BOOST_MP_IS_CONST_EVALUATED(a.size())) {
                         subtract_unsigned_constexpr(result, a, b);
                     } else

@@ -129,8 +129,7 @@ namespace nil {
                         using default_ops::eval_lt;
                         using default_ops::eval_multiply_add;
 
-                        typedef cpp_int_modular_backend<sizeof(limb_type) * CHAR_BIT * 3, sizeof(limb_type) * CHAR_BIT * 3,
-                                                unsigned_magnitude, unchecked, void>
+                        typedef cpp_int_modular_backend<sizeof(limb_type) * CHAR_BIT * 3>
                             cpp_three_int_backend;
 
                         const size_t p_size = m_p_words;
