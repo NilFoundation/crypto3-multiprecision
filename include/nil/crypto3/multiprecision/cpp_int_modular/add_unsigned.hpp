@@ -31,12 +31,9 @@ namespace nil {
                     unsigned bs = b.size();
                     minmax(as, bs, m, x);
                     if (x == 1) {
-                        bool s = a.sign();
                         result = static_cast<double_limb_type>(*a.limbs()) + static_cast<double_limb_type>(*b.limbs());
-                        result.sign(s);
                         return;
                     }
-                    result.resize(x, x);
                     typename CppInt::const_limb_pointer pa = a.limbs();
                     typename CppInt::const_limb_pointer pb = b.limbs();
                     typename CppInt::limb_pointer pr = result.limbs();
@@ -73,22 +70,17 @@ namespace nil {
                         carry >>= CppInt::limb_bits;
                         ++pr, ++pa;
                     }
-                    if (carry) {
-                        // We overflowed, need to add one more limb:
-                        result.resize(x + 1, x + 1);
-                        if (result.size() > x)
-                            result.limbs()[x] = static_cast<limb_type>(1u);
-                    }
+                    result.set_carry(carry);
                     result.normalize();
-                    result.sign(a.sign());
                 }
                 //
                 // Core subtraction routine for all non-trivial cpp_int's:
                 //
                 template<class CppInt>
                 inline BOOST_MP_CXX14_CONSTEXPR void
-                    subtract_unsigned_constexpr(CppInt& result, const CppInt& a,
-                                                const CppInt& b) noexcept(is_non_throwing_cpp_int<CppInt>::value) {
+                    subtract_unsigned_constexpr(CppInt& result, const CppInt& a, const CppInt& b) noexcept {
+// TODO(martun): fix this, we have no sign any more.
+
                     using boost::multiprecision::std_constexpr::swap;
                     //
                     // This is the generic, C++ only version of subtraction.
@@ -102,22 +94,17 @@ namespace nil {
                     // special cases for small limb counts:
                     //
                     if (x == 1) {
-                        bool s = a.sign();
                         limb_type al = *a.limbs();
                         limb_type bl = *b.limbs();
                         if (bl > al) {
                             boost::multiprecision::std_constexpr::swap(al, bl);
-                            s = !s;
                         }
                         result = al - bl;
-                        result.sign(s);
                         return;
                     }
                     // This isn't used till later, but comparison has to occur before we resize the result,
                     // as that may also resize a or b if this is an inplace operation:
                     int c = a.compare_unsigned(b);
-                    // Set up the result vector:
-                    result.resize(x, x);
                     // Now that a, b, and result are stable, get pointers to their limbs:
                     typename CppInt::const_limb_pointer pa = a.limbs();
                     typename CppInt::const_limb_pointer pb = b.limbs();
@@ -155,9 +142,8 @@ namespace nil {
                     // We may have lost digits, if so update limb usage count:
                     //
                     result.normalize();
-                    result.sign(a.sign());
-                    if (swapped)
-                        result.negate();
+                    //if (swapped)
+                    //    result.negate();
                 }
 
 #ifdef CRYPTO3_MP_HAS_IMMINTRIN_H
@@ -195,13 +181,11 @@ namespace nil {
                         unsigned bs = b.size();
                         minmax(as, bs, m, x);
                         if (x == 1) {
-                            bool s = a.sign();
                             result =
                                 static_cast<double_limb_type>(*a.limbs()) + static_cast<double_limb_type>(*b.limbs());
                             result.sign(s);
                             return;
                         }
-                        result.resize(x, x);
                         typename CppInt::const_limb_pointer pa = a.limbs();
                         typename CppInt::const_limb_pointer pb = b.limbs();
                         typename CppInt::limb_pointer pr = result.limbs();
@@ -246,14 +230,10 @@ namespace nil {
                         for (; i < x && carry; ++i)
                             carry = ::boost::multiprecision::detail::addcarry_limb(carry, pa[i], 0, pr + i);
                         if (i == x && carry) {
-                            // We overflowed, need to add one more limb:
-                            result.resize(x + 1, x + 1);
-                            if (result.size() > x)
-                                result.limbs()[x] = static_cast<limb_type>(1u);
+                            result.set_carry(carry);
                         } else
                             std::copy(pa + i, pa + x, pr + i);
                         result.normalize();
-                        result.sign(a.sign());
                     }
                 }
 
@@ -276,7 +256,6 @@ namespace nil {
                         // special cases for small limb counts:
                         //
                         if (x == 1) {
-                            bool s = a.sign();
                             limb_type al = *a.limbs();
                             limb_type bl = *b.limbs();
                             if (bl > al) {
@@ -290,8 +269,6 @@ namespace nil {
                         // This isn't used till later, but comparison has to occur before we resize the result,
                         // as that may also resize a or b if this is an inplace operation:
                         int c = a.compare_unsigned(b);
-                        // Set up the result vector:
-                        result.resize(x, x);
                         // Now that a, b, and result are stable, get pointers to their limbs:
                         typename CppInt::const_limb_pointer pa = a.limbs();
                         typename CppInt::const_limb_pointer pb = b.limbs();
@@ -355,9 +332,8 @@ namespace nil {
                         // We may have lost digits, if so update limb usage count:
                         //
                         result.normalize();
-                        result.sign(a.sign());
-                        if (swapped)
-                            result.negate();
+                        //if (swapped)
+                        //    result.negate();
                     }    // constepxr.
                 }
 

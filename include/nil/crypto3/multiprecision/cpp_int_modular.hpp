@@ -132,11 +132,11 @@ namespace boost {
                 template<class T, class U>
                 struct is_implicit_cpp_int_conversion;
 
-                template<unsigned Bits>
+                template<unsigned Bits1, unsigned Bits2>
                 struct is_implicit_cpp_int_conversion<
-                    nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>,
-                    nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>> {
-                    static constexpr const bool value = true;
+                    nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits1>,
+                    nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits2>> {
+                    static constexpr const bool value = (Bits1 <= Bits2);
                 };
 
                 //
@@ -557,7 +557,7 @@ namespace nil {
                     using unsigned_types = std::tuple<unsigned, limb_type, double_limb_type>;
 #else
 
-                   using unsigned_types = typename std::conditional<is_trivial_cpp_int<self_type>::value,
+                    using unsigned_types = typename std::conditional<is_trivial_cpp_int<self_type>::value,
                                                                      std::tuple<unsigned char,
                                                                                 unsigned short,
                                                                                 unsigned,
@@ -576,6 +576,15 @@ namespace nil {
                     BOOST_MP_FORCEINLINE constexpr cpp_int_modular_backend(cpp_int_modular_backend&& o) noexcept
                         : base_type(static_cast<base_type&&>(o)) {
                     }
+
+                    // Sometimes we need to convert from one bit length to another. For example from 'Backend_doubled_limbs' to 'Backend'.
+                    template<unsigned Bits2>
+                    BOOST_MP_FORCEINLINE constexpr cpp_int_modular_backend(
+                            cpp_int_modular_backend<Bits2>&& o,
+                            typename std::enable_if<is_implicit_cpp_int_conversion<cpp_int_modular_backend<Bits2>, self_type>::value>::type* = 0) noexcept {
+                        *this = static_cast<cpp_int_modular_backend<Bits2>&&>(o);
+                    }
+
                     //
                     // Direct construction from arithmetic type:
                     //
@@ -604,33 +613,113 @@ namespace nil {
                     }
 
                 private:
+                    template<unsigned Bits2>
                     BOOST_MP_CXX14_CONSTEXPR void
-                        do_assign(const cpp_int_modular_backend<Bits>& other,
+                        do_assign(const cpp_int_modular_backend<Bits2>& other,
+                                  std::integral_constant<bool, true> const&,
+                                  std::integral_constant<bool, true> const&) {
+                        // Assigning trivial type to trivial type:
+                        this->check_in_range(*other.limbs());
+                        *this->limbs() = static_cast<typename self_type::local_limb_type>(*other.limbs());
+                        this->normalize();
+                    }
+
+                    template<unsigned Bits2>
+                    BOOST_MP_CXX14_CONSTEXPR void
+                        do_assign(const cpp_int_modular_backend<Bits2>& other,
+                                  std::integral_constant<bool, true> const&,
+                                  std::integral_constant<bool, false> const&) {
+                        // non-trivial to trivial narrowing conversion:
+                        double_limb_type v = *other.limbs();
+                        if (other.size() > 1) {
+                            v |= static_cast<double_limb_type>(other.limbs()[1]) << bits_per_limb;
+                        }
+                        *this = v;
+                        this->normalize();
+                    }
+                    template<unsigned Bits2>
+                    BOOST_MP_CXX14_CONSTEXPR void
+                        do_assign(const cpp_int_modular_backend<Bits2>& other,
+                                  std::integral_constant<bool, false> const&,
+                                  std::integral_constant<bool, true> const&) {
+                        // trivial to non-trivial, treat the trivial argument as if it were an unsigned arithmetic type,
+                        // then set the sign afterwards:
+                        *this = static_cast<typename boost::multiprecision::detail::canonical<
+                            typename cpp_int_modular_backend<Bits2>::local_limb_type,
+                            cpp_int_modular_backend<Bits>>::type>(*other.limbs());
+                    }
+                    template<unsigned Bits2>
+                    BOOST_MP_CXX14_CONSTEXPR void
+                        do_assign(const cpp_int_modular_backend<Bits2>& other,
                                   std::integral_constant<bool, false> const&,
                                   std::integral_constant<bool, false> const&) {
+// TODO(martun): we cannot resize here, check that size fits, add zeros at the end.
+
                         // regular non-trivial to non-trivial assign:
+                        //this->resize(other.size(), other.size());
 
 #if !defined(BOOST_MP_HAS_IS_CONSTANT_EVALUATED) && !defined(BOOST_MP_HAS_BUILTIN_IS_CONSTANT_EVALUATED) && \
     !defined(BOOST_NO_CXX14_CONSTEXPR)
-                        unsigned count = this->size();
+                        unsigned count = (std::min)(other.size(), this->size());
                         for (unsigned i = 0; i < count; ++i)
                             this->limbs()[i] = other.limbs()[i];
 #else
 #ifndef BOOST_MP_NO_CONSTEXPR_DETECTION
                         if (BOOST_MP_IS_CONST_EVALUATED(other.size())) {
-                            unsigned count = this->size();
+                            unsigned count = (std::min)(other.size(), this->size());
                             for (unsigned i = 0; i < count; ++i)
                                 this->limbs()[i] = other.limbs()[i];
                         } else
 #endif
                             std::memcpy(this->limbs(),
                                         other.limbs(),
-                                        this->size() * limb_size);
+                                        (std::min)(other.size(), this->size()) * limb_size);
 #endif
                         this->normalize();
                     }
 
                 public:
+                    template<unsigned Bits2>
+                    BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_backend(
+                        const cpp_int_modular_backend<Bits2>& other,
+                        typename std::enable_if<is_implicit_cpp_int_conversion<
+                            cpp_int_modular_backend<Bits2>, self_type>::value>::type* = 0) :
+                        base_type() {
+                        do_assign(
+                            other,
+                            std::integral_constant<bool, is_trivial_cpp_int<self_type>::value>(),
+                            std::integral_constant<
+                                bool,
+                                is_trivial_cpp_int<
+                                    cpp_int_modular_backend<Bits2>>::value>());
+                    }
+                    template<unsigned Bits2>
+                    explicit BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_backend(
+                        const cpp_int_modular_backend<Bits2>& other,
+                        typename std::enable_if<!(is_implicit_cpp_int_conversion<
+                                                  cpp_int_modular_backend<Bits2>, self_type>::value)>::type* = 0) :
+                        base_type() {
+                        do_assign(
+                            other,
+                            std::integral_constant<bool, is_trivial_cpp_int<self_type>::value>(),
+                            std::integral_constant<
+                                bool,
+                                is_trivial_cpp_int<
+                                    cpp_int_modular_backend<Bits2>>::value>());
+                    }
+                    template<unsigned Bits2>
+                    BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_backend&
+                        operator=(const cpp_int_modular_backend<Bits2>& other) {
+                        do_assign(
+                            other,
+                            std::integral_constant<bool, is_trivial_cpp_int<self_type>::value>(),
+                            std::integral_constant<
+                                bool,
+                                is_trivial_cpp_int<
+                                    cpp_int_modular_backend<Bits2>>::value>());
+                        return *this;
+                    }
+
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_backend&
                         operator=(const cpp_int_modular_backend& o) noexcept(
                             noexcept(std::declval<cpp_int_modular_backend>().assign(std::declval<const cpp_int_modular_backend&>()))) {
@@ -644,6 +733,15 @@ namespace nil {
                         *static_cast<base_type*>(this) = static_cast<base_type&&>(o);
                         return *this;
                     }
+                    template<unsigned Bits2>
+                    BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR
+                        typename std::enable_if<(Bits2 <= Bits), cpp_int_modular_backend&>::type
+                        operator=(cpp_int_modular_backend<Bits2>&& o) noexcept {
+                        *static_cast<base_type*>(this) =
+                            static_cast<typename cpp_int_modular_backend<Bits2>::base_type&&>(o);
+                        return *this;
+                    }
+                    
                 private:
                     // Second argument "std::integral_constant<bool, true>" is set to true to indicate A being a "trivial cpp_int type".
                     template<class A>
@@ -1214,5 +1312,6 @@ namespace boost {
 #include <nil/crypto3/multiprecision/cpp_int_modular/serialize.hpp>
 #include <nil/crypto3/multiprecision/cpp_int_modular/import_export.hpp>
 #include <nil/crypto3/multiprecision/cpp_int_modular/eval_jacobi.hpp>
+#include <nil/crypto3/multiprecision/traits/is_backend.hpp>
 
 #endif

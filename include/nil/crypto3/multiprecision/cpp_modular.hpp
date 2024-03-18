@@ -29,9 +29,6 @@ namespace nil {
             typedef modular_params<cpp_int_modular_backend<512>> umod_params512_t;
             typedef modular_params<cpp_int_modular_backend<1024>> umod_params1024_t;
 
-            // mod_paramsular_adapter
-            typedef number<modular_adaptor<cpp_int_modular_backend<0>, backends::modular_params_rt<cpp_int_modular_backend<0>>>> cpp_mod;
-
         }    // namespace multiprecision
     }        // namespace crypto3
 }    // namespace nil

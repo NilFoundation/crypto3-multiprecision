@@ -22,9 +22,9 @@ namespace nil {
 
                 // fixed precision modular backend which supports compile-time execution
                 template<unsigned Bits, typename StorageType>
-                class modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> : public StorageType {
+                class modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> : public StorageType {
                 protected:
-                    typedef modular_fixed_cpp_int_modular_backend<Bits> Backend;
+                    typedef cpp_int_modular_backend<Bits> Backend;
 
                 public:
                     typedef modular_params<Backend> modular_type;
@@ -44,7 +44,6 @@ namespace nil {
                         return m_base;
                     }
 
-                    typedef typename Backend::signed_types signed_types;
                     typedef typename Backend::unsigned_types unsigned_types;
 
                     constexpr modular_adaptor() {
@@ -192,7 +191,7 @@ namespace nil {
                 template<unsigned Bits, typename Backend1,
                          typename Backend2, typename StorageType>
                 constexpr void assign_components(
-                    modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> &result,
+                    modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &result,
                     const Backend1 &a, const Backend2 &b) {
                     // BOOST_ASSERT_MSG(Bits == eval_msb(b) + 1, "modulus precision should match used backend");
                     result.set_modular_params(b);
@@ -203,8 +202,8 @@ namespace nil {
 
                 template<unsigned Bits, typename StorageType>
                 constexpr void eval_add(
-                    modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> &result,
-                    const modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> &o) {
+                    modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &result,
+                    const modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &o) {
                     BOOST_ASSERT(result.mod_data().get_mod() == o.mod_data().get_mod());
                     result.mod_data().mod_add(result.base_data(), o.base_data());
                 }
@@ -212,7 +211,7 @@ namespace nil {
                 template<unsigned Bits, typename Backend,
                          typename StorageType>
                 constexpr void eval_add(
-                    modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> &result,
+                    modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &result,
                     const modular_adaptor<Backend, StorageType> &o) {
                     BOOST_ASSERT(result.mod_data().get_mod() == o.mod_data().get_mod());
                     result.mod_data().mod_add(result.base_data(), o.base_data());
@@ -221,22 +220,22 @@ namespace nil {
                 template<typename Backend, unsigned Bits, typename StorageType>
                 constexpr void eval_add(
                     modular_adaptor<Backend, StorageType> &result,
-                    const modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> &o) {
+                    const modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &o) {
                     BOOST_ASSERT(result.mod_data().get_mod() == o.mod_data().get_mod());
                     o.mod_data().mod_add(result.base_data(), o.base_data());
                 }
 
                 template<unsigned Bits, typename StorageType>
                 constexpr void eval_multiply(
-                        modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> &result,
-                        const modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> &o) {
+                        modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &result,
+                        const modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &o) {
                     BOOST_ASSERT(result.mod_data().get_mod() == o.mod_data().get_mod());
                     result.mod_data().mod_mul(result.base_data(), o.base_data());
                 }
 
                 template<unsigned Bits, typename Backend, typename StorageType>
                 constexpr void eval_multiply(
-                        modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> &result,
+                        modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &result,
                         const modular_adaptor<Backend, StorageType> &o) {
                     BOOST_ASSERT(result.mod_data().get_mod() == o.mod_data().get_mod());
                     result.mod_data().mod_mul(result.base_data(), o.base_data());
@@ -245,15 +244,15 @@ namespace nil {
                 template<typename Backend, unsigned Bits, typename StorageType>
                 constexpr void eval_multiply(
                         modular_adaptor<Backend, StorageType> &result,
-                        const modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> &o) {
+                        const modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &o) {
                     BOOST_ASSERT(result.mod_data().get_mod() == o.mod_data().get_mod());
                     o.mod_data().mod_mul(result.base_data(), o.base_data());
                 }
 
                 template<unsigned Bits, typename T, typename StorageType>
                 constexpr void eval_pow(
-                        modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> &result,
-                        const modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> &b,
+                        modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &result,
+                        const modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &b,
                         const T &e) {
                     result.set_modular_params(b.mod_data());
                     result.mod_data().mod_exp(result.base_data(), b.base_data(), e);
@@ -261,10 +260,10 @@ namespace nil {
 
                 template<unsigned Bits, typename StorageType>
                 constexpr void eval_pow(
-                    modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> &result,
-                    const modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> &b,
-                    const modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> &e) {
-                    using Backend = modular_fixed_cpp_int_modular_backend<Bits>;
+                    modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &result,
+                    const modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &b,
+                    const modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &e) {
+                    using Backend = cpp_int_modular_backend<Bits>;
 
                     Backend exp;
                     e.mod_data().adjust_regular(exp, e.base_data());
@@ -273,19 +272,18 @@ namespace nil {
 
                 template<unsigned Bits, typename Backend, typename T, typename StorageType>
                 constexpr void eval_powm(
-                        modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> &result,
+                        modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &result,
                         const modular_adaptor<Backend, StorageType> &b, const T &e) {
 
                     BOOST_ASSERT(Bits >= msb(b.mod_data().get_mod()) + 1);
-                    result.set_modular_params(b.mod_data());
                     result.mod_data().mod_exp(result.base_data(), b.base_data(), e);
                 }
 
                 template<unsigned Bits, typename Backend1, typename Backend2, typename StorageType>
                 constexpr void eval_powm(
-                    modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> &result,
+                    modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &result,
                     const modular_adaptor<Backend1, StorageType> &b, const modular_adaptor<Backend2, StorageType> &e) {
-                    using Backend = modular_fixed_cpp_int_modular_backend<Bits>;
+                    using Backend = cpp_int_modular_backend<Bits>;
 
                     Backend exp;
                     e.mod_data().adjust_regular(exp, e.base_data());
@@ -294,9 +292,9 @@ namespace nil {
 
                 template<unsigned Bits, typename StorageType>
                 constexpr void eval_inverse_mod(
-                    modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> &result,
-                    const modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType> &input) {
-                    using Backend = modular_fixed_cpp_int_modular_backend<Bits>;
+                    modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &result,
+                    const modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &input) {
+                    using Backend = cpp_int_modular_backend<Bits>;
                     using Backend_padded_limbs = typename modular_params<Backend>::policy_type::Backend_padded_limbs;
 
                     Backend_padded_limbs new_base, res, tmp = input.mod_data().get_mod().backend();
@@ -318,11 +316,11 @@ namespace boost {
     namespace multiprecision {
         using nil::crypto3::multiprecision::backends::cpp_int_modular_backend;
         using nil::crypto3::multiprecision::backends::modular_adaptor;
-        using nil::crypto3::multiprecision::backends::modular_fixed_cpp_int_modular_backend;
+        using nil::crypto3::multiprecision::backends::cpp_int_modular_backend;
 
         template<unsigned Bits, typename StorageType>
         struct expression_template_default<
-            modular_adaptor<modular_fixed_cpp_int_modular_backend<Bits>, StorageType>> {
+            modular_adaptor<cpp_int_modular_backend<Bits>, StorageType>> {
             static const expression_template_option value = boost::multiprecision::et_off;
         };
 

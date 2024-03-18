@@ -177,9 +177,9 @@ namespace nil {
                 }
 
                 template<unsigned Bits>
-                class modular_functions_fixed<modular_fixed_cpp_int_modular_backend<Bits>> {
+                class modular_functions_fixed<cpp_int_modular_backend<Bits>> {
                 protected:
-                    typedef modular_fixed_cpp_int_modular_backend<Bits> Backend;
+                    typedef cpp_int_modular_backend<Bits> Backend;
 
                 public:
                     typedef modular_policy<Backend> policy_type;
@@ -195,16 +195,12 @@ namespace nil {
                     typedef typename policy_type::Backend_doubled_padded_limbs Backend_doubled_padded_limbs;
 
                     typedef typename policy_type::number_type number_type;
-                    typedef typename policy_type::number_type_u number_type_u;
                     typedef typename policy_type::dbl_lmb_number_type dbl_lmb_number_type;
 
                     constexpr static auto limbs_count = policy_type::limbs_count;
                     constexpr static auto limb_bits = policy_type::limb_bits;
 
                     constexpr void initialize_modulus(const number_type &m) {
-                        BOOST_ASSERT(check_modulus_constraints(m.backend()));
-
-                        m_mod = m;
                     }
 
                     constexpr void initialize_barrett_params() {
@@ -215,7 +211,9 @@ namespace nil {
                         m_barrett_mu = static_cast<limb_type>(0u);
 
                         eval_bit_set(m_barrett_mu, 2u * (1u + eval_msb(m_mod.backend())));
-                        eval_divide(m_barrett_mu, m_mod.backend());
+
+// TODO(martun): use normal cpp_int here to divide once.
+                        // eval_divide(m_barrett_mu, m_mod.backend());
                     }
 
                     constexpr void initialize_montgomery_params() {
@@ -299,10 +297,6 @@ namespace nil {
                     constexpr modular_functions_fixed() {
                     }
 
-                    constexpr modular_functions_fixed(const number_type_u &m) {
-                        initialize(m);
-                    }
-
                     constexpr modular_functions_fixed(const number_type &m) {
                         initialize(m);
                     }
@@ -327,7 +321,7 @@ namespace nil {
                         barrett_reduce(Backend1 &result, Backend2 input) const {
                         using input_number_type = typename std::conditional<
                             bool(sizeof(Backend2) * CHAR_BIT > Bits),
-                            number<modular_fixed_cpp_int_modular_backend<sizeof(Backend2) * CHAR_BIT>>,
+                            number<cpp_int_modular_backend<sizeof(Backend2) * CHAR_BIT>>,
                             number_type>::type;
 
                         input_number_type input_adjusted(input);
@@ -438,7 +432,7 @@ namespace nil {
                         /// input parameters should be lesser than modulus
                         // BOOST_ASSERT(eval_lt(x, m_mod.backend()) && eval_lt(y, m_mod.backend()));
 
-                        using T = typename policy_type::Backend_padded_limbs_u;
+                        using T = typename policy_type::Backend_padded_limbs;
                         T tmp(result), modulus(m_mod.backend());
                         eval_add(tmp, y);
                         if (!eval_lt(tmp, modulus)) {

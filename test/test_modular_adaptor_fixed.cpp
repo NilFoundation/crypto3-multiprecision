@@ -26,8 +26,6 @@
 #include <nil/crypto3/multiprecision/cpp_int_modular/literals.hpp>
 #include <nil/crypto3/multiprecision/cpp_modular.hpp>
 
-#include "test.hpp"
-
 #include <boost/type_traits/is_convertible.hpp>
 
 using namespace nil::crypto3::multiprecision;
@@ -91,7 +89,8 @@ constexpr bool base_operations_test(std::array<Number, test_set_len> test_set) {
     typedef typename Number::backend_type Backend;
     typedef typename default_ops::double_precision_type<Backend>::type Backend_doubled;
     using params_safe_type = nil::crypto3::multiprecision::backends::modular_params_rt<Backend>;
-    typedef number<modular_adaptor<Backend, params_safe_type>> modular_number;
+    using modular_adaptor_type = modular_adaptor<Backend, params_safe_type>;
+    typedef number<modular_adaptor_type> modular_number;
     typedef modular_params<Backend> params_number;
     typedef Number standard_number;
     typedef number<Backend_doubled> dbl_standard_number;
@@ -125,8 +124,8 @@ constexpr bool base_operations_test(std::array<Number, test_set_len> test_set) {
     int b_lsb_s = lsb(test_set[b_e]);
 
     params_number mod_p(test_set[mod_e]);
-    modular_number a(test_set[a_e], mod_p);
-    modular_number b(test_set[b_e], mod_p);
+    modular_number a(modular_adaptor_type(test_set[a_e], mod_p));
+    modular_number b(modular_adaptor_type(test_set[b_e], mod_p));
 
     modular_number a_add_b = a + b;
     modular_number a_sub_b = a - b;
@@ -193,7 +192,7 @@ constexpr bool base_operations_test(const std::array<std::array<Number, enum_len
 BOOST_AUTO_TEST_SUITE(static_tests)
 
 BOOST_AUTO_TEST_CASE(base_ops_prime_mod_backend_130) {
-    using Backend = cpp_int_modular_backend<130, 130>;
+    using Backend = cpp_int_modular_backend<130>;
     using standard_number = number<Backend>;
     using test_set = std::array<standard_number, test_set_len>;
     using test_data_t = std::array<test_set, 50>;
@@ -304,7 +303,7 @@ BOOST_AUTO_TEST_CASE(base_ops_prime_mod_backend_130) {
 }
 
 BOOST_AUTO_TEST_CASE(base_ops_even_mod_backend_130) {
-    using Backend = cpp_int_modular_backend<130, 130>;
+    using Backend = cpp_int_modular_backend<130>;
     using standard_number = number<Backend>;
     using test_set = std::array<standard_number, test_set_len>;
     using test_data_t = std::array<test_set, 50>;
@@ -415,7 +414,7 @@ BOOST_AUTO_TEST_CASE(base_ops_even_mod_backend_130) {
 }
 
 BOOST_AUTO_TEST_CASE(base_ops_even_mod_backend_17) {
-    using Backend = cpp_int_modular_backend<17, 17>;
+    using Backend = cpp_int_modular_backend<17>;
     using standard_number = number<Backend>;
     using test_set = std::array<standard_number, test_set_len>;
     using test_data_t = std::array<test_set, 20>;
@@ -436,7 +435,7 @@ BOOST_AUTO_TEST_CASE(base_ops_even_mod_backend_17) {
 }
 
 BOOST_AUTO_TEST_CASE(base_ops_odd_mod_backend_17) {
-    using Backend = cpp_int_modular_backend<17, 17>;
+    using Backend = cpp_int_modular_backend<17>;
     using standard_number = number<Backend>;
     using test_set = std::array<standard_number, test_set_len>;
     using test_data_t = std::array<test_set, 20>;
@@ -461,7 +460,7 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE(runtime_tests)
 
 BOOST_AUTO_TEST_CASE(secp256k1_incorrect_multiplication) {
-    using Backend = cpp_int_modular_backend<256, 256>;
+    using Backend = cpp_int_modular_backend<256>;
     using standart_number = number<Backend>;
     using params_safe_type = nil::crypto3::multiprecision::backends::modular_params_rt<Backend>;
     using modular_number = number<modular_adaptor<Backend, params_safe_type>>;
@@ -473,7 +472,7 @@ BOOST_AUTO_TEST_CASE(secp256k1_incorrect_multiplication) {
 }
 
 BOOST_AUTO_TEST_CASE(bad_negation) {
-    using Backend = cpp_int_modular_backend<256, 256>;
+    using Backend = cpp_int_modular_backend<256>;
     using standart_number = number<Backend>;
     using params_safe_type = nil::crypto3::multiprecision::backends::modular_params_rt<Backend>;
     using modular_number = number<modular_adaptor<Backend, params_safe_type>>;
@@ -487,7 +486,7 @@ BOOST_AUTO_TEST_CASE(bad_negation) {
 
 // This directly calls montgomery_mul from modular_functions_fixed.hpp.
 BOOST_AUTO_TEST_CASE(modular_adaptor_montgomery_mult_perf_test, *boost::unit_test::disabled()) {
-    using Backend = cpp_int_modular_backend<256, 256>;
+    using Backend = cpp_int_modular_backend<256>;
     using standart_number = number<Backend>;
     using params_safe_type = nil::crypto3::multiprecision::backends::modular_params_rt<Backend>;
     using modular_number = number<modular_adaptor<Backend, params_safe_type>>;
@@ -515,7 +514,7 @@ BOOST_AUTO_TEST_CASE(modular_adaptor_montgomery_mult_perf_test, *boost::unit_tes
 
 // Averge subtraction time is 37 ns.
 BOOST_AUTO_TEST_CASE(modular_adaptor_backend_sub_perf_test, *boost::unit_test::disabled()) {
-    using Backend = cpp_int_modular_backend<256, 256>;
+    using Backend = cpp_int_modular_backend<256>;
     using standart_number = number<Backend>;
     using params_safe_type = nil::crypto3::multiprecision::backends::modular_params_rt<Backend>;
     using modular_number = number<modular_adaptor<Backend, params_safe_type>>;
@@ -541,7 +540,7 @@ BOOST_AUTO_TEST_CASE(modular_adaptor_backend_sub_perf_test, *boost::unit_test::d
 }
 
 BOOST_AUTO_TEST_CASE(modular_adaptor_256_bit_number_sub_perf_test, *boost::unit_test::disabled()) {
-    using Backend = cpp_int_modular_backend<256, 256>;
+    using Backend = cpp_int_modular_backend<256>;
     using standart_number = number<Backend>;
 
     // Average time per subtraction with this modulus is 37 ns.
@@ -572,8 +571,8 @@ BOOST_AUTO_TEST_CASE(modular_adaptor_256_bit_number_sub_perf_test, *boost::unit_
 }
 
 BOOST_AUTO_TEST_CASE(modular_adaptor_255_bit_number_sub_perf_test, *boost::unit_test::disabled()) {
-    using Backend = cpp_int_modular_backend<255, 255, nil::crypto3::multiprecision::unsigned_magnitude, nil::crypto3::multiprecision::unchecked, void>;
-    using Backend_signed = cpp_int_modular_backend<255, 255, nil::crypto3::multiprecision::signed_magnitude, nil::crypto3::multiprecision::unchecked, void>;
+    using Backend = cpp_int_modular_backend<255>;
+    using Backend_signed = cpp_int_modular_backend<255>;
     // With this modulus average time is ~60 ns.
     // constexpr static const number<Backend> modulus = 0x4ffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f_cppui255;
 
@@ -603,7 +602,7 @@ BOOST_AUTO_TEST_CASE(modular_adaptor_255_bit_number_sub_perf_test, *boost::unit_
 
 // Averge multiplication time is 130 ns.
 BOOST_AUTO_TEST_CASE(modular_adaptor_backend_mult_perf_test, *boost::unit_test::disabled()) {
-    using Backend = cpp_int_modular_backend<256, 256>;
+    using Backend = cpp_int_modular_backend<256>;
     using standart_number = number<Backend>;
     using params_safe_type = nil::crypto3::multiprecision::backends::modular_params_rt<Backend>;
     using modular_number = number<modular_adaptor<Backend, params_safe_type>>;
@@ -629,7 +628,7 @@ BOOST_AUTO_TEST_CASE(modular_adaptor_backend_mult_perf_test, *boost::unit_test::
 
 // Averge multiplication time is 130 ns.
 BOOST_AUTO_TEST_CASE(modular_adaptor_number_mult_perf_test, *boost::unit_test::disabled()) {
-    using Backend = cpp_int_modular_backend<256, 256>;
+    using Backend = cpp_int_modular_backend<256>;
     using standart_number = number<Backend>;
     using params_safe_type = nil::crypto3::multiprecision::backends::modular_params_rt<Backend>;
     using modular_number = number<modular_adaptor<Backend, params_safe_type>>;

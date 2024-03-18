@@ -174,21 +174,22 @@ namespace nil {
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 
-                template<unsigned Bits>
-                inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value,
-                    bool>::type
-                    eval_bit_test(const cpp_int_modular_backend<Bits> &val,
-                                  unsigned index) noexcept {
-                    unsigned offset =
-                        index / cpp_int_modular_backend<Bits>::limb_bits;
-                    unsigned shift =
-                        index % cpp_int_modular_backend<Bits>::limb_bits;
-                    limb_type mask = shift ? limb_type(1u) << shift : limb_type(1u);
-                    if (offset >= val.size())
-                        return false;
-                    return val.limbs()[offset] & mask ? true : false;
-                }
+// TODO(martun): probably we don't need this, delete if everything works without this.
+//                template<unsigned Bits>
+//                inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
+//                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value,
+//                    bool>::type
+//                    eval_bit_test(const cpp_int_modular_backend<Bits> &val,
+//                                  unsigned index) noexcept {
+//                    unsigned offset =
+//                        index / cpp_int_modular_backend<Bits>::limb_bits;
+//                    unsigned shift =
+//                        index % cpp_int_modular_backend<Bits>::limb_bits;
+//                    limb_type mask = shift ? limb_type(1u) << shift : limb_type(1u);
+//                    if (offset >= val.size())
+//                        return false;
+//                    return val.limbs()[offset] & mask ? true : false;
+//                }
 
 #ifdef BOOST_GCC
 #pragma GCC diagnostic pop
@@ -197,20 +198,15 @@ namespace nil {
                 template<unsigned Bits>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
                     cpp_int_modular_backend<Bits>>::value>::type
-                    eval_bit_set(cpp_int_modular_backend<Bits> &val,
-                                 unsigned index) {
+                    eval_bit_set(cpp_int_modular_backend<Bits> &val, unsigned index) {
+
                     unsigned offset =
                         index / cpp_int_modular_backend<Bits>::limb_bits;
                     unsigned shift =
                         index % cpp_int_modular_backend<Bits>::limb_bits;
                     limb_type mask = shift ? limb_type(1u) << shift : limb_type(1u);
                     if (offset >= val.size()) {
-                        unsigned os = val.size();
-                        val.resize(offset + 1, offset + 1);
-                        if (offset >= val.size())
-                            return;    // fixed precision overflow
-                        for (unsigned i = os; i <= offset; ++i)
-                            val.limbs()[i] = 0;
+                        return;    // fixed precision overflow
                     }
                     val.limbs()[offset] |= mask;
                 }
@@ -242,12 +238,7 @@ namespace nil {
                         index % cpp_int_modular_backend<Bits>::limb_bits;
                     limb_type mask = shift ? limb_type(1u) << shift : limb_type(1u);
                     if (offset >= val.size()) {
-                        unsigned os = val.size();
-                        val.resize(offset + 1, offset + 1);
-                        if (offset >= val.size())
-                            return;    // fixed precision overflow
-                        for (unsigned i = os; i <= offset; ++i)
-                            val.limbs()[i] = 0;
+                        return;    // fixed precision overflow
                     }
                     val.limbs()[offset] ^= mask;
                     val.normalize();

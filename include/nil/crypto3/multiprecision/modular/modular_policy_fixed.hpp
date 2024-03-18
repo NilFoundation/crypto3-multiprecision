@@ -19,10 +19,6 @@ namespace nil {
         namespace multiprecision {
             namespace backends {
 
-                // TODO: replace cpp_int_modular_backend on this type everywhere in fixed modular_adaptor
-                template<unsigned Bits>
-                using modular_fixed_cpp_int_modular_backend = cpp_int_modular_backend<Bits>;
-
                 template<typename Backend>
                 constexpr typename boost::enable_if_c<is_trivial_cpp_int<Backend>::value, std::size_t>::type
                     get_limbs_count() {
@@ -51,8 +47,8 @@ namespace nil {
                 struct modular_policy;
 
                 template<unsigned Bits>
-                struct modular_policy<modular_fixed_cpp_int_modular_backend<Bits>> {
-                    typedef modular_fixed_cpp_int_modular_backend<Bits> Backend;
+                struct modular_policy<cpp_int_modular_backend<Bits>> {
+                    typedef cpp_int_modular_backend<Bits> Backend;
 
                     constexpr static auto limbs_count = get_limbs_count<Backend>();
                     constexpr static auto limb_bits = get_limb_bits<Backend>();
@@ -75,13 +71,16 @@ namespace nil {
                     constexpr static auto BitsCount_doubled_limbs = 2u * limbs_count * limb_bits;
                     constexpr static auto BitsCount_doubled_padded_limbs = BitsCount_doubled_limbs + limb_bits;
 
-                    typedef modular_fixed_cpp_int_modular_backend<BitsCount_padded_limbs> Backend_padded_limbs_u;
-                    typedef modular_fixed_cpp_int_modular_backend<BitsCount_doubled_limbs> Backend_doubled_limbs_u;
+                    typedef cpp_int_modular_backend<BitsCount_doubled> Backend_doubled;
+                    typedef cpp_int_modular_backend<BitsCount_doubled_1> Backend_doubled_1;
+                    typedef cpp_int_modular_backend<BitsCount_quadruple_1> Backend_quadruple_1;
+                    typedef cpp_int_modular_backend<BitsCount_padded_limbs> Backend_padded_limbs;
+                    typedef cpp_int_modular_backend<BitsCount_doubled_limbs> Backend_doubled_limbs;
+                    typedef cpp_int_modular_backend<BitsCount_doubled_padded_limbs> Backend_doubled_padded_limbs;
 
                     typedef number<Backend> number_type;
-                    // typedef number<Backend_u> number_type_u;
-                    // typedef number<Backend_doubled> dbl_number_type;
-                    // typedef number<Backend_doubled_limbs> dbl_lmb_number_type;
+                    typedef number<Backend_doubled> dbl_number_type;
+                    typedef number<Backend_doubled_limbs> dbl_lmb_number_type;
                 };
 
             }    // namespace backends

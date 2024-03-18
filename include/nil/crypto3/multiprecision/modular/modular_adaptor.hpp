@@ -58,6 +58,7 @@ namespace nil {
                     constexpr static const modular_type m_mod = Modulus;
                 };
 
+                // Must be used only in the tests, we must normally use only modular_params_ct.
                 template<typename Backend>
                 class modular_params_rt {
                 public:
