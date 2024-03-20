@@ -20,12 +20,12 @@ namespace nil {
         namespace multiprecision {
             namespace backends {
 
-                using default_ops::eval_is_zero;
-                using default_ops::eval_bit_test;
-                using default_ops::eval_modulus;
-                using default_ops::eval_subtract;
-                using default_ops::eval_add;
-                using default_ops::eval_bit_set;
+                using boost::multiprecision::default_ops::eval_is_zero;
+                using boost::multiprecision::default_ops::eval_bit_test;
+                using boost::multiprecision::default_ops::eval_modulus;
+                using boost::multiprecision::default_ops::eval_subtract;
+                using boost::multiprecision::default_ops::eval_add;
+                using boost::multiprecision::default_ops::eval_bit_set;
 
                 template<typename Backend>
                 constexpr Backend eval_extended_euclidean_algorithm(Backend &num1, Backend& num2, Backend &bezout_x, Backend &bezout_y) {
@@ -63,7 +63,7 @@ namespace nil {
                 // http://www-math.ucdenver.edu/~wcherowi/courses/m5410/exeucalg.html
                 template<typename Backend>
                 constexpr void eval_inverse_extended_euclidean_algorithm(Backend &result, const Backend& a, const Backend& m) {
-                    using Backend_doubled = typename default_ops::double_precision_type<Backend>::type;
+                    using Backend_doubled = typename boost::multiprecision::default_ops::double_precision_type<Backend>::type;
                     using ui_type = typename std::tuple_element<0, typename Backend::unsigned_types>::type;
 
                     Backend aa = a, mm = m, x, y, g;
@@ -153,7 +153,7 @@ namespace nil {
                     for (size_t i = 0; i < 2 * ell; ++i) {
 
                         size_t odd = eval_bit_test(a, 0);
-                        size_t gteq = default_ops::eval_gt(a, b) || default_ops::eval_eq(a, b);
+                        size_t gteq = boost::multiprecision::default_ops::eval_gt(a, b) || boost::multiprecision::default_ops::eval_eq(a, b);
                         if (odd && gteq) {
                             eval_subtract(a, b);
                         } else if (odd && !gteq) {
@@ -165,7 +165,7 @@ namespace nil {
                             b = tmp;
                         }
                         eval_right_shift(a, 1);
-                        size_t gteq2 = default_ops::eval_gt(u, v) || default_ops::eval_eq(u, v);
+                        size_t gteq2 = boost::multiprecision::default_ops::eval_gt(u, v) || boost::multiprecision::default_ops::eval_eq(u, v);
                         if (odd && gteq2) {
                             eval_subtract(u, v);
                         } else if (odd && !gteq2) {
@@ -178,7 +178,7 @@ namespace nil {
                         }
                         eval_right_shift(u, 1);
                     }
-                    if (!default_ops::eval_eq(b, one)) { // if b != 1 then gcd(n,mod) > 1 and inverse does not exist
+                    if (!boost::multiprecision::default_ops::eval_eq(b, one)) { // if b != 1 then gcd(n,mod) > 1 and inverse does not exist
                         return zero;
                     }
                     return v;
@@ -310,11 +310,11 @@ namespace nil {
                 template<typename Backend>
                 constexpr void eval_monty_inverse(Backend& res, const Backend& a, const Backend& p, const Backend& k) {
 
-                    using default_ops::eval_abs;
-                    using default_ops::eval_gt;
-                    using default_ops::eval_modulus;
-                    using default_ops::eval_subtract;
-                    using default_ops::eval_eq;
+                    using boost::multiprecision::default_ops::eval_abs;
+                    using boost::multiprecision::default_ops::eval_gt;
+                    using boost::multiprecision::default_ops::eval_modulus;
+                    using boost::multiprecision::default_ops::eval_subtract;
+                    using boost::multiprecision::default_ops::eval_eq;
 
                     using ui_type = typename std::tuple_element<0, typename Backend::unsigned_types>::type;
                     Backend zero, one, two;

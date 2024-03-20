@@ -21,7 +21,7 @@ namespace nil {
             template<typename Backend>
             class modular_params : public backends::montgomery_params<Backend>,
                                    public backends::barrett_params<Backend> {
-                typedef number<Backend> number_type;
+                typedef boost::multiprecision::number<Backend> number_type;
 
             public:
                 modular_params() : backends::montgomery_params<Backend>(), backends::barrett_params<Backend>() {
@@ -90,8 +90,8 @@ namespace nil {
                     return this->m_mod;
                 }
 
-                template<typename BackendT, expression_template_option ExpressionTemplates>
-                operator number<BackendT, ExpressionTemplates>() {
+                template<typename BackendT, boost::multiprecision::expression_template_option ExpressionTemplates>
+                operator boost::multiprecision::number<BackendT, ExpressionTemplates>() {
                     return get_mod();
                 };
 

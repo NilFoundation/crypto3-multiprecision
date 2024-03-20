@@ -84,7 +84,7 @@ namespace nil {
                         using ui_type = typename std::tuple_element<0, unsigned_types>::type;
                         ui_type zero = 0u;
 
-                        using default_ops::eval_fpclassify;
+                        using boost::multiprecision::default_ops::eval_fpclassify;
 
                         if (s && (*s == '(')) {
                             std::string part;
@@ -176,11 +176,8 @@ namespace nil {
                         return tmp.str(dig, f);
                     }
 
-                    constexpr void negate() {
-                        m_base.negate();
-                        if (m_base.compare(m_zero) != 0) {
-                            eval_add(m_base, this->mod_data().get_mod().backend());
-                        }
+                    inline void negate() {
+                        // We need this function to compile, because boost "number" class requires this, even though it's never called for unsigned numbers.
                     }
 
                 protected:

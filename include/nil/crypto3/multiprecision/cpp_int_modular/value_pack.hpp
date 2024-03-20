@@ -36,11 +36,6 @@ namespace nil {
                         static constexpr bool value = true;
                     };
 
-                    struct negate_tag { };
-
-                    constexpr negate_tag make_negate_tag() {
-                        return negate_tag();
-                    }
                 }    // namespace detail
             }        // namespace literals
         }            // namespace multiprecision

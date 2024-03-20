@@ -23,21 +23,21 @@ namespace nil {
     namespace crypto3 {
         namespace multiprecision {
 
-            template<typename Backend, expression_template_option ExpressionTemplates>
-            constexpr number<Backend, ExpressionTemplates>
-                inverse_extended_euclidean_algorithm(const number<Backend, ExpressionTemplates> &n,
-                                                     const number<Backend, ExpressionTemplates> &mod) {
-                number<Backend, ExpressionTemplates> result;
+            template<typename Backend, boost::multiprecision::expression_template_option ExpressionTemplates>
+            constexpr boost::multiprecision::number<Backend, ExpressionTemplates>
+                inverse_extended_euclidean_algorithm(const boost::multiprecision::number<Backend, ExpressionTemplates> &n,
+                                                     const boost::multiprecision::number<Backend, ExpressionTemplates> &mod) {
+                boost::multiprecision::number<Backend, ExpressionTemplates> result;
                 backends::eval_inverse_extended_euclidean_algorithm(result.backend(), n.backend(), mod.backend());
                 return result;
             }
 
-            template<typename Backend, typename StorageType, expression_template_option ExpressionTemplates>
-            constexpr number<modular_adaptor<Backend, StorageType>, ExpressionTemplates>
+            template<typename Backend, typename StorageType, boost::multiprecision::expression_template_option ExpressionTemplates>
+            constexpr boost::multiprecision::number<backends::modular_adaptor<Backend, StorageType>, ExpressionTemplates>
                 inverse_extended_euclidean_algorithm(
-                    const number<modular_adaptor<Backend, StorageType>, ExpressionTemplates> &modular) {
-                number<Backend, ExpressionTemplates> new_base, res;
-                number<modular_adaptor<Backend, StorageType>, ExpressionTemplates> res_mod;
+                    const boost::multiprecision::number<backends::modular_adaptor<Backend, StorageType>, ExpressionTemplates> &modular) {
+                boost::multiprecision::number<Backend, ExpressionTemplates> new_base, res;
+                boost::multiprecision::number<backends::modular_adaptor<Backend, StorageType>, ExpressionTemplates> res_mod;
 
                 modular.backend().mod_data().adjust_regular(new_base.backend(), modular.backend().base_data());
                 backends::eval_inverse_extended_euclidean_algorithm(
@@ -47,28 +47,28 @@ namespace nil {
                 return res_mod;
             }
 
-            template<typename Backend, expression_template_option ExpressionTemplates>
-            constexpr number<Backend, ExpressionTemplates>
-                monty_inverse(const number<Backend, ExpressionTemplates> &a,
-                              const number<Backend, ExpressionTemplates> &p,
-                              const number<Backend, ExpressionTemplates> &k) {
-                number<Backend, ExpressionTemplates> res;
+            template<typename Backend, boost::multiprecision::expression_template_option ExpressionTemplates>
+            constexpr boost::multiprecision::number<Backend, ExpressionTemplates>
+                monty_inverse(const boost::multiprecision::number<Backend, ExpressionTemplates> &a,
+                              const boost::multiprecision::number<Backend, ExpressionTemplates> &p,
+                              const boost::multiprecision::number<Backend, ExpressionTemplates> &k) {
+                boost::multiprecision::number<Backend, ExpressionTemplates> res;
                 backends::eval_monty_inverse(res.backend(), a.backend(), p.backend(), k.backend());
                 return res;
             }
 
-            template<typename Backend, expression_template_option ExpressionTemplates>
-            constexpr number<Backend, ExpressionTemplates> inverse_mod(const number<Backend, ExpressionTemplates> &a,
-                                                                       const number<Backend, ExpressionTemplates> &p) {
-                number<Backend, ExpressionTemplates> res;
+            template<typename Backend, boost::multiprecision::expression_template_option ExpressionTemplates>
+            constexpr boost::multiprecision::number<Backend, ExpressionTemplates> inverse_mod(const boost::multiprecision::number<Backend, ExpressionTemplates> &a,
+                                                                       const boost::multiprecision::number<Backend, ExpressionTemplates> &p) {
+                boost::multiprecision::number<Backend, ExpressionTemplates> res;
                 backends::eval_inverse_mod(res.backend(), a.backend(), p.backend());
                 return res;
             }
 
-            template<typename Backend, typename StorageType, expression_template_option ExpressionTemplates>
-            constexpr number<modular_adaptor<Backend, StorageType>, ExpressionTemplates>
-                inverse_mod(const number<modular_adaptor<Backend, StorageType>, ExpressionTemplates> &modular) {
-                number<modular_adaptor<Backend, StorageType>, ExpressionTemplates> res;
+            template<typename Backend, typename StorageType, boost::multiprecision::expression_template_option ExpressionTemplates>
+            constexpr boost::multiprecision::number<backends::modular_adaptor<Backend, StorageType>, ExpressionTemplates>
+                inverse_mod(const boost::multiprecision::number<backends::modular_adaptor<Backend, StorageType>, ExpressionTemplates> &modular) {
+                boost::multiprecision::number<backends::modular_adaptor<Backend, StorageType>, ExpressionTemplates> res;
                 backends::eval_inverse_mod(res.backend(), modular.backend());
                 return res;
             }

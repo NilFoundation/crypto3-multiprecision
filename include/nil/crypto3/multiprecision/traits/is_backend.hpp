@@ -6,20 +6,19 @@
 #ifndef CRYPTO3_MP_IS_BACKEND_HPP
 #define CRYPTO3_MP_IS_BACKEND_HPP
 
-#include <type_traits>
-#include <boost/multiprecision/detail/number_base.hpp>
+#include <boost/multiprecision/traits/is_backend.hpp>
 
 namespace boost { namespace multiprecision { namespace detail {
 
-// Even though cpp_int_modular_backend doesn't have signed and floating point types, still make boost consider
-// it a backend.
-template<unsigned Bits>
-struct is_backend<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>> {
-   static constexpr bool value = true;
-};
+    // Even though cpp_int_modular_backend doesn't have signed and floating point types, still make boost consider
+    // it a backend.
+    template<unsigned Bits>
+    struct is_backend<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>> {
+       static constexpr bool value = true;
+    };
 
-}
-}
-} // namespace boost::multiprecision::detail
+} // namespace detail
+} // multiprecision
+} // namespace boost
 
 #endif // CRYPTO3_MP_IS_BACKEND_HPP

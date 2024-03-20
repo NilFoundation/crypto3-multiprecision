@@ -43,11 +43,6 @@ namespace nil {
         namespace multiprecision {
             namespace backends {
 
-                using boost::enable_if;
-                using namespace boost::multiprecision;
-                using namespace boost::multiprecision::detail;
-                using namespace boost::multiprecision::backends;
-
 #ifdef BOOST_MSVC
 #pragma warning(push)
 #pragma warning( \
@@ -79,89 +74,63 @@ namespace boost {
                 //
                 // Traits class determines the maximum and minimum precision values:
                 //
-                template<class T>
-                struct max_precision;
+        } // namespace detail
 
-                template<unsigned Bits>
-                struct max_precision<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>> {
-                    static constexpr const unsigned value = boost::static_unsigned_max<Bits, Bits>::value;
-                };
+        namespace backends {
+            template<class T>
+            struct max_precision;
 
-                template<class T>
-                struct min_precision;
-
-                template<unsigned Bits>
-                struct min_precision<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>> {
-                    static constexpr const unsigned value = boost::static_unsigned_max<Bits, Bits>::value;
-                };
-
-                //
-                // Traits class determines whether the number of bits precision requested could fit in a native type,
-                // we call this a "trivial" cpp_int:
-                //
-                template<class T>
-                struct is_trivial_cpp_int {
-                    static constexpr const bool value = false;
-                };
-
-                template<unsigned Bits>
-                struct is_trivial_cpp_int<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>> {
-                    using self = nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>;
-                    static constexpr const bool value = (max_precision<self>::value <= (sizeof(double_limb_type) * CHAR_BIT));
-                };
-
-                template<unsigned Bits>
-                struct is_trivial_cpp_int<nil::crypto3::multiprecision::backends::cpp_int_modular_base<Bits, true>> {
-                    static constexpr const bool value = true;
-                };
-
-            }    // namespace backends
-            //
-            // Traits class to determine whether a cpp_int_modular_backend is signed or not:
-            //
             template<unsigned Bits>
-            struct is_unsigned_number<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>>
-                : public std::integral_constant<bool, true> { };
+            struct max_precision<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>> {
+                static constexpr const unsigned value = boost::static_unsigned_max<Bits, Bits>::value;
+            };
 
-            namespace backends {
-                //
-                // Traits class determines whether T should be implicitly convertible to U, or
-                // whether the constructor should be made explicit.  The latter happens if we
-                // are losing the sign, or have fewer digits precision in the target type:
-                //
-                template<class T, class U>
-                struct is_implicit_cpp_int_conversion;
+            template<class T>
+            struct min_precision;
 
-                template<unsigned Bits1, unsigned Bits2>
-                struct is_implicit_cpp_int_conversion<
-                    nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits1>,
-                    nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits2>> {
-                    static constexpr const bool value = (Bits1 <= Bits2);
-                };
+            template<unsigned Bits>
+            struct min_precision<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>> {
+                static constexpr const unsigned value = boost::static_unsigned_max<Bits, Bits>::value;
+            };
 
-                //
-                // Traits class to determine whether operations on a cpp_int may throw:
-                //
-                template<class T>
-                struct is_non_throwing_cpp_int : public std::integral_constant<bool, false> { };
 
-                template<unsigned Bits>
-                struct is_non_throwing_cpp_int<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>>
-                    : public std::integral_constant<bool, true> { };
+        }    // namespace backends
 
-                //
-                // Traits class, determines whether the cpp_int is fixed precision or not:
-                //
-                template<class T>
-                struct is_fixed_precision;
+        //
+        // Traits class to determine whether a cpp_int_modular_backend is signed or not:
+        //
+        template<unsigned Bits>
+        struct is_unsigned_number<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>>
+            : public std::integral_constant<bool, true> { };
 
-                template<unsigned Bits>
-                struct is_fixed_precision<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>>
-                    : public std::integral_constant<
-                          bool,
-                          boost::multiprecision::detail::max_precision<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>>::value !=
-                              UINT_MAX> { };
-        }    // namespace detail
+        namespace backends {
+            //
+            // Traits class determines whether T should be implicitly convertible to U, or
+            // whether the constructor should be made explicit.  The latter happens if we
+            // are losing the sign, or have fewer digits precision in the target type:
+            //
+            template<class T, class U>
+            struct is_implicit_cpp_int_modular_conversion;
+
+            template<unsigned Bits1, unsigned Bits2>
+            struct is_implicit_cpp_int_modular_conversion<
+                nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits1>,
+                nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits2>> {
+                static constexpr const bool value = (Bits1 <= Bits2);
+            };
+
+           //
+            // Traits class, determines whether the cpp_int is fixed precision or not:
+            //
+            template<class T>
+            struct is_fixed_precision;
+
+            template<unsigned Bits>
+            struct is_fixed_precision<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>>
+                : public std::integral_constant<
+                      bool,
+                      max_precision<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>>::value != UINT_MAX> { };
+        }    // namespace backends
     } // namespace multiprecision
 } // namespace boost
 
@@ -169,6 +138,26 @@ namespace nil {
     namespace crypto3 {
         namespace multiprecision {
             namespace backends {
+
+            //
+            // Traits class determines whether the number of bits precision requested could fit in a native type,
+            // we call this a "trivial" cpp_int:
+            //
+            template<class T>
+            struct is_trivial_cpp_int_modular {
+                static constexpr const bool value = false;
+            };
+
+            template<unsigned Bits>
+            struct is_trivial_cpp_int_modular<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>> {
+                static constexpr const bool value = (Bits <= (sizeof(double_limb_type) * CHAR_BIT));
+            };
+
+            template<unsigned Bits>
+            struct is_trivial_cpp_int_modular<nil::crypto3::multiprecision::backends::cpp_int_modular_base<Bits, true>> {
+                static constexpr const bool value = true;
+            };
+
                 //
                 // Now define the various data layouts that are possible.
                 // For modular we only use fixed precision (i.e. no allocator), unsigned type with limb-usage count:
@@ -325,8 +314,8 @@ namespace nil {
                 public:
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void do_swap(cpp_int_modular_base& o) noexcept {
                         for (unsigned i = 0; i < (std::max)(size(), o.size()); ++i)
-                            std_constexpr::swap(m_wrapper.m_data[i], o.m_wrapper.m_data[i]);
-                        std_constexpr::swap(m_limbs, o.m_limbs);
+                            boost::multiprecision::std_constexpr::swap(m_wrapper.m_data[i], o.m_wrapper.m_data[i]);
+                        boost::multiprecision::std_constexpr::swap(m_limbs, o.m_limbs);
                     }
 
                 protected:
@@ -487,41 +476,9 @@ namespace nil {
                         m_data = o.m_data;
                     }
                     BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void do_swap(cpp_int_modular_base& o) noexcept {
-                        std_constexpr::swap(m_data, o.m_data);
+                        boost::multiprecision::std_constexpr::swap(m_data, o.m_data);
                     }
                 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 //
                 // Traits class, lets us know whether type T can be directly converted to the base type,
                 // used to enable/disable constructors etc:
@@ -537,7 +494,7 @@ namespace nil {
                                                   || std::is_same<Arg, double_limb_type>::value
 #endif
                                                   || literals::detail::is_value_pack<Arg>::value ||
-                                                  (is_trivial_cpp_int<Base>::value &&
+                                                  (is_trivial_cpp_int_modular<Base>::value &&
                                                    boost::multiprecision::detail::is_arithmetic<Arg>::value),
                                               std::integral_constant<bool, true>,
                                               std::integral_constant<bool, false>>::type {
@@ -548,16 +505,16 @@ namespace nil {
                 //
                 template<unsigned Bits>
                 struct cpp_int_modular_backend
-                    : public cpp_int_modular_base<Bits, is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value> {
+                    : public cpp_int_modular_base<Bits, is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value> {
                     using self_type = cpp_int_modular_backend<Bits>;
-                    using base_type = cpp_int_modular_base<Bits, is_trivial_cpp_int<self_type>::value>;
-                    using trivial_tag = std::integral_constant<bool, is_trivial_cpp_int<self_type>::value>;
+                    using base_type = cpp_int_modular_base<Bits, is_trivial_cpp_int_modular<self_type>::value>;
+                    using trivial_tag = std::integral_constant<bool, is_trivial_cpp_int_modular<self_type>::value>;
                 public:
 #ifdef TVM
                     using unsigned_types = std::tuple<unsigned, limb_type, double_limb_type>;
 #else
 
-                    using unsigned_types = typename std::conditional<is_trivial_cpp_int<self_type>::value,
+                    using unsigned_types = typename std::conditional<is_trivial_cpp_int_modular<self_type>::value,
                                                                      std::tuple<unsigned char,
                                                                                 unsigned short,
                                                                                 unsigned,
@@ -581,7 +538,7 @@ namespace nil {
                     template<unsigned Bits2>
                     BOOST_MP_FORCEINLINE constexpr cpp_int_modular_backend(
                             cpp_int_modular_backend<Bits2>&& o,
-                            typename std::enable_if<is_implicit_cpp_int_conversion<cpp_int_modular_backend<Bits2>, self_type>::value>::type* = 0) noexcept {
+                            typename std::enable_if<boost::multiprecision::backends::is_implicit_cpp_int_modular_conversion<cpp_int_modular_backend<Bits2>, self_type>::value>::type* = 0) noexcept {
                         *this = static_cast<cpp_int_modular_backend<Bits2>&&>(o);
                     }
 
@@ -682,41 +639,38 @@ namespace nil {
                     template<unsigned Bits2>
                     BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_backend(
                         const cpp_int_modular_backend<Bits2>& other,
-                        typename std::enable_if<is_implicit_cpp_int_conversion<
+                        typename std::enable_if<boost::multiprecision::backends::is_implicit_cpp_int_modular_conversion<
                             cpp_int_modular_backend<Bits2>, self_type>::value>::type* = 0) :
                         base_type() {
                         do_assign(
                             other,
-                            std::integral_constant<bool, is_trivial_cpp_int<self_type>::value>(),
+                            std::integral_constant<bool, is_trivial_cpp_int_modular<self_type>::value>(),
                             std::integral_constant<
                                 bool,
-                                is_trivial_cpp_int<
-                                    cpp_int_modular_backend<Bits2>>::value>());
+                                is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits2>>::value>());
                     }
                     template<unsigned Bits2>
                     explicit BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_backend(
                         const cpp_int_modular_backend<Bits2>& other,
-                        typename std::enable_if<!(is_implicit_cpp_int_conversion<
+                        typename std::enable_if<!(boost::multiprecision::backends::is_implicit_cpp_int_modular_conversion<
                                                   cpp_int_modular_backend<Bits2>, self_type>::value)>::type* = 0) :
                         base_type() {
                         do_assign(
                             other,
-                            std::integral_constant<bool, is_trivial_cpp_int<self_type>::value>(),
+                            std::integral_constant<bool, is_trivial_cpp_int_modular<self_type>::value>(),
                             std::integral_constant<
                                 bool,
-                                is_trivial_cpp_int<
-                                    cpp_int_modular_backend<Bits2>>::value>());
+                                is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits2>>::value>());
                     }
                     template<unsigned Bits2>
                     BOOST_MP_CXX14_CONSTEXPR cpp_int_modular_backend&
                         operator=(const cpp_int_modular_backend<Bits2>& other) {
                         do_assign(
                             other,
-                            std::integral_constant<bool, is_trivial_cpp_int<self_type>::value>(),
+                            std::integral_constant<bool, is_trivial_cpp_int_modular<self_type>::value>(),
                             std::integral_constant<
                                 bool,
-                                is_trivial_cpp_int<
-                                    cpp_int_modular_backend<Bits2>>::value>());
+                                is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits2>>::value>());
                         return *this;
                     }
 
@@ -835,8 +789,10 @@ namespace nil {
                     }
 
                     void do_assign_string(const char* s, const std::integral_constant<bool, false>&) {
-                        using default_ops::eval_add;
-                        using default_ops::eval_multiply;
+// TODO(martun): consider removing this from here, and just convert to boost::cpp_int then to our structure.
+                        using boost::multiprecision::default_ops::eval_add;
+                        using boost::multiprecision::default_ops::eval_multiply;
+
                         std::size_t n = s ? std::strlen(s) : 0;
                         *this = static_cast<limb_type>(0u);
                         unsigned radix = 10;
@@ -1245,7 +1201,7 @@ namespace nil {
                         const cpp_int_modular_backend<Bits>& o) const noexcept {
                         using t = std::integral_constant<
                             bool,
-                            is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value>;
+                            is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value>;
                         return compare_imp(o, t(), t());
                     }
                     BOOST_MP_CXX14_CONSTEXPR int compare_unsigned(
@@ -1271,9 +1227,6 @@ namespace nil {
                 };
 
             }    // namespace backends
-
-
-
         }    // namespace multiprecision
     }        // namespace crypto3
 }    // namespace nil
@@ -1300,18 +1253,19 @@ namespace boost {
 #pragma warning(pop)
 #endif
 
+
 //
 // Last of all we include the implementations of all the eval_* non member functions:
 //
 #include <nil/crypto3/multiprecision/cpp_int_modular/limits.hpp>
 #include <nil/crypto3/multiprecision/cpp_int_modular/comparison.hpp>
 #include <nil/crypto3/multiprecision/cpp_int_modular/add.hpp>
+#include <nil/crypto3/multiprecision/cpp_int_modular/multiply.hpp>
 #include <nil/crypto3/multiprecision/cpp_int_modular/bitwise.hpp>
 #include <nil/crypto3/multiprecision/cpp_int_modular/misc.hpp>
 #include <nil/crypto3/multiprecision/cpp_int_modular/literals.hpp>
 #include <nil/crypto3/multiprecision/cpp_int_modular/serialize.hpp>
 #include <nil/crypto3/multiprecision/cpp_int_modular/import_export.hpp>
-#include <nil/crypto3/multiprecision/cpp_int_modular/eval_jacobi.hpp>
 #include <nil/crypto3/multiprecision/traits/is_backend.hpp>
 
 #endif

@@ -17,9 +17,9 @@ namespace nil {
 
                 template<class CppInt>
                 inline BOOST_MP_CXX14_CONSTEXPR void
-                    add_unsigned_constexpr(CppInt& result, const CppInt& a,
-                                           const CppInt& b) noexcept(is_non_throwing_cpp_int<CppInt>::value) {
-                    using boost::multiprecision::std_constexpr::swap;
+                    add_unsigned_constexpr(CppInt& result, const CppInt& a, const CppInt& b) noexcept {
+
+                    using ::boost::multiprecision::std_constexpr::swap;
                     //
                     // This is the generic, C++ only version of addition.
                     // It's also used for all constexpr branches, hence the name.
@@ -58,7 +58,7 @@ namespace nil {
                     while (pr != pr_end) {
                         if (!carry) {
                             if (pa != pr)
-                                std_constexpr::copy(pa, pa + (pr_end - pr), pr);
+                                boost::multiprecision::std_constexpr::copy(pa, pa + (pr_end - pr), pr);
                             break;
                         }
                         carry += static_cast<double_limb_type>(*pa);
@@ -79,9 +79,9 @@ namespace nil {
                 template<class CppInt>
                 inline BOOST_MP_CXX14_CONSTEXPR void
                     subtract_unsigned_constexpr(CppInt& result, const CppInt& a, const CppInt& b) noexcept {
+                    using ::boost::multiprecision::std_constexpr::swap;
 // TODO(martun): fix this, we have no sign any more.
 
-                    using boost::multiprecision::std_constexpr::swap;
                     //
                     // This is the generic, C++ only version of subtraction.
                     // It's also used for all constexpr branches, hence the name.
@@ -135,7 +135,7 @@ namespace nil {
                     }
                     // Any remaining digits are the same as those in pa:
                     if ((x != i) && (pa != pr))
-                        std_constexpr::copy(pa + i, pa + x, pr + i);
+                        boost::multiprecision::std_constexpr::copy(pa + i, pa + x, pr + i);
                     BOOST_ASSERT(0 == borrow);
 
                     //
@@ -165,8 +165,8 @@ namespace nil {
                 //
                 template<class CppInt>
                 inline BOOST_MP_CXX14_CONSTEXPR void
-                    add_unsigned(CppInt& result, const CppInt& a,
-                                 const CppInt& b) noexcept(is_non_throwing_cpp_int<CppInt>::value) {
+                    add_unsigned(CppInt& result, const CppInt& a, const CppInt& b) noexcept {
+
 #ifndef CRYPTO3_MP_NO_CONSTEXPR_DETECTION
                     if (BOOST_MP_IS_CONST_EVALUATED(a.size())) {
                         add_unsigned_constexpr(result, a, b);
@@ -239,8 +239,7 @@ namespace nil {
 
                 template<class CppInt>
                 inline BOOST_MP_CXX14_CONSTEXPR void
-                    subtract_unsigned(CppInt& result, const CppInt& a,
-                                      const CppInt& b) noexcept(is_non_throwing_cpp_int<CppInt>::value) {
+                    subtract_unsigned(CppInt& result, const CppInt& a, const CppInt& b) noexcept {
 #ifndef CRYPTO3_MP_NO_CONSTEXPR_DETECTION
                     if (BOOST_MP_IS_CONST_EVALUATED(a.size())) {
                         subtract_unsigned_constexpr(result, a, b);
@@ -325,7 +324,7 @@ namespace nil {
                         }
                         // Any remaining digits are the same as those in pa:
                         if ((x != i) && (pa != pr))
-                            std_constexpr::copy(pa + i, pa + x, pr + i);
+                            boost::multiprecision::std_constexpr::copy(pa + i, pa + x, pr + i);
                         BOOST_ASSERT(0 == borrow);
 
                         //
@@ -341,15 +340,13 @@ namespace nil {
 
                 template<class CppInt>
                 inline BOOST_MP_CXX14_CONSTEXPR void
-                    add_unsigned(CppInt& result, const CppInt& a,
-                                 const CppInt& b) noexcept(is_non_throwing_cpp_int<CppInt>::value) {
+                    add_unsigned(CppInt& result, const CppInt& a, const CppInt& b) noexcept {
                     add_unsigned_constexpr(result, a, b);
                 }
 
                 template<class CppInt>
                 inline BOOST_MP_CXX14_CONSTEXPR void
-                    subtract_unsigned(CppInt& result, const CppInt& a,
-                                      const CppInt& b) noexcept(is_non_throwing_cpp_int<CppInt>::value) {
+                    subtract_unsigned(CppInt& result, const CppInt& a, const CppInt& b) noexcept {
                     subtract_unsigned_constexpr(result, a, b);
                 }
 

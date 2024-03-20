@@ -63,8 +63,8 @@ namespace nil {
 
                 template<unsigned Bits>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value>::type
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value>::type
                     eval_bitwise_and(
                         cpp_int_modular_backend<Bits>& result,
                         const cpp_int_modular_backend<Bits>& o) noexcept {
@@ -73,8 +73,8 @@ namespace nil {
 
                 template<unsigned Bits>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value>::type
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value>::type
                     eval_bitwise_or(
                         cpp_int_modular_backend<Bits>& result,
                         const cpp_int_modular_backend<Bits>& o) noexcept {
@@ -83,8 +83,8 @@ namespace nil {
 
                 template<unsigned Bits>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value>::type
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value>::type
                     eval_bitwise_xor(
                         cpp_int_modular_backend<Bits>& result,
                         const cpp_int_modular_backend<Bits>& o) noexcept {
@@ -94,7 +94,7 @@ namespace nil {
                 // Again for operands which are single limbs:
                 //
                 template<unsigned Bits>
-                BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
+                BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int_modular<
                     cpp_int_modular_backend<Bits>>::value>::type
                     eval_bitwise_and(
                         cpp_int_modular_backend<Bits>& result,
@@ -105,14 +105,14 @@ namespace nil {
                 }
 
                 template<unsigned Bits>
-                BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
+                BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int_modular<
                     cpp_int_modular_backend<Bits>>::value>::type
                     eval_bitwise_or(cpp_int_modular_backend<Bits>& result, limb_type l) noexcept {
                     result.limbs()[0] |= l;
                 }
 
                 template<unsigned Bits>
-                BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
+                BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int_modular<
                     cpp_int_modular_backend<Bits>>::value>::type
                     eval_bitwise_xor(cpp_int_modular_backend<Bits>& result, limb_type l) noexcept {
                     result.limbs()[0] ^= l;
@@ -121,9 +121,9 @@ namespace nil {
                 template<unsigned Bits,
                          class Allocator1>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_unsigned_number<cpp_int_modular_backend<Bits>>::value &&
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value>::
+                    boost::multiprecision::is_unsigned_number<cpp_int_modular_backend<Bits>>::value &&
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value>::
                     type
                     eval_complement(
                         cpp_int_modular_backend<Bits>& result,
@@ -251,7 +251,7 @@ namespace nil {
                 }
 
                 template<unsigned Bits>
-                inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
+                inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int_modular<
                     cpp_int_modular_backend<Bits>>::value>::type
                     eval_left_shift(
                         cpp_int_modular_backend<Bits>& result,
@@ -385,7 +385,7 @@ namespace nil {
                 }
 
                 template<unsigned Bits>
-                inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
+                inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int_modular<
                     cpp_int_modular_backend<Bits>>::value>::type
                     eval_right_shift(
                         cpp_int_modular_backend<Bits>& result,
@@ -434,7 +434,7 @@ namespace nil {
                 //
                 template<unsigned Bits,
                           class T>
-                BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<is_trivial_cpp_int<
+                BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<is_trivial_cpp_int_modular<
                     cpp_int_modular_backend<Bits>>::value>::type
                     eval_left_shift(
                         cpp_int_modular_backend<Bits>& result,
@@ -444,7 +444,7 @@ namespace nil {
                 }
 
                 template<unsigned Bits, class T>
-                BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<is_trivial_cpp_int<
+                BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<is_trivial_cpp_int_modular<
                     cpp_int_modular_backend<Bits>>::value>::type
                     eval_right_shift(
                         cpp_int_modular_backend<Bits>& result,
@@ -457,10 +457,10 @@ namespace nil {
 
                 template<unsigned Bits>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    is_unsigned_number<cpp_int_modular_backend<Bits>>::value &&
-                    is_unsigned_number<cpp_int_modular_backend<Bits>>::value>::
+                    is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    boost::multiprecision::is_unsigned_number<cpp_int_modular_backend<Bits>>::value &&
+                    boost::multiprecision::is_unsigned_number<cpp_int_modular_backend<Bits>>::value>::
                     type
                     eval_complement(
                         cpp_int_modular_backend<Bits>& result,
@@ -472,10 +472,10 @@ namespace nil {
 
                 template<unsigned Bits>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    is_unsigned_number<cpp_int_modular_backend<Bits>>::value &&
-                    is_unsigned_number<cpp_int_modular_backend<Bits>>::value>::
+                    is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    boost::multiprecision::is_unsigned_number<cpp_int_modular_backend<Bits>>::value &&
+                    boost::multiprecision::is_unsigned_number<cpp_int_modular_backend<Bits>>::value>::
                     type
                     eval_bitwise_and(
                         cpp_int_modular_backend<Bits>& result,
@@ -485,10 +485,10 @@ namespace nil {
 
                 template<unsigned Bits>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    is_unsigned_number<cpp_int_modular_backend<Bits>>::value &&
-                    is_unsigned_number<cpp_int_modular_backend<Bits>>::value>::
+                    is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    boost::multiprecision::is_unsigned_number<cpp_int_modular_backend<Bits>>::value &&
+                    boost::multiprecision::is_unsigned_number<cpp_int_modular_backend<Bits>>::value>::
                     type
                     eval_bitwise_or(
                         cpp_int_modular_backend<Bits>& result,
@@ -498,10 +498,10 @@ namespace nil {
 
                 template<unsigned Bits>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    is_unsigned_number<cpp_int_modular_backend<Bits>>::value &&
-                    is_unsigned_number<cpp_int_modular_backend<Bits>>::value>::
+                    is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    boost::multiprecision::is_unsigned_number<cpp_int_modular_backend<Bits>>::value &&
+                    boost::multiprecision::is_unsigned_number<cpp_int_modular_backend<Bits>>::value>::
                     type
                     eval_bitwise_xor(
                         cpp_int_modular_backend<Bits>& result,

@@ -18,7 +18,7 @@ namespace nil {
         namespace multiprecision {
 
             using backends::cpp_int_modular_backend;
-            using default_ops::eval_bit_test;
+            using boost::multiprecision::default_ops::eval_bit_test;
 
             // fixed precision modular params type which supports compile-time execution
             template<unsigned Bits>
@@ -75,15 +75,12 @@ namespace nil {
                     }
                 }
 
-                template<typename Backend1>
-                constexpr typename boost::enable_if_c<boost::is_same<Backend1, Backend>::value>::type
-                    adjust_modular(Backend1 &result) const {
+                constexpr void adjust_modular(Backend &result) const {
                     adjust_modular(result, result);
                 }
 
-                template<typename Backend1, typename Backend2>
-                constexpr typename boost::enable_if_c<boost::is_same<Backend1, Backend>::value>::type
-                    adjust_modular(Backend1 &result, Backend2 input) const {
+                template<typename Backend2>
+                constexpr void adjust_modular(Backend &result, Backend2 input) const {
                     Backend_doubled_limbs tmp;
                     m_mod_obj.barrett_reduce(tmp, input);
                     if (is_odd_mod) {
@@ -102,7 +99,7 @@ namespace nil {
                     typename Backend1, typename Backend2,
                     typename = typename boost::enable_if_c<
                         /// input number should fit in result
-                        backends::max_precision<Backend1>::value >= backends::max_precision<Backend2>::value>::type>
+                        boost::multiprecision::backends::max_precision<Backend1>::value >= boost::multiprecision::backends::max_precision<Backend2>::value>::type>
                 constexpr void adjust_regular(Backend1 &result, const Backend2 &input) const {
                     result = input;
                     if (is_odd_mod) {
@@ -138,8 +135,8 @@ namespace nil {
                     m_mod_obj.regular_add(result, y);
                 }
 
-                template<typename Backend1, expression_template_option ExpressionTemplates>
-                constexpr operator number<Backend1, ExpressionTemplates>() {
+                template<typename Backend1, boost::multiprecision::expression_template_option ExpressionTemplates>
+                constexpr operator boost::multiprecision::number<Backend1, ExpressionTemplates>() {
                     return get_mod();
                 };
 

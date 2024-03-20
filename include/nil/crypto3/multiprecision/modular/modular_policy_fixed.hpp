@@ -7,8 +7,8 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //---------------------------------------------------------------------------//
 
-#ifndef BOOST_MULTIPRECISION_MODULAR_POLICY_FIXED_HPP
-#define BOOST_MULTIPRECISION_MODULAR_POLICY_FIXED_HPP
+#ifndef CRYPTO3_MULTIPRECISION_MODULAR_POLICY_FIXED_HPP
+#define CRYPTO3_MULTIPRECISION_MODULAR_POLICY_FIXED_HPP
 
 #include <nil/crypto3/multiprecision/cpp_int_modular.hpp>
 
@@ -20,25 +20,25 @@ namespace nil {
             namespace backends {
 
                 template<typename Backend>
-                constexpr typename boost::enable_if_c<is_trivial_cpp_int<Backend>::value, std::size_t>::type
+                constexpr typename boost::enable_if_c<is_trivial_cpp_int_modular<Backend>::value, std::size_t>::type
                     get_limbs_count() {
                     return 1u;
                 }
 
                 template<typename Backend>
-                constexpr typename boost::enable_if_c<!is_trivial_cpp_int<Backend>::value, std::size_t>::type
+                constexpr typename boost::enable_if_c<!is_trivial_cpp_int_modular<Backend>::value, std::size_t>::type
                     get_limbs_count() {
                     return Backend::internal_limb_count;
                 }
 
                 template<typename Backend>
-                constexpr typename boost::enable_if_c<is_trivial_cpp_int<Backend>::value, std::size_t>::type
+                constexpr typename boost::enable_if_c<is_trivial_cpp_int_modular<Backend>::value, std::size_t>::type
                     get_limb_bits() {
-                    return sizeof(typename trivial_limb_type<max_precision<Backend>::value>::type) * CHAR_BIT;
+                    return sizeof(typename trivial_limb_type<boost::multiprecision::backends::max_precision<Backend>::value>::type) * CHAR_BIT;
                 }
 
                 template<typename Backend>
-                constexpr typename boost::enable_if_c<!is_trivial_cpp_int<Backend>::value, std::size_t>::type
+                constexpr typename boost::enable_if_c<!is_trivial_cpp_int_modular<Backend>::value, std::size_t>::type
                     get_limb_bits() {
                     return Backend::limb_bits;
                 }
@@ -53,15 +53,15 @@ namespace nil {
                     constexpr static auto limbs_count = get_limbs_count<Backend>();
                     constexpr static auto limb_bits = get_limb_bits<Backend>();
 
-                    /// real limb_type depending on is_trivial_cpp_int property
+                    /// real limb_type depending on is_trivial_cpp_int_modular property
                     /// such logic is necessary due to local_limb_type could be uint128
-                    typedef typename std::conditional<is_trivial_cpp_int<Backend>::value,
+                    typedef typename std::conditional<is_trivial_cpp_int_modular<Backend>::value,
                                                       typename trivial_limb_type<Bits>::type,
                                                       limb_type>::type
                         internal_limb_type;
                     typedef typename std::conditional<
-                        is_trivial_cpp_int<Backend>::value,
-                        number<cpp_int_modular_backend<2u * limb_bits>>,
+                        is_trivial_cpp_int_modular<Backend>::value,
+                        boost::multiprecision::number<cpp_int_modular_backend<2u * limb_bits>>,
                         double_limb_type>::type internal_double_limb_type;
 
                     constexpr static auto BitsCount_doubled = 2u * Bits;
@@ -78,9 +78,9 @@ namespace nil {
                     typedef cpp_int_modular_backend<BitsCount_doubled_limbs> Backend_doubled_limbs;
                     typedef cpp_int_modular_backend<BitsCount_doubled_padded_limbs> Backend_doubled_padded_limbs;
 
-                    typedef number<Backend> number_type;
-                    typedef number<Backend_doubled> dbl_number_type;
-                    typedef number<Backend_doubled_limbs> dbl_lmb_number_type;
+                    typedef boost::multiprecision::number<Backend> number_type;
+                    typedef boost::multiprecision::number<Backend_doubled> dbl_number_type;
+                    typedef boost::multiprecision::number<Backend_doubled_limbs> dbl_lmb_number_type;
                 };
 
             }    // namespace backends
@@ -88,4 +88,4 @@ namespace nil {
     }            // namespace crypto3
 }    // namespace nil
 
-#endif    // BOOST_MULTIPRECISION_MODULAR_POLICY_FIXED_HPP
+#endif    // CRYPTO3_MULTIPRECISION_MODULAR_POLICY_FIXED_HPP

@@ -23,13 +23,13 @@ namespace nil {
                  */
                 template<typename Backend>
                 class barrett_params : virtual public base_params<Backend> {
-                    typedef number<Backend> number_type;
+                    typedef boost::multiprecision::number<Backend> number_type;
 
                 protected:
                     template<typename Number>
                     inline void initialize_barrett_params(const Number& p) {
-                        using default_ops::eval_bit_set;
-                        using default_ops::eval_divide;
+                        using boost::multiprecision::default_ops::eval_bit_set;
+                        using boost::multiprecision::default_ops::eval_divide;
 
                         this->initialize_base_params(p);
 
@@ -59,13 +59,13 @@ namespace nil {
                     }
 
                     inline void barrett_reduce(Backend& result) const {
-                        using default_ops::eval_add;
-                        using default_ops::eval_bit_set;
-                        using default_ops::eval_decrement;
-                        using default_ops::eval_lt;
-                        using default_ops::eval_msb;
-                        using default_ops::eval_multiply;
-                        using default_ops::eval_subtract;
+                        using boost::multiprecision::default_ops::eval_add;
+                        using boost::multiprecision::default_ops::eval_bit_set;
+                        using boost::multiprecision::default_ops::eval_decrement;
+                        using boost::multiprecision::default_ops::eval_lt;
+                        using boost::multiprecision::default_ops::eval_msb;
+                        using boost::multiprecision::default_ops::eval_multiply;
+                        using boost::multiprecision::default_ops::eval_subtract;
 
                         if (eval_lt(result, this->m_mod.backend())) {
                             if (eval_lt(result, 0ul)) {
@@ -112,8 +112,8 @@ namespace nil {
                 //  protected:
                 //    constexpr void initialize_barrett_params(const number_type& p)
                 //    {
-                //       using default_ops::eval_bit_set;
-                //       using default_ops::eval_divide;
+                //       using boost::multiprecision::default_ops::eval_bit_set;
+                //       using boost::multiprecision::default_ops::eval_divide;
                 //
                 //       this->initialize_base_params(p);
                 //
@@ -143,13 +143,13 @@ namespace nil {
                 //    template<typename BackendT>
                 //    constexpr void barrett_reduce(BackendT& result) const
                 //    {
-                //       using default_ops::eval_add;
-                //       using default_ops::eval_bit_set;
-                //       using default_ops::eval_decrement;
-                //       using default_ops::eval_lt;
-                //       using default_ops::eval_multiply;
-                //       using default_ops::eval_subtract;
-                //       using default_ops::eval_msb;
+                //       using boost::multiprecision::default_ops::eval_add;
+                //       using boost::multiprecision::default_ops::eval_bit_set;
+                //       using boost::multiprecision::default_ops::eval_decrement;
+                //       using boost::multiprecision::default_ops::eval_lt;
+                //       using boost::multiprecision::default_ops::eval_multiply;
+                //       using boost::multiprecision::default_ops::eval_subtract;
+                //       using boost::multiprecision::default_ops::eval_msb;
                 //
                 //       if (eval_lt(result, this->m_mod.backend()))
                 //       {
@@ -190,14 +190,14 @@ namespace nil {
                 // template <typename Backend>
                 // class barrett_params : public base_params<Backend>
                 //{
-                //   typedef number<Backend> number_type;
+                //   typedef boost::multiprecision::number<Backend> number_type;
                 //
                 // protected:
                 //   template <typename Number>
                 //   void initialize_barrett_params(const Number& p)
                 //   {
-                //      using default_ops::eval_bit_set;
-                //      using default_ops::eval_divide;
+                //      using boost::multiprecision::default_ops::eval_bit_set;
+                //      using boost::multiprecision::default_ops::eval_divide;
                 //
                 //      this->initialize_base_params(p);
                 //
@@ -227,12 +227,12 @@ namespace nil {
                 //
                 //   inline void barrett_reduce(Backend& result) const
                 //   {
-                //      using default_ops::eval_add;
-                //      using default_ops::eval_bit_set;
-                //      using default_ops::eval_lt;
-                //      using default_ops::eval_multiply;
-                //      using default_ops::eval_decrement;
-                //      using default_ops::eval_subtract;
+                //      using boost::multiprecision::default_ops::eval_add;
+                //      using boost::multiprecision::default_ops::eval_bit_set;
+                //      using boost::multiprecision::default_ops::eval_lt;
+                //      using boost::multiprecision::default_ops::eval_multiply;
+                //      using boost::multiprecision::default_ops::eval_decrement;
+                //      using boost::multiprecision::default_ops::eval_subtract;
                 //
                 //      if (result.size() < this->m_mod.backend().size() || eval_lt(result, this->m_mod.backend()))
                 //      {

@@ -36,7 +36,7 @@ namespace nil {
                  */
                 template<typename Backend>
                 class montgomery_params : virtual public base_params<Backend> {
-                    typedef number<Backend> number_type;
+                    typedef boost::multiprecision::number<Backend> number_type;
 
                 protected:
                     template<typename Number>
@@ -91,7 +91,7 @@ namespace nil {
 
                         number_type r;
 
-                        default_ops::eval_bit_set(r.backend(), m_p_words * sizeof(limb_type) * CHAR_BIT);
+                        boost::multiprecision::default_ops::eval_bit_set(r.backend(), m_p_words * sizeof(limb_type) * CHAR_BIT);
 
                         m_r2 = r * r;
                         barrett_params<Backend> barrettParams(this->m_mod);
@@ -126,8 +126,8 @@ namespace nil {
                     }
 
                     inline void montgomery_reduce(Backend& result) const {
-                        using default_ops::eval_lt;
-                        using default_ops::eval_multiply_add;
+                        using boost::multiprecision::default_ops::eval_lt;
+                        using boost::multiprecision::default_ops::eval_multiply_add;
 
                         typedef cpp_int_modular_backend<sizeof(limb_type) * CHAR_BIT * 3>
                             cpp_three_int_backend;

@@ -75,7 +75,7 @@ namespace nil {
                         m_mod = input;
                     }
 
-                    constexpr void set_modular_params(const number<Backend> &input) {
+                    constexpr void set_modular_params(const boost::multiprecision::number<Backend> &input) {
                         m_mod = input;
                     }
 
@@ -169,7 +169,7 @@ namespace nil {
                         using ui_type = typename std::tuple_element<0, unsigned_types>::type;
                         ui_type zero = 0u;
 
-                        using default_ops::eval_fpclassify;
+                        using boost::multiprecision::default_ops::eval_fpclassify;
 
                         if (s && (*s == '(')) {
                             std::string part;
@@ -223,7 +223,7 @@ namespace nil {
 
                     template<class T>
                     int compare(const T &val) const {
-                        using default_ops::eval_lt;
+                        using boost::multiprecision::default_ops::eval_lt;
                         if (!eval_lt(m_mod, val)) {
                             BOOST_THROW_EXCEPTION(std::runtime_error(
                                 "Could not compare modular number with mod bigger than compared number."));
@@ -243,16 +243,15 @@ namespace nil {
                         mod_data().adjust_regular(tmp, base_data());
                         return tmp.str(dig, f);
                     }
-
+            
                     inline void negate() {
-                        base_data().negate();
-                        eval_add(base_data(), mod_data().get_mod().backend());
+                        // We need this function to compile, because boost "number" class requires this, even though it's never called for unsigned numbers.
                     }
                 };
 
                 template<class Result, class Backend, typename StorageType>
                 constexpr void eval_convert_to(Result *result, const modular_adaptor<Backend, StorageType> &val) {
-                    using default_ops::eval_convert_to;
+                    using boost::multiprecision::default_ops::eval_convert_to;
                     eval_convert_to(result, val.base_data());
                 }
 
@@ -272,7 +271,7 @@ namespace nil {
                 constexpr void eval_add(modular_adaptor<Backend, StorageType> &result,
                                         const modular_adaptor<Backend, StorageType> &o) {
                     BOOST_ASSERT(result.mod_data().get_mod() == o.mod_data().get_mod());
-                    using default_ops::eval_lt;
+                    using boost::multiprecision::default_ops::eval_lt;
 
                     eval_add(result.base_data(), o.base_data());
                     if (!eval_lt(result.base_data(), result.mod_data().get_mod())) {
@@ -285,7 +284,7 @@ namespace nil {
                                              const modular_adaptor<Backend, StorageType> &o) {
                     BOOST_ASSERT(result.mod_data().get_mod() == o.mod_data().get_mod());
                     using ui_type = typename std::tuple_element<0, typename Backend::unsigned_types>::type;
-                    using default_ops::eval_lt;
+                    using boost::multiprecision::default_ops::eval_lt;
                     eval_subtract(result.base_data(), o.base_data());
                     if (eval_lt(result.base_data(), ui_type(0u))) {
                         eval_add(result.base_data(), result.mod_data().get_mod().backend());
@@ -300,7 +299,7 @@ namespace nil {
                     BOOST_ASSERT(result.mod_data().get_mod() == o.mod_data().get_mod());
                     using ui_type = typename std::tuple_element<
                         0, typename cpp_int_modular_backend<Bits>::unsigned_types>::type;
-                    using default_ops::eval_lt;
+                    using boost::multiprecision::default_ops::eval_lt;
 
                     // Martun: This is the main operation for substraction when called from fp.hpp. 
                     eval_subtract(result.base_data(), o.base_data());
@@ -348,7 +347,7 @@ namespace nil {
                 constexpr bool eval_is_zero(const modular_adaptor<Backend, StorageType> &val)
 
                     BOOST_NOEXCEPT {
-                    using default_ops::eval_is_zero;
+                    using boost::multiprecision::default_ops::eval_is_zero;
                     return eval_is_zero(val.base_data());
                 }
 
@@ -363,7 +362,7 @@ namespace nil {
                 // constexpr typename boost::disable_if_c<boost::is_complex<Result>::value>::type
                 // eval_convert_to(Result* result, const modular_adaptor<Backend, StateType>& val)
                 // {
-                //    using default_ops::eval_convert_to;
+                //    using boost::multiprecision::default_ops::eval_convert_to;
                 //    eval_convert_to(result, val.base_data());
                 // }
 
@@ -407,12 +406,12 @@ namespace nil {
                 inline void find_modular_pow(modular_adaptor<Backend, StorageType> &result,
                                              const modular_adaptor<Backend, StorageType> &b,
                                              const Backend &exp) {
-                    using default_ops::eval_bit_set;
-                    using default_ops::eval_convert_to;
-                    using default_ops::eval_decrement;
-                    using default_ops::eval_multiply;
+                    using boost::multiprecision::default_ops::eval_bit_set;
+                    using boost::multiprecision::default_ops::eval_convert_to;
+                    using boost::multiprecision::default_ops::eval_decrement;
+                    using boost::multiprecision::default_ops::eval_multiply;
 
-                    typedef number<modular_adaptor<Backend, StorageType>> modular_type;
+                    typedef boost::multiprecision::number<modular_adaptor<Backend, StorageType>> modular_type;
                     modular_params<Backend> mod = b.mod_data();
                     size_t m_window_bits;
                     unsigned long cur_exp_index;
@@ -487,7 +486,7 @@ namespace nil {
 
                 template<class Backend, typename StorageType, class UI>
                 constexpr void eval_left_shift(modular_adaptor<Backend, StorageType> &t, UI i) {
-                    using default_ops::eval_left_shift;
+                    using boost::multiprecision::default_ops::eval_left_shift;
                     Backend tmp;
                     t.mod_data().adjust_regular(tmp, t.base_data());
                     eval_left_shift(tmp, i);
@@ -497,7 +496,7 @@ namespace nil {
 
                 template<class Backend, typename StorageType, class UI>
                 constexpr void eval_right_shift(modular_adaptor<Backend, StorageType> &t, UI i) {
-                    using default_ops::eval_right_shift;
+                    using boost::multiprecision::default_ops::eval_right_shift;
                     Backend tmp;
                     t.mod_data().adjust_regular(tmp, t.base_data());
                     eval_right_shift(tmp, i);
@@ -508,7 +507,7 @@ namespace nil {
                 template<class Backend, typename StorageType, class UI>
                 constexpr void eval_left_shift(modular_adaptor<Backend, StorageType> &t,
                                                const modular_adaptor<Backend, StorageType> &v, UI i) {
-                    using default_ops::eval_left_shift;
+                    using boost::multiprecision::default_ops::eval_left_shift;
                     Backend tmp1, tmp2;
                     t.mod_data().adjust_regular(tmp1, t.base_data());
                     t.mod_data().adjust_regular(tmp2, v.base_data());
@@ -520,7 +519,7 @@ namespace nil {
                 template<class Backend, typename StorageType, class UI>
                 constexpr void eval_right_shift(modular_adaptor<Backend, StorageType> &t,
                                                 const modular_adaptor<Backend, StorageType> &v, UI i) {
-                    using default_ops::eval_right_shift;
+                    using boost::multiprecision::default_ops::eval_right_shift;
                     Backend tmp1, tmp2;
                     t.mod_data().adjust_regular(tmp1, t.base_data());
                     t.mod_data().adjust_regular(tmp2, v.base_data());
@@ -532,7 +531,7 @@ namespace nil {
                 template<class Backend, typename StorageType>
                 constexpr void eval_bitwise_and(modular_adaptor<Backend, StorageType> &result,
                                                 const modular_adaptor<Backend, StorageType> &v) {
-                    using default_ops::eval_bitwise_and;
+                    using boost::multiprecision::default_ops::eval_bitwise_and;
                     BOOST_ASSERT(result.mod_data().get_mod() == v.mod_data().get_mod());
 
                     Backend tmp1, tmp2;
@@ -546,7 +545,7 @@ namespace nil {
                 template<class Backend, typename StorageType>
                 constexpr void eval_bitwise_or(modular_adaptor<Backend, StorageType> &result,
                                                const modular_adaptor<Backend, StorageType> &v) {
-                    using default_ops::eval_bitwise_or;
+                    using boost::multiprecision::default_ops::eval_bitwise_or;
                     BOOST_ASSERT(result.mod_data().get_mod() == v.mod_data().get_mod());
 
                     Backend tmp1, tmp2;
@@ -560,7 +559,7 @@ namespace nil {
                 template<class Backend, typename StorageType>
                 constexpr void eval_bitwise_xor(modular_adaptor<Backend, StorageType> &result,
                                                 const modular_adaptor<Backend, StorageType> &v) {
-                    using default_ops::eval_bitwise_xor;
+                    using boost::multiprecision::default_ops::eval_bitwise_xor;
                     BOOST_ASSERT(result.mod_data().get_mod() == v.mod_data().get_mod());
 
                     Backend tmp1, tmp2;
@@ -573,7 +572,7 @@ namespace nil {
 
                 template<typename Backend, typename StorageType>
                 constexpr int eval_msb(const modular_adaptor<Backend, StorageType> &m) {
-                    using default_ops::eval_msb;
+                    using boost::multiprecision::default_ops::eval_msb;
                     Backend tmp;
                     m.mod_data().adjust_regular(tmp, m.base_data());
                     return eval_msb(tmp);
@@ -581,7 +580,7 @@ namespace nil {
 
                 template<typename Backend, typename StorageType>
                 constexpr unsigned eval_lsb(const modular_adaptor<Backend, StorageType> &m) {
-                    using default_ops::eval_lsb;
+                    using boost::multiprecision::default_ops::eval_lsb;
                     Backend tmp;
                     m.mod_data().adjust_regular(tmp, m.base_data());
                     return eval_lsb(tmp);
@@ -589,7 +588,7 @@ namespace nil {
 
                 template<typename Backend, typename StorageType>
                 constexpr bool eval_bit_test(const modular_adaptor<Backend, StorageType> &m, unsigned index) {
-                    using default_ops::eval_bit_test;
+                    using boost::multiprecision::default_ops::eval_bit_test;
                     Backend tmp;
                     m.mod_data().adjust_regular(tmp, m.base_data());
                     return eval_bit_test(tmp, index);
@@ -597,7 +596,7 @@ namespace nil {
 
                 template<typename Backend, typename StorageType>
                 constexpr void eval_bit_set(modular_adaptor<Backend, StorageType> &result, unsigned index) {
-                    using default_ops::eval_bit_set;
+                    using boost::multiprecision::default_ops::eval_bit_set;
                     Backend tmp;
                     result.mod_data().adjust_regular(tmp, result.base_data());
                     eval_bit_set(tmp, index);
@@ -606,7 +605,7 @@ namespace nil {
 
                 template<typename Backend, typename StorageType>
                 constexpr void eval_bit_unset(modular_adaptor<Backend, StorageType> &result, unsigned index) {
-                    using default_ops::eval_bit_unset;
+                    using boost::multiprecision::default_ops::eval_bit_unset;
                     Backend tmp;
                     result.mod_data().adjust_regular(tmp, result.base_data());
                     eval_bit_unset(tmp, index);
@@ -615,7 +614,7 @@ namespace nil {
 
                 template<typename Backend, typename StorageType>
                 constexpr void eval_bit_flip(modular_adaptor<Backend, StorageType> &result, unsigned index) {
-                    using default_ops::eval_bit_flip;
+                    using boost::multiprecision::default_ops::eval_bit_flip;
                     Backend tmp;
                     result.mod_data().adjust_regular(tmp, result.base_data());
                     eval_bit_flip(tmp, index);
@@ -626,8 +625,8 @@ namespace nil {
                 constexpr modular_adaptor<Backend, StorageType>
                     eval_ressol(const modular_adaptor<Backend, StorageType> &input) {
 
-                    number<Backend> new_base, res;
-                    number<modular_adaptor<Backend, StorageType>> res_mod;
+                    boost::multiprecision::number<Backend> new_base, res;
+                    boost::multiprecision::number<modular_adaptor<Backend, StorageType>> res_mod;
 
                     input.mod_data().adjust_regular(new_base.backend(), input.base_data());
                     res = eval_ressol(new_base.backend(), input.mod_data().get_mod().backend());
@@ -663,23 +662,21 @@ namespace boost {
     namespace multiprecision {
         using nil::crypto3::multiprecision::backends::modular_adaptor;
 
-        // Martun: temporarily commenting this out, doesn't look like we need this type-traits. If we want to have them, we need to add 
-        // 'number_kind_modular' in detail/number_base.hpp, which was deleted.
+        // This type-trait is needed for bitwise operations over boost::number class.
+        template<class Backend, typename StorageType>
+        struct number_category<modular_adaptor<Backend, StorageType>>
+            : public std::integral_constant<int, boost::multiprecision::number_kind_integer> { };
 
-        //template<class Backend, typename StorageType>
-        //struct number_category<modular_adaptor<Backend, StorageType>>
-        //    : public std::integral_constant<int, boost::multiprecision::number_kind_modular> { };
-
-        //template<class Backend, typename StorageType, expression_template_option ExpressionTemplates>
-        //struct component_type<number<modular_adaptor<Backend, StorageType>, ExpressionTemplates>> {
-        //    typedef number<Backend, ExpressionTemplates> type;
-        //};
+        template<class Backend, typename StorageType, expression_template_option ExpressionTemplates>
+        struct component_type<boost::multiprecision::number<modular_adaptor<Backend, StorageType>, ExpressionTemplates>> {
+            typedef boost::multiprecision::number<Backend, ExpressionTemplates> type;
+        };
 
         //template<class T>
         //struct is_modular_number : public std::integral_constant<bool, false> { };
 
         //template<class Backend, typename StorageType, expression_template_option ExpressionTemplates>
-        //struct is_modular_number<number<backends::modular_adaptor<Backend, StorageType>, ExpressionTemplates>>
+        //struct is_modular_number<boost::multiprecision::number<backends::modular_adaptor<Backend, StorageType>, ExpressionTemplates>>
         //    : public std::integral_constant<bool, true> { };
 
     } // namespace multiprecision

@@ -45,7 +45,7 @@ namespace nil {
                 template<class R, unsigned Bits>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
                         boost::multiprecision::detail::is_integral<R>::value &&
-                        !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value, void>::type
+                        !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value, void>::type
                     eval_convert_to(R *result, const cpp_int_modular_backend<Bits> &backend) {
 
                     BOOST_IF_CONSTEXPR(
@@ -108,7 +108,7 @@ namespace nil {
 
                 template<unsigned Bits>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value, bool>::type
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value, bool>::type
                     eval_is_zero(const cpp_int_modular_backend<Bits> &val) noexcept {
                     return !std::all_of(val.limbs(), val.limbs() + val.size(), [&](limb_type limb){return limb == 0;});
                 }
@@ -118,14 +118,9 @@ namespace nil {
                 //
                 template<unsigned Bits>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value, unsigned>::type
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value, unsigned>::type
                     eval_lsb(const cpp_int_modular_backend<Bits> &a) {
 
-                    using default_ops::eval_get_sign;
-                    if (eval_get_sign(a) == 0) {
-                        BOOST_THROW_EXCEPTION(std::domain_error("No bits were set in the operand."));
-                    }
-                    
                     //
                     // Find the index of the least significant limb that is non-zero:
                     //
@@ -146,7 +141,7 @@ namespace nil {
                 //
                 template<unsigned Bits>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value, unsigned>::type
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value, unsigned>::type
                     eval_msb_imp(const cpp_int_modular_backend<Bits> &a) {
                     //
                     // Find the index of the most significant bit that is non-zero:
@@ -159,9 +154,8 @@ namespace nil {
 
                 template<unsigned Bits>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value, unsigned>::type
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value, unsigned>::type
                     eval_msb(const cpp_int_modular_backend<Bits> &a) {
-                    using default_ops::eval_get_sign;
                     return eval_msb_imp(a);
                 }
 
@@ -177,7 +171,7 @@ namespace nil {
 // TODO(martun): probably we don't need this, delete if everything works without this.
 //                template<unsigned Bits>
 //                inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-//                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value,
+//                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value,
 //                    bool>::type
 //                    eval_bit_test(const cpp_int_modular_backend<Bits> &val,
 //                                  unsigned index) noexcept {
@@ -196,7 +190,7 @@ namespace nil {
 #endif
 
                 template<unsigned Bits>
-                inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
+                inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int_modular<
                     cpp_int_modular_backend<Bits>>::value>::type
                     eval_bit_set(cpp_int_modular_backend<Bits> &val, unsigned index) {
 
@@ -212,7 +206,7 @@ namespace nil {
                 }
 
                 template<unsigned Bits>
-                inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
+                inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int_modular<
                     cpp_int_modular_backend<Bits>>::value>::type
                     eval_bit_unset(cpp_int_modular_backend<Bits> &val,
                                    unsigned index) noexcept {
@@ -228,7 +222,7 @@ namespace nil {
                 }
 
                 template<unsigned Bits>
-                inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
+                inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int_modular<
                     cpp_int_modular_backend<Bits>>::value>::type
                     eval_bit_flip(cpp_int_modular_backend<Bits> &val,
                                   unsigned index) {
@@ -246,7 +240,7 @@ namespace nil {
 
                 template<class R, unsigned Bits>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
+                    is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
                     std::is_convertible<
                         typename cpp_int_modular_backend<Bits>::local_limb_type,
                         R>::value>::type
@@ -269,7 +263,7 @@ namespace nil {
 
                 template<unsigned Bits>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value, unsigned>::type
+                    is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value, unsigned>::type
                     eval_lsb(const cpp_int_modular_backend<Bits> &a) {
                     //
                     // Find the index of the least significant bit within that limb:
@@ -279,7 +273,7 @@ namespace nil {
 
                 template<unsigned Bits>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value, unsigned>::type
+                    is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value, unsigned>::type
                     eval_msb_imp(const cpp_int_modular_backend<Bits> &a) {
                     //
                     // Find the index of the least significant bit within that limb:
@@ -289,7 +283,7 @@ namespace nil {
 
                 template<unsigned Bits>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value, unsigned>::type
+                    is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value, unsigned>::type
                     eval_msb(const cpp_int_modular_backend<Bits> &a) {
                     
                     return eval_msb_imp(a);

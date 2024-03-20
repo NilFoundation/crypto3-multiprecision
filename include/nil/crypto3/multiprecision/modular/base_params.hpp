@@ -20,7 +20,7 @@ namespace nil {
 
                 template<typename Backend>
                 class base_params {
-                    typedef number<Backend> number_type;
+                    typedef boost::multiprecision::number<Backend> number_type;
 
                 protected:
                     template<typename Number>

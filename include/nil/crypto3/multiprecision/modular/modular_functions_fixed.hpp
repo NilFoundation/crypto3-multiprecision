@@ -34,8 +34,8 @@ namespace nil {
                 // (or real size of such objects should be adjusted then)
                 //
                 template<typename Backend>
-                constexpr typename std::conditional<is_trivial_cpp_int<Backend>::value,
-                                                    typename trivial_limb_type<max_precision<Backend>::value>::type,
+                constexpr typename std::conditional<is_trivial_cpp_int_modular<Backend>::value,
+                                                    typename trivial_limb_type<boost::multiprecision::backends::max_precision<Backend>::value>::type,
                                                     limb_type>::type
                     get_limb_value(const Backend &b, const std::size_t i) {
                     if (i < b.size()) {
@@ -48,7 +48,7 @@ namespace nil {
                 // function return real limb of nontrivial backend.
                 //
                 template<typename, typename Backend>
-                constexpr typename boost::enable_if_c<!is_trivial_cpp_int<Backend>::value, limb_type>::type
+                constexpr typename boost::enable_if_c<!is_trivial_cpp_int_modular<Backend>::value, limb_type>::type
                     custom_get_limb_value(const Backend &b, const std::size_t i) {
                     return b.limbs()[i];
                 }
@@ -59,8 +59,8 @@ namespace nil {
                 //
                 template<typename internal_limb_type, typename Backend>
                 constexpr typename boost::enable_if_c<
-                    is_trivial_cpp_int<Backend>::value &&
-                        sizeof(typename trivial_limb_type<max_precision<Backend>::value>::type) >=
+                    is_trivial_cpp_int_modular<Backend>::value &&
+                        sizeof(typename trivial_limb_type<boost::multiprecision::backends::max_precision<Backend>::value>::type) >=
                             sizeof(internal_limb_type),
                     internal_limb_type>::type
                     custom_get_limb_value(const Backend &b, const std::size_t i) {
@@ -71,7 +71,7 @@ namespace nil {
                 // function set limb value of nontrivial backend.
                 //
                 template<typename, typename Backend>
-                constexpr typename boost::enable_if_c<!is_trivial_cpp_int<Backend>::value>::type
+                constexpr typename boost::enable_if_c<!is_trivial_cpp_int_modular<Backend>::value>::type
                     custom_set_limb_value(Backend &b, const std::size_t i, limb_type v) {
                     b.limbs()[i] = v;
                 }
@@ -86,11 +86,11 @@ namespace nil {
                 //
                 template<typename internal_limb_type, typename Backend>
                 constexpr typename boost::enable_if_c<
-                    is_trivial_cpp_int<Backend>::value &&
-                    sizeof(typename trivial_limb_type<max_precision<Backend>::value>::type) >=
+                    is_trivial_cpp_int_modular<Backend>::value &&
+                    sizeof(typename trivial_limb_type<boost::multiprecision::backends::max_precision<Backend>::value>::type) >=
                         sizeof(internal_limb_type)>::type
                     custom_set_limb_value(Backend &b, const std::size_t i, internal_limb_type v) {
-                    using local_limb_type = typename trivial_limb_type<max_precision<Backend>::value>::type;
+                    using local_limb_type = typename trivial_limb_type<boost::multiprecision::backends::max_precision<Backend>::value>::type;
 
                     //
                     // commented part seems to be correct in general case
@@ -121,30 +121,16 @@ namespace nil {
                 }
 
                 template<typename Backend>
-                constexpr typename std::enable_if<!is_trivial_cpp_int<Backend>::value>::type
-                    adjust_backend_size(Backend &b, std::size_t mod_size) {
-                    assert(mod_size + 1 <= Backend::internal_limb_count);
-                    b.resize(b.limbs()[mod_size] != 0 ? mod_size + 1 : mod_size, 1);
-                }
-
-                template<typename Backend>
-                constexpr typename std::enable_if<is_trivial_cpp_int<Backend>::value>::type
-                    adjust_backend_size(Backend &b, std::size_t mod_size) {
-                    assert(mod_size == 1);
-                    b.resize(mod_size, 1);
-                }
-
-                template<typename Backend>
                 constexpr bool check_modulus_constraints(const Backend &m) {
                     using ui_type = typename std::tuple_element<0, typename Backend::unsigned_types>::type;
-                    using default_ops::eval_lt;
+                    using boost::multiprecision::default_ops::eval_lt;
 
                     return !eval_lt(m, static_cast<ui_type>(0u));
                 }
 
                 template<typename Backend>
                 constexpr bool check_montgomery_constraints(const Backend &m) {
-                    using default_ops::eval_bit_test;
+                    using boost::multiprecision::default_ops::eval_bit_test;
                     // Check m % 2 == 0
                     return eval_bit_test(m, 0);
                 }
@@ -160,8 +146,8 @@ namespace nil {
                 //
                 template<typename Backend>
                 constexpr void custom_right_shift(Backend &b, unsigned s) {
-                    using default_ops::eval_left_shift;
-                    using default_ops::eval_right_shift;
+                    using boost::multiprecision::default_ops::eval_left_shift;
+                    using boost::multiprecision::default_ops::eval_right_shift;
 
                     if (!s) {
                         return;
@@ -204,9 +190,9 @@ namespace nil {
                     }
 
                     constexpr void initialize_barrett_params() {
-                        using default_ops::eval_bit_set;
-                        using default_ops::eval_divide;
-                        using default_ops::eval_msb;
+                        using boost::multiprecision::default_ops::eval_bit_set;
+                        using boost::multiprecision::default_ops::eval_divide;
+                        using boost::multiprecision::default_ops::eval_msb;
 
                         m_barrett_mu = static_cast<limb_type>(0u);
 
@@ -248,9 +234,9 @@ namespace nil {
                     }
 
                     constexpr void find_const_variables() {
-                        using default_ops::eval_bit_set;
-                        using default_ops::eval_gt;
-                        using default_ops::eval_multiply;
+                        using boost::multiprecision::default_ops::eval_bit_set;
+                        using boost::multiprecision::default_ops::eval_gt;
+                        using boost::multiprecision::default_ops::eval_multiply;
 
                         m_montgomery_p_dash = monty_inverse(m_mod.backend().limbs()[0]);
 
@@ -321,7 +307,7 @@ namespace nil {
                         barrett_reduce(Backend1 &result, Backend2 input) const {
                         using input_number_type = typename std::conditional<
                             bool(sizeof(Backend2) * CHAR_BIT > Bits),
-                            number<cpp_int_modular_backend<sizeof(Backend2) * CHAR_BIT>>,
+                            boost::multiprecision::number<cpp_int_modular_backend<sizeof(Backend2) * CHAR_BIT>>,
                             number_type>::type;
 
                         input_number_type input_adjusted(input);
@@ -335,7 +321,7 @@ namespace nil {
                     //
                     template<typename Backend1, typename Backend2,
                              typename boost::enable_if_c<
-                                 max_precision<Backend2>::value<max_precision<Backend>::value, bool>::type =
+                                 boost::multiprecision::backends::max_precision<Backend2>::value<boost::multiprecision::backends::max_precision<Backend>::value, bool>::type =
                                      true> constexpr void barrett_reduce(Backend1 &result, const Backend2 &input)
                                  const {
                         Backend input_adjusted(input);
@@ -345,17 +331,17 @@ namespace nil {
                     template<typename Backend1, typename Backend2,
                              typename = typename boost::enable_if_c<
                                  /// result should fit in the output parameter
-                                 max_precision<Backend1>::value >= max_precision<Backend>::value &&
+                                 boost::multiprecision::backends::max_precision<Backend1>::value >= boost::multiprecision::backends::max_precision<Backend>::value &&
                                  /// to prevent problems with trivial cpp_int
-                                 max_precision<Backend2>::value >= max_precision<Backend>::value>::type>
+                                 boost::multiprecision::backends::max_precision<Backend2>::value >= boost::multiprecision::backends::max_precision<Backend>::value>::type>
                     constexpr void barrett_reduce(Backend1 &result, Backend2 input) const {
-                        using default_ops::eval_add;
-                        using default_ops::eval_eq;
-                        using default_ops::eval_lt;
-                        using default_ops::eval_modulus;
-                        using default_ops::eval_msb;
-                        using default_ops::eval_multiply;
-                        using default_ops::eval_subtract;
+                        using boost::multiprecision::default_ops::eval_add;
+                        using boost::multiprecision::default_ops::eval_eq;
+                        using boost::multiprecision::default_ops::eval_lt;
+                        using boost::multiprecision::default_ops::eval_modulus;
+                        using boost::multiprecision::default_ops::eval_msb;
+                        using boost::multiprecision::default_ops::eval_multiply;
+                        using boost::multiprecision::default_ops::eval_subtract;
 
                         //
                         // to prevent problems with trivial cpp_int
@@ -386,15 +372,15 @@ namespace nil {
                     template<typename Backend1,
                              typename = typename boost::enable_if_c<
                                  /// result should fit in the output parameter
-                                 max_precision<Backend1>::value >= max_precision<Backend>::value>::type>
+                                 boost::multiprecision::backends::max_precision<Backend1>::value >= boost::multiprecision::backends::max_precision<Backend>::value>::type>
                     constexpr void montgomery_reduce(Backend1 &result) const {
 
-                        using default_ops::eval_add;
-                        using default_ops::eval_bitwise_and;
-                        using default_ops::eval_left_shift;
-                        using default_ops::eval_lt;
-                        using default_ops::eval_multiply;
-                        using default_ops::eval_subtract;
+                        using boost::multiprecision::default_ops::eval_add;
+                        using boost::multiprecision::default_ops::eval_bitwise_and;
+                        using boost::multiprecision::default_ops::eval_left_shift;
+                        using boost::multiprecision::default_ops::eval_lt;
+                        using boost::multiprecision::default_ops::eval_multiply;
+                        using boost::multiprecision::default_ops::eval_subtract;
 
                         Backend_doubled_padded_limbs accum(result);
                         Backend_doubled_padded_limbs prod;
@@ -412,21 +398,18 @@ namespace nil {
                         if (!eval_lt(accum, m_mod.backend())) {
                             eval_subtract(accum, m_mod.backend());
                         }
-                        if (m_mod.backend().size() < accum.size()) {
-                            accum.resize(m_mod.backend().size(), m_mod.backend().size());
-                        }
                         result = accum;
                     }
 
                     template<typename Backend1, typename Backend2,
                              /// result should fit in the output parameter
-                             typename = typename boost::enable_if_c<max_precision<Backend1>::value >=
-                                                                    max_precision<Backend>::value>::type>
+                             typename = typename boost::enable_if_c<boost::multiprecision::backends::max_precision<Backend1>::value >=
+                                                                    boost::multiprecision::backends::max_precision<Backend>::value>::type>
                     constexpr void regular_add(Backend1 &result, const Backend2 &y) const {
 
-                        using default_ops::eval_add;
-                        using default_ops::eval_lt;
-                        using default_ops::eval_subtract;
+                        using boost::multiprecision::default_ops::eval_add;
+                        using boost::multiprecision::default_ops::eval_lt;
+                        using boost::multiprecision::default_ops::eval_subtract;
 
                         // TODO: maybe reduce input parameters
                         /// input parameters should be lesser than modulus
@@ -443,11 +426,11 @@ namespace nil {
 
                     template<typename Backend1, typename Backend2,
                              /// result should fit in the output parameter
-                             typename = typename boost::enable_if_c<max_precision<Backend1>::value >=
-                                                                    max_precision<Backend>::value>::type>
+                             typename = typename boost::enable_if_c<boost::multiprecision::backends::max_precision<Backend1>::value >=
+                                                                    boost::multiprecision::backends::max_precision<Backend>::value>::type>
                     constexpr void regular_mul(Backend1 &result, const Backend2 &y) const {
-                        using default_ops::eval_lt;
-                        using default_ops::eval_multiply;
+                        using boost::multiprecision::default_ops::eval_lt;
+                        using boost::multiprecision::default_ops::eval_multiply;
 
                         // TODO: maybe reduce input parameters
                         /// input parameters should be lesser than modulus
@@ -462,12 +445,12 @@ namespace nil {
                     //
                     template<typename Backend1, typename Backend2,
                              /// result should fit in the output parameter
-                             typename = typename boost::enable_if_c<max_precision<Backend1>::value >=
-                                                                    max_precision<Backend>::value>::type>
+                             typename = typename boost::enable_if_c<boost::multiprecision::backends::max_precision<Backend1>::value >=
+                                                                    boost::multiprecision::backends::max_precision<Backend>::value>::type>
                     constexpr void montgomery_mul(Backend1 &result, const Backend2 &y) const {
-                        using default_ops::eval_bitwise_and;
-                        using default_ops::eval_lt;
-                        using default_ops::eval_subtract;
+                        using boost::multiprecision::default_ops::eval_bitwise_and;
+                        using boost::multiprecision::default_ops::eval_lt;
+                        using boost::multiprecision::default_ops::eval_subtract;
 
                         // TODO: maybe reduce input parameters
                         /// input parameters should be lesser than modulus
@@ -525,8 +508,9 @@ namespace nil {
                         // recover correct size of backend content
                         //
 
+// TODO(martun): remove this, we do NOT resize any more.
                         // Martun: about 19 ns 
-                        adjust_backend_size(A, mod_size);
+                        // adjust_backend_size(A, mod_size);
 
                         // Martun: about 24 ns
                         if (!eval_lt(A, m_mod.backend())) {
@@ -539,13 +523,13 @@ namespace nil {
 
                     template<typename Backend1, typename Backend2, typename Backend3,
                              /// result should fit in the output parameter
-                             typename = typename boost::enable_if_c<max_precision<Backend1>::value >=
-                                                                    max_precision<Backend>::value>::type>
+                             typename = typename boost::enable_if_c<boost::multiprecision::backends::max_precision<Backend1>::value >=
+                                                                    boost::multiprecision::backends::max_precision<Backend>::value>::type>
                     constexpr void regular_exp(Backend1 &result, Backend2 &a, Backend3 exp) const {
-                        using default_ops::eval_eq;
-                        using default_ops::eval_is_zero;
-                        using default_ops::eval_lt;
-                        using default_ops::eval_multiply;
+                        using boost::multiprecision::default_ops::eval_eq;
+                        using boost::multiprecision::default_ops::eval_is_zero;
+                        using boost::multiprecision::default_ops::eval_lt;
+                        using boost::multiprecision::default_ops::eval_multiply;
 
                         // TODO: maybe reduce input parameter
                         /// input parameter should be lesser than modulus
@@ -580,12 +564,12 @@ namespace nil {
 
                     template<typename Backend1, typename Backend2, typename Backend3,
                              /// result should fit in the output parameter
-                             typename = typename boost::enable_if_c<max_precision<Backend1>::value >=
-                                                                    max_precision<Backend>::value>::type>
+                             typename = typename boost::enable_if_c<boost::multiprecision::backends::max_precision<Backend1>::value >=
+                                                                    boost::multiprecision::backends::max_precision<Backend>::value>::type>
                     constexpr void montgomery_exp(Backend1 &result, const Backend2 &a, Backend3 exp) const {
-                        using default_ops::eval_eq;
-                        using default_ops::eval_lt;
-                        using default_ops::eval_multiply;
+                        using boost::multiprecision::default_ops::eval_eq;
+                        using boost::multiprecision::default_ops::eval_lt;
+                        using boost::multiprecision::default_ops::eval_multiply;
 
                         // TODO: maybe reduce input parameter
                         /// input parameter should be lesser than modulus

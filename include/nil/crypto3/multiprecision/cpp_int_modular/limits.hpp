@@ -11,7 +11,6 @@
 #include <boost/multiprecision/traits/max_digits10.hpp>
 
 namespace std {
-
     namespace detail {
 
 #ifdef _MSC_VER
@@ -124,9 +123,9 @@ namespace std {
             return (min)();
         }
         static constexpr int digits =
-            nil::crypto3::multiprecision::backends::max_precision<backend_type>::value == UINT_MAX ?
+            boost::multiprecision::backends::max_precision<backend_type>::value == UINT_MAX ?
                 INT_MAX :
-                nil::crypto3::multiprecision::backends::max_precision<backend_type>::value;
+                boost::multiprecision::backends::max_precision<backend_type>::value;
         static constexpr int digits10 = boost::multiprecision::detail::calc_digits10<digits>::value;
         static constexpr int max_digits10 = boost::multiprecision::detail::calc_max_digits10<digits>::value;
         static constexpr bool is_signed = false;
@@ -162,7 +161,7 @@ namespace std {
         }
         static constexpr bool is_iec559 = false;
         static constexpr bool is_bounded =
-            nil::crypto3::multiprecision::backends::is_fixed_precision<backend_type>::value;
+            boost::multiprecision::backends::is_fixed_precision<backend_type>::value;
         static constexpr bool is_modulo = true;
         static constexpr bool traps = false;
         static constexpr bool tinyness_before = false;

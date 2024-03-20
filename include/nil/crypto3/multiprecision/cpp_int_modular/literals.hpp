@@ -231,17 +231,6 @@ namespace nil {
 #endif
             }    // namespace literals
 
-            //
-            // Overload unary minus operator for constexpr use:
-            //
-            template<unsigned Bits>
-            constexpr boost::multiprecision::number<nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>, boost::multiprecision::et_off>
-                operator-(const boost::multiprecision::number<
-                    nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>,
-                    boost::multiprecision::et_off>& a) {
-                return nil::crypto3::multiprecision::backends::cpp_int_modular_backend<Bits>(
-                    a.backend(), nil::crypto3::multiprecision::literals::detail::make_negate_tag());
-            }
         }    // namespace multiprecision
     }        // namespace crypto3
 }    // namespace nil

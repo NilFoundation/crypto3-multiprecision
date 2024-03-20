@@ -25,15 +25,15 @@ namespace nil {
                 //
                 template<unsigned Bits>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value,
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value,
                     bool>::type
                     eval_eq(const cpp_int_modular_backend<Bits>& a,
                             const cpp_int_modular_backend<Bits>& b) noexcept {
-                    return std_constexpr::equal(a.limbs(), a.limbs() + a.size(), b.limbs());
+                    return boost::multiprecision::std_constexpr::equal(a.limbs(), a.limbs() + a.size(), b.limbs());
                 }
                 template<unsigned Bits>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR
-                    typename std::enable_if<!is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value,
+                    typename std::enable_if<!is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value,
                                             bool>::type
                     eval_eq(const cpp_int_modular_backend<Bits>& a, limb_type b) noexcept {
 // TODO(martun): write a test for this function.
@@ -47,7 +47,7 @@ namespace nil {
 
                 template<unsigned Bits >
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value,
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value,
                     bool>::type
                     eval_lt(const cpp_int_modular_backend<Bits>& a, limb_type b) noexcept {
                     auto* limbs = a.limbs();
@@ -58,7 +58,7 @@ namespace nil {
 
                 template<unsigned Bits>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR
-                    typename std::enable_if<!is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value,
+                    typename std::enable_if<!is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value,
                                             bool>::type
                     eval_gt(const cpp_int_modular_backend<Bits>& a,
                             limb_type b) noexcept {
@@ -74,14 +74,14 @@ namespace nil {
                 template<unsigned Bits, class U>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
                     boost::multiprecision::detail::is_unsigned<U>::value &&
-                        is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value,
+                        is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value,
                     bool>::type
                     eval_eq(const cpp_int_modular_backend<Bits>& a, U b) noexcept {
                     return *a.limbs() == b;
                 }
                 template<unsigned Bits>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value,
+                    is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value,
                     bool>::type
                     eval_lt(const cpp_int_modular_backend<Bits>& a, const cpp_int_modular_backend<Bits>& b) noexcept {
                     return *a.limbs() < *b.limbs();
@@ -90,7 +90,7 @@ namespace nil {
                 template<unsigned Bits, class U>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
                     boost::multiprecision::detail::is_unsigned<U>::value &&
-                        is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value,
+                        is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value,
                     bool>::type
                     eval_lt(const cpp_int_modular_backend<Bits>& a, U b) noexcept {
                     return *a.limbs() < b;
@@ -98,7 +98,7 @@ namespace nil {
 
                 template<unsigned Bits>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value,
+                    is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value,
                     bool>::type
                     eval_gt(const cpp_int_modular_backend<Bits>& a, const cpp_int_modular_backend<Bits>& b) noexcept {
                     return *a.limbs() > *b.limbs();
@@ -106,7 +106,7 @@ namespace nil {
                 template<unsigned Bits, class U>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
                     boost::multiprecision::detail::is_unsigned<U>::value &&
-                        is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value,
+                        is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value,
                     bool>::type
                     eval_gt(const cpp_int_modular_backend<Bits>& a, U b) noexcept {
                     return *a.limbs() > b;

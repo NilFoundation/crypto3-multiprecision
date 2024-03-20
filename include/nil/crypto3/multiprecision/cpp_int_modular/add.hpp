@@ -43,7 +43,7 @@ namespace nil {
                     }
                     // Just copy any remaining digits:
                     if (&a != &result) {
-                        std_constexpr::copy(pa + i, pa + a.size(), pr + i);
+                        boost::multiprecision::std_constexpr::copy(pa + i, pa + a.size(), pr + i);
                     }
                     result.set_carry(carry);
                     result.normalize();
@@ -54,9 +54,7 @@ namespace nil {
                 //
                 template<class CppInt>
                 inline BOOST_MP_CXX14_CONSTEXPR void
-                    subtract_unsigned(CppInt& result,
-                                      const CppInt& a,
-                                      const limb_type& b) noexcept(is_non_throwing_cpp_int<CppInt>::value) {
+                    subtract_unsigned(CppInt& result, const CppInt& a, const limb_type& b) noexcept {
 // TODO(martun): check how we need to re-write this, our cppInt has fixed size.
                     // Subtract one limb.
                     // Nothing fancy, just let uintmax_t take the strain:
@@ -66,7 +64,7 @@ namespace nil {
                     if (*pa >= b) {
                         *pr = *pa - b;
                         if (&result != &a) {
-                            std_constexpr::copy(pa + 1, pa + a.size(), pr + 1);
+                            boost::multiprecision::std_constexpr::copy(pa + 1, pa + a.size(), pr + 1);
                         } else if ((result.size() == 1) && (*pr == 0)) {
                         }
                     } else if (result.size() == 1) {
@@ -81,7 +79,7 @@ namespace nil {
                         pr[i] = pa[i] - 1;
                         if (&result != &a) {
                             ++i;
-                            std_constexpr::copy(pa + i, pa + a.size(), pr + i);
+                            boost::multiprecision::std_constexpr::copy(pa + i, pa + a.size(), pr + i);
                         }
                         result.normalize();
                     }
@@ -92,17 +90,17 @@ namespace nil {
                 //
                 template<unsigned Bits>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value>::type
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value>::type
                     eval_add(cpp_int_modular_backend<Bits>& result,
                              const cpp_int_modular_backend<Bits>& o) noexcept {
                     eval_add(result, result, o);
                 }
                 template<unsigned Bits>
                 inline BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value>::
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value>::
                     type
                     eval_add(cpp_int_modular_backend<Bits>& result,
                              const cpp_int_modular_backend<Bits>& a,
@@ -111,7 +109,7 @@ namespace nil {
                 }
 
                 template<unsigned Bits>
-                BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
+                BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int_modular<
                     cpp_int_modular_backend<Bits>>::value>::type
                     eval_add(
                         cpp_int_modular_backend<Bits>& result,
@@ -120,8 +118,8 @@ namespace nil {
                 }
                 template<unsigned Bits>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value>::type
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value>::type
                     eval_add(
                         cpp_int_modular_backend<Bits>& result,
                         const cpp_int_modular_backend<Bits>& a,
@@ -129,7 +127,7 @@ namespace nil {
                     add_unsigned(result, a, o);
                 }
                 template<unsigned Bits>
-                BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
+                BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int_modular<
                     cpp_int_modular_backend<Bits>>::value>::type
                     eval_subtract(
                         cpp_int_modular_backend<Bits>& result,
@@ -138,8 +136,8 @@ namespace nil {
                 }
                 template<unsigned Bits>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value>::type
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value>::type
                     eval_subtract(
                         cpp_int_modular_backend<Bits>& result,
                         const cpp_int_modular_backend<Bits>& a,
@@ -147,7 +145,7 @@ namespace nil {
                     subtract_unsigned(result, a, o);
                 }
                 template<unsigned Bits>
-                BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
+                BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int_modular<
                     cpp_int_modular_backend<Bits>>::value>::type
                     eval_increment(cpp_int_modular_backend<Bits>&
                                        result) noexcept {
@@ -160,7 +158,7 @@ namespace nil {
                 }
 
                 template<unsigned Bits>
-                BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int<
+                BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<!is_trivial_cpp_int_modular<
                     cpp_int_modular_backend<Bits>>::value>::type
                     eval_decrement(cpp_int_modular_backend<Bits>& result) noexcept {
 
@@ -173,8 +171,8 @@ namespace nil {
                 }
                 template<unsigned Bits>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value>::
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value>::
                     type
                     eval_subtract(cpp_int_modular_backend<Bits>& result,
                                   const cpp_int_modular_backend<Bits>& o) noexcept {
@@ -184,9 +182,9 @@ namespace nil {
 
                 template<unsigned Bits>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    !is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value>::
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value>::
                     type
                     eval_subtract(cpp_int_modular_backend<Bits>& result,
                                   const cpp_int_modular_backend<Bits>& a,
@@ -202,8 +200,8 @@ namespace nil {
                 // Simple version for two unsigned arguments:
                 template<unsigned Bits>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value>::
+                    is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value>::
                     type
                     eval_add(cpp_int_modular_backend<Bits>& result,
                              const cpp_int_modular_backend<Bits>& o) noexcept {
@@ -213,14 +211,13 @@ namespace nil {
 
                 template<unsigned Bits>
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
-                    is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    is_trivial_cpp_int<cpp_int_modular_backend<Bits>>::value &&
-                    is_unsigned_number<cpp_int_modular_backend<Bits>>::value &&
-                    is_unsigned_number<cpp_int_modular_backend<Bits>>::value>::
+                    is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value &&
+                    boost::multiprecision::is_unsigned_number<cpp_int_modular_backend<Bits>>::value &&
+                    boost::multiprecision::is_unsigned_number<cpp_int_modular_backend<Bits>>::value>::
                     type
                     eval_subtract(cpp_int_modular_backend<Bits>& result,
-                                  const cpp_int_modular_backend<Bits>&
-                                      o) noexcept((is_non_throwing_cpp_int<cpp_int_modular_backend<Bits>>::value)) {
+                                  const cpp_int_modular_backend<Bits>& o) noexcept {
                     *result.limbs() -= *o.limbs();
                     result.normalize();
                 }
