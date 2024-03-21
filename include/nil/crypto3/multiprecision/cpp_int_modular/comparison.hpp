@@ -38,8 +38,11 @@ namespace nil {
                     eval_eq(const cpp_int_modular_backend<Bits>& a, limb_type b) noexcept {
 // TODO(martun): write a test for this function.
                     auto* limbs = a.limbs();
-                    if (!std::all_of(limbs, limbs + a.size() - 1, [&](limb_type limb){return limb == 0;}))
-                        return false;
+                    // std::all_of is not constexpr, so writing manually.
+                    for (std::size_t i = 0; i < a.size() - 1; ++i) {
+                        if (limbs[i] != 0)
+                            return false;
+                    }
                     if (limbs[a.size() - 1] != b)
                         return false;
                     return true;
@@ -51,8 +54,11 @@ namespace nil {
                     bool>::type
                     eval_lt(const cpp_int_modular_backend<Bits>& a, limb_type b) noexcept {
                     auto* limbs = a.limbs();
-                    if (!std::all_of(limbs, limbs + a.size() - 1, [&](limb_type limb){return limb == 0;}))
-                        return false;
+                    // std::all_of is not constexpr, so writing manually.
+                    for (std::size_t i = 0; i < a.size() - 1; ++i) {
+                        if (limbs[i] != 0)
+                            return false;
+                    }
                     return limbs[a.size() - 1] < b;
                 }
 
@@ -63,8 +69,11 @@ namespace nil {
                     eval_gt(const cpp_int_modular_backend<Bits>& a,
                             limb_type b) noexcept {
                     auto* limbs = a.limbs();
-                    if (!std::all_of(limbs, limbs + a.size() - 1, [&](limb_type limb){return limb == 0;}))
-                        return true;
+                    // std::all_of is not constexpr, so writing manually.
+                    for (std::size_t i = 0; i < a.size() - 1; ++i) {
+                        if (limbs[i] != 0)
+                            return true;
+                    }
                     return *a.limbs() > b;
                 }
                 

@@ -53,29 +53,35 @@ namespace nil {
                         this->set_modular_params(o.mod_data());
                     }
 
+                    template<class Arg, typename std::enable_if_t<std::is_integral<Arg>::value> const * = nullptr>
+                    constexpr modular_adaptor(Arg i) : m_base(i) {
+                    }
+
 #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
                     constexpr modular_adaptor(modular_adaptor &&o) : m_base(std::move(o.base_data())) {
                         this->set_modular_params(std::move(o.mod_data()));
                     }
 #endif
 
-                    // Martun: here adjust_modular is called in all the constructors, which takes time. 
+                    // TODO(martun): here adjust_modular is called in all the constructors, which takes time. 
                     template<typename Backend1, typename Backend2>
                     constexpr modular_adaptor(const Backend1 &b, const Backend2 &m) {
+                        this->set_modular_params(m);
                         this->mod_data().adjust_modular(m_base, b);
-                        this->set_modular_params(m);
                     }
 
-                    constexpr explicit modular_adaptor(const Backend &m) :
-                        m_base(static_cast<typename std::tuple_element<0, unsigned_types>::type>(0u)) {
-                        this->mod_data().adjust_modular(m_base);
+                    // TODO(martun): this sounds wrong, we set the value to 0, and the modulus to the given number.
+                    constexpr explicit modular_adaptor(const Backend &m)
+                            : m_base(static_cast<typename std::tuple_element<0, unsigned_types>::type>(0u)) {
                         this->set_modular_params(number_type(m));
+                        this->mod_data().adjust_modular(m_base);
                     }
 
-                    constexpr explicit modular_adaptor(const number_type &m) :
-                        m_base(static_cast<typename std::tuple_element<0, unsigned_types>::type>(0u)) {
-                        this->mod_data().adjust_modular(m_base);
+                    // TODO(martun): this sounds wrong, we set the value to 0, and the modulus to the given number.
+                    constexpr explicit modular_adaptor(const number_type &m)
+                            : m_base(static_cast<typename std::tuple_element<0, unsigned_types>::type>(0u)) {
                         this->set_modular_params(m);
+                        this->mod_data().adjust_modular(m_base);
                     }
 
                     // TODO: check correctness of the method
@@ -176,8 +182,12 @@ namespace nil {
                         return tmp.str(dig, f);
                     }
 
-                    inline void negate() {
-                        // We need this function to compile, because boost "number" class requires this, even though it's never called for unsigned numbers.
+                    constexpr inline void negate() {
+                        if (m_base.compare(m_zero) != 0) {
+                            auto initial_m_base = m_base;
+                            m_base = this->mod_data().get_mod().backend();
+                            eval_subtract(m_base, initial_m_base);
+                        }
                     }
 
                 protected:
@@ -246,26 +256,27 @@ namespace nil {
                     o.mod_data().mod_mul(result.base_data(), o.base_data());
                 }
 
-                template<unsigned Bits, typename T, typename StorageType>
-                constexpr void eval_pow(
-                        modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &result,
-                        const modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &b,
-                        const T &e) {
-                    result.set_modular_params(b.mod_data());
-                    result.mod_data().mod_exp(result.base_data(), b.base_data(), e);
-                }
+                // No more 'pow', only 'powm' for modular numbers.
+                //template<unsigned Bits, typename T, typename StorageType>
+                //constexpr void eval_pow(
+                //        modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &result,
+                //        const modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &b,
+                //        const T &e) {
+                //    result.set_modular_params(b.mod_data());
+                //    result.mod_data().mod_exp(result.base_data(), b.base_data(), e);
+                //}
 
-                template<unsigned Bits, typename StorageType>
-                constexpr void eval_pow(
-                    modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &result,
-                    const modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &b,
-                    const modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &e) {
-                    using Backend = cpp_int_modular_backend<Bits>;
+                //template<unsigned Bits, typename StorageType>
+                //constexpr void eval_pow(
+                //    modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &result,
+                //    const modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &b,
+                //    const modular_adaptor<cpp_int_modular_backend<Bits>, StorageType> &e) {
+                //    using Backend = cpp_int_modular_backend<Bits>;
 
-                    Backend exp;
-                    e.mod_data().adjust_regular(exp, e.base_data());
-                    eval_pow(result, b, exp);
-                }
+                //    Backend exp;
+                //    e.mod_data().adjust_regular(exp, e.base_data());
+                //    eval_pow(result, b, exp);
+                //}
 
                 template<unsigned Bits, typename Backend, typename T, typename StorageType>
                 constexpr void eval_powm(
@@ -323,5 +334,7 @@ namespace boost {
 
     } // namespace multiprecision
 } // namespace boost
+
+#include <nil/crypto3/multiprecision/detail/integer_ops.hpp>
 
 #endif    // CRYPTO3_MULTIPRECISION_MODULAR_ADAPTOR_FIXED_PRECISION_HPP

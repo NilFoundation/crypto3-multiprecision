@@ -110,7 +110,12 @@ namespace nil {
                 BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename std::enable_if<
                     !is_trivial_cpp_int_modular<cpp_int_modular_backend<Bits>>::value, bool>::type
                     eval_is_zero(const cpp_int_modular_backend<Bits> &val) noexcept {
-                    return !std::all_of(val.limbs(), val.limbs() + val.size(), [&](limb_type limb){return limb == 0;});
+                    // std::all_of is not constexpr, so writing manually.
+                    for (std::size_t i = 0; i < val.size(); ++i) {
+                        if (val.limbs()[i] != 0)
+                            return false;
+                    }
+                    return true;
                 }
 
                 //

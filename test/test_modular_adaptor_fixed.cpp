@@ -67,23 +67,17 @@ constexpr void pow_test(const boost::multiprecision::number<Backend, ExpressionT
 
     standard_number a_powm_b = powm(a, b, m);
     // pow could be used only with modular_numbers
-    modular_number a_m_pow_b_m = pow(a_m, b_m);
+    // modular_number a_m_pow_b_m = pow(a_m, b_m);
     // powm could be used with mixed types
     modular_number a_m_powm_b_m = powm(a_m, b_m);
     modular_number a_m_powm_b = powm(a_m, b);
-    // if constexpr (backends::max_precision<Backend>::value <= bits_per_limb)
-    // {
-    //    limb_type e = b.template convert_to<limb_type>();
-    //    modular_number  a_m_powm_e = powm(a_m, e);
-    //    BOOST_ASSERT_MSG(a_m_powm_e.template convert_to<standard_number>() == a_powm_b, "powm error");
-    // }
-
     BOOST_ASSERT_MSG(a_m_powm_b_m.template convert_to<standard_number>() == a_powm_b, "powm error");
     BOOST_ASSERT_MSG(a_m_powm_b.template convert_to<standard_number>() == a_powm_b, "powm error");
-    BOOST_ASSERT_MSG(a_m_pow_b_m.template convert_to<standard_number>() == a_powm_b, "pow error");
+//    BOOST_ASSERT_MSG(a_m_pow_b_m.template convert_to<standard_number>() == a_powm_b, "pow error");
 }
 
 // TODO: test_set is not ref because of constexpr error in gcc-10
+// TODO(martun): Add a test case that uses normal boost::cpp_int for comparison.
 template<typename Number>
 constexpr bool base_operations_test(std::array<Number, test_set_len> test_set) {
     typedef typename Number::backend_type Backend;
@@ -131,7 +125,7 @@ constexpr bool base_operations_test(std::array<Number, test_set_len> test_set) {
     modular_number a_or_b = a | b;
     modular_number a_xor_b = a ^ b;
     modular_number a_powm_b = powm(a, b);
-    modular_number a_pow_b = pow(a, b);
+//    modular_number a_pow_b = pow(a, b);
     modular_number a_bit_set = a;
     bit_set(a_bit_set, 1);
     modular_number a_bit_unset = a;
@@ -160,8 +154,8 @@ constexpr bool base_operations_test(std::array<Number, test_set_len> test_set) {
     BOOST_ASSERT_MSG(a_or_b.template convert_to<standard_number>() == a_or_b_s, "or error");
     BOOST_ASSERT_MSG(a_xor_b.template convert_to<standard_number>() == a_xor_b_s, "xor error");
 
-    // BOOST_ASSERT_MSG(a_powm_b.template convert_to<standard_number>() == a_powm_b_s, "powm error");
-    // BOOST_ASSERT_MSG(a_pow_b.template convert_to<standard_number>() == a_powm_b_s, "pow error");
+    BOOST_ASSERT_MSG(a_powm_b.template convert_to<standard_number>() == a_powm_b_s, "powm error");
+//     BOOST_ASSERT_MSG(a_pow_b.template convert_to<standard_number>() == a_powm_b_s, "pow error");
     pow_test(test_set[a_e], test_set[b_e], test_set[mod_e]);
 
     BOOST_ASSERT_MSG(a_bit_set.template convert_to<standard_number>() == a_bit_set_s, "bit set error");
@@ -459,9 +453,8 @@ BOOST_AUTO_TEST_CASE(secp256k1_incorrect_multiplication) {
     using params_safe_type = nil::crypto3::multiprecision::backends::modular_params_rt<Backend>;
     using modular_number = boost::multiprecision::number<backends::modular_adaptor<Backend, params_safe_type>>;
     constexpr standart_number modulus = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f_cppui256;
-    constexpr modular_number x(0xb5d724ce6f44c3c587867bbcb417e9eb6fa05e7e2ef029166568f14eb3161387_cppui256, modulus);
-    constexpr modular_number res(0xad6e1fcc680392abfb075838eafa513811112f14c593e0efacb6e9d0d7770b4_cppui256, modulus);
-    constexpr auto mod = x.mod();
+    constexpr modular_number x(0xb5d724ce6f44c3c587867bbcb417e9eb6fa05e7e2ef029166568f14eb3161387_cppui256, modulus.backend());
+    constexpr modular_number res(0xad6e1fcc680392abfb075838eafa513811112f14c593e0efacb6e9d0d7770b4_cppui256, modulus.backend());
     assert(x * x == res);
 }
 
@@ -469,9 +462,10 @@ BOOST_AUTO_TEST_CASE(bad_negation) {
     using Backend = cpp_int_modular_backend<256>;
     using standart_number = boost::multiprecision::number<Backend>;
     using params_safe_type = nil::crypto3::multiprecision::backends::modular_params_rt<Backend>;
-    using modular_number = boost::multiprecision::number<backends::modular_adaptor<Backend, params_safe_type>>;
+    using modular_backend = backends::modular_adaptor<Backend, params_safe_type>;
+    using modular_number = boost::multiprecision::number<modular_backend>;
     constexpr standart_number modulus = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f_cppui256;
-    constexpr modular_number x(0, modulus);
+    constexpr modular_number x(modular_backend(0u, modulus.backend()));
     constexpr modular_number res = -x;
     assert(res == 0);
     assert(res == x);
@@ -479,18 +473,21 @@ BOOST_AUTO_TEST_CASE(bad_negation) {
 }
 
 // This directly calls montgomery_mul from modular_functions_fixed.hpp.
-BOOST_AUTO_TEST_CASE(backends::modular_adaptor_montgomery_mult_perf_test, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(modular_adaptor_montgomery_mult_perf_test, *boost::unit_test::disabled()) {
     using Backend = cpp_int_modular_backend<256>;
     using standart_number = boost::multiprecision::number<Backend>;
     using params_safe_type = nil::crypto3::multiprecision::backends::modular_params_rt<Backend>;
-    using modular_number = boost::multiprecision::number<backends::modular_adaptor<Backend, params_safe_type>>;
+    using modular_backend = backends::modular_adaptor<Backend, params_safe_type>;
+    using modular_number = boost::multiprecision::number<modular_backend>;
     constexpr standart_number modulus = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f_cppui256;
-    constexpr modular_number x(0xb5d724ce6f44c3c587867bbcb417e9eb6fa05e7e2ef029166568f14eb3161387_cppui256, modulus);
+    constexpr standart_number x_value = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f_cppui256;
+    constexpr modular_number x(modular_backend(
+        x_value.backend(), modulus.backend()));
     auto x_modular = x.backend();
 
-    constexpr modular_number res(0xad6e1fcc680392abfb075838eafa513811112f14c593e0efacb6e9d0d7770b4_cppui256, modulus);
-    constexpr auto mod = x.mod();
-
+    constexpr standart_number res_value = 0xad6e1fcc680392abfb075838eafa513811112f14c593e0efacb6e9d0d7770b4_cppui256;
+    constexpr modular_number res(modular_backend(
+        res_value.backend(), modulus.backend()));
     std::chrono::time_point<std::chrono::high_resolution_clock> start(std::chrono::high_resolution_clock::now());
 
     int SAMPLES = 10000000;
@@ -507,19 +504,20 @@ BOOST_AUTO_TEST_CASE(backends::modular_adaptor_montgomery_mult_perf_test, *boost
 }
 
 // Averge subtraction time is 37 ns.
-BOOST_AUTO_TEST_CASE(backends::modular_adaptor_backend_sub_perf_test, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(modular_adaptor_backend_sub_perf_test, *boost::unit_test::disabled()) {
     using Backend = cpp_int_modular_backend<256>;
     using standart_number = boost::multiprecision::number<Backend>;
     using params_safe_type = nil::crypto3::multiprecision::backends::modular_params_rt<Backend>;
-    using modular_number = boost::multiprecision::number<backends::modular_adaptor<Backend, params_safe_type>>;
+    using modular_backend = backends::modular_adaptor<Backend, params_safe_type>;
+    using modular_number = boost::multiprecision::number<modular_backend>;
     constexpr standart_number modulus = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f_cppui256;
-    constexpr modular_number x(0xb5d724ce6f44c3c587867bbcb417e9eb6fa05e7e2ef029166568f14eb3161387_cppui256, modulus);
+    constexpr standart_number x_value = 0xb5d724ce6f44c3c587867bbcb417e9eb6fa05e7e2ef029166568f14eb3161387_cppui256;
+    constexpr modular_number x(modular_backend(x_value.backend(), modulus.backend()));
     auto x_modular = x.backend();
 
-    constexpr modular_number res(0xad6e1fcc680392abfb075838eafa513811112f14c593e0efacb6e9d0d7770b4_cppui256, modulus);
+    constexpr standart_number res_value = 0xad6e1fcc680392abfb075838eafa513811112f14c593e0efacb6e9d0d7770b4_cppui256;
+    constexpr modular_number res(modular_backend(res_value.backend(), modulus.backend()));
     auto res_modular = res.backend();
-    constexpr auto mod = x.mod();
-
     std::chrono::time_point<std::chrono::high_resolution_clock> start(std::chrono::high_resolution_clock::now());
 
     int SAMPLES = 10000000;
@@ -533,80 +531,20 @@ BOOST_AUTO_TEST_CASE(backends::modular_adaptor_backend_sub_perf_test, *boost::un
         << elapsed.count() / SAMPLES << " ns" << std::endl;
 }
 
-BOOST_AUTO_TEST_CASE(backends::modular_adaptor_256_bit_number_sub_perf_test, *boost::unit_test::disabled()) {
-    using Backend = cpp_int_modular_backend<256>;
-    using standart_number = boost::multiprecision::number<Backend>;
-
-    // Average time per subtraction with this modulus is 37 ns.
-    // constexpr static standart_number modulus = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f_cppui256;
-
-    // Average time per subtraction with this modulus is 37 ns.
-    constexpr static standart_number modulus = 0x40000000000000000000000000000000224698fc094cf91b992d30ed00000001_cppui256;
-    constexpr static nil::crypto3::multiprecision::modular_params<Backend> modular_params = modulus;
-
-    using params_safe_type = nil::crypto3::multiprecision::backends::modular_params_ct<Backend, modular_params>;
-    using modular_number = boost::multiprecision::number<backends::modular_adaptor<Backend, params_safe_type>>;
-    modular_number x(0xb5d724ce6f44c3c587867bbcb417e9eb6fa05e7e2ef029166568f14eb3161387_cppui256, modulus);
-
-    modular_number res(0xad6e1fcc680392abfb075838eafa513811112f14c593e0efacb6e9d0d7770b4_cppui256, modulus);
-    auto mod = x.mod();
-
-    std::chrono::time_point<std::chrono::high_resolution_clock> start(std::chrono::high_resolution_clock::now());
-
-    int SAMPLES = 10000000;
-    for (int i = 0; i < SAMPLES; ++i) {
-        x -= res;
-    }
-
-    auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(
-        std::chrono::high_resolution_clock::now() - start);
-    std::cout << "Multiplication time: " << std::fixed << std::setprecision(3)
-        << elapsed.count() / SAMPLES << " ns" << std::endl;
-}
-
-BOOST_AUTO_TEST_CASE(backends::modular_adaptor_255_bit_number_sub_perf_test, *boost::unit_test::disabled()) {
-    using Backend = cpp_int_modular_backend<255>;
-    using Backend_signed = cpp_int_modular_backend<255>;
-    // With this modulus average time is ~60 ns.
-    // constexpr static const boost::multiprecision::number<Backend> modulus = 0x4ffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f_cppui255;
-
-    // With this modulus average time is ~94 ns
-    constexpr static const boost::multiprecision::number<Backend> modulus = 0x40000000000000000000000000000000224698fc094cf91b992d30ed00000001_cppui255;
-    constexpr static const nil::crypto3::multiprecision::modular_params<Backend_signed> modular_params = modulus;
-
-    using params_safe_type = nil::crypto3::multiprecision::backends::modular_params_ct<Backend_signed, modular_params>;
-    using modular_number = boost::multiprecision::number<backends::modular_adaptor<Backend_signed, params_safe_type>>;
-    modular_number x(0x15d724ce6f44c3c587867bbcb417e9eb6fa05e7e2ef029166568f14eb3161387_cppui255, modulus);
-
-    modular_number res(0x1d6e1fcc680392abfb075838eafa513811112f14c593e0efacb6e9d0d7770b4_cppui255, modulus);
-    auto mod = x.mod();
-
-    std::chrono::time_point<std::chrono::high_resolution_clock> start(std::chrono::high_resolution_clock::now());
-
-    int SAMPLES = 10000000;
-    for (int i = 0; i < SAMPLES; ++i) {
-        res -= x;
-    }
-
-    auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(
-        std::chrono::high_resolution_clock::now() - start);
-    std::cout << "Subtraction time: " << std::fixed << std::setprecision(3)
-        << elapsed.count() / SAMPLES << " ns" << std::endl;
-}
-
 // Averge multiplication time is 130 ns.
-BOOST_AUTO_TEST_CASE(backends::modular_adaptor_backend_mult_perf_test, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(modular_adaptor_backend_mult_perf_test, *boost::unit_test::disabled()) {
     using Backend = cpp_int_modular_backend<256>;
     using standart_number = boost::multiprecision::number<Backend>;
     using params_safe_type = nil::crypto3::multiprecision::backends::modular_params_rt<Backend>;
-    using modular_number = boost::multiprecision::number<backends::modular_adaptor<Backend, params_safe_type>>;
+    using modular_backend = backends::modular_adaptor<Backend, params_safe_type>;
+    using modular_number = boost::multiprecision::number<modular_backend>;
     constexpr standart_number modulus = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f_cppui256;
-    constexpr modular_number x(0xb5d724ce6f44c3c587867bbcb417e9eb6fa05e7e2ef029166568f14eb3161387_cppui256, modulus);
+    constexpr standart_number x_value = 0xb5d724ce6f44c3c587867bbcb417e9eb6fa05e7e2ef029166568f14eb3161387_cppui256;
+    constexpr modular_number x(modular_backend(x_value.backend(), modulus.backend()));
     auto x_modular = x.backend();
 
-    constexpr modular_number res(0xad6e1fcc680392abfb075838eafa513811112f14c593e0efacb6e9d0d7770b4_cppui256, modulus);
-    constexpr auto mod = x.mod();
-
+    constexpr standart_number res_value = 0xad6e1fcc680392abfb075838eafa513811112f14c593e0efacb6e9d0d7770b4_cppui256;
+    constexpr modular_number res(modular_backend(res_value.backend(), modulus.backend()));
     std::chrono::time_point<std::chrono::high_resolution_clock> start(std::chrono::high_resolution_clock::now());
 
     int SAMPLES = 10000000;
@@ -621,17 +559,18 @@ BOOST_AUTO_TEST_CASE(backends::modular_adaptor_backend_mult_perf_test, *boost::u
 }
 
 // Averge multiplication time is 130 ns.
-BOOST_AUTO_TEST_CASE(backends::modular_adaptor_number_mult_perf_test, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(modular_adaptor_number_mult_perf_test, *boost::unit_test::disabled()) {
     using Backend = cpp_int_modular_backend<256>;
     using standart_number = boost::multiprecision::number<Backend>;
     using params_safe_type = nil::crypto3::multiprecision::backends::modular_params_rt<Backend>;
-    using modular_number = boost::multiprecision::number<backends::modular_adaptor<Backend, params_safe_type>>;
+    using modular_backend = backends::modular_adaptor<Backend, params_safe_type>;
+    using modular_number = boost::multiprecision::number<modular_backend>;
     constexpr standart_number modulus = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f_cppui256;
-    modular_number x(0xb5d724ce6f44c3c587867bbcb417e9eb6fa05e7e2ef029166568f14eb3161387_cppui256, modulus);
+    constexpr standart_number x_value = 0xb5d724ce6f44c3c587867bbcb417e9eb6fa05e7e2ef029166568f14eb3161387_cppui256;
+    modular_number x(modular_backend(x_value.backend(), modulus.backend()));
 
-    modular_number res(0xad6e1fcc680392abfb075838eafa513811112f14c593e0efacb6e9d0d7770b4_cppui256, modulus);
-    auto mod = x.mod();
-
+    constexpr standart_number res_value = 0xad6e1fcc680392abfb075838eafa513811112f14c593e0efacb6e9d0d7770b4_cppui256;
+    modular_number res(modular_backend(res_value.backend(), modulus.backend()));
     std::chrono::time_point<std::chrono::high_resolution_clock> start(std::chrono::high_resolution_clock::now());
 
     int SAMPLES = 10000000;

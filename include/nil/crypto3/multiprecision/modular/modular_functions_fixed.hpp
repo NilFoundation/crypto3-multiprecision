@@ -303,7 +303,7 @@ namespace nil {
                     // this overloaded barrett_reduce is intended to work with built-in integral types
                     //
                     template<typename Backend1, typename Backend2>
-                    constexpr typename std::enable_if<std::is_integral<Backend2>::value>::type
+                    constexpr typename std::enable_if<std::is_integral<Backend2>::value && std::is_unsigned<Backend2>::value>::type
                         barrett_reduce(Backend1 &result, Backend2 input) const {
                         using input_number_type = typename std::conditional<
                             bool(sizeof(Backend2) * CHAR_BIT > Bits),
@@ -321,9 +321,8 @@ namespace nil {
                     //
                     template<typename Backend1, typename Backend2,
                              typename boost::enable_if_c<
-                                 boost::multiprecision::backends::max_precision<Backend2>::value<boost::multiprecision::backends::max_precision<Backend>::value, bool>::type =
-                                     true> constexpr void barrett_reduce(Backend1 &result, const Backend2 &input)
-                                 const {
+                                 boost::multiprecision::backends::max_precision<Backend2>::value < boost::multiprecision::backends::max_precision<Backend>::value, bool>::type = true> 
+                    constexpr void barrett_reduce(Backend1 &result, const Backend2 &input) const {
                         Backend input_adjusted(input);
                         barrett_reduce(result, input_adjusted);
                     }

@@ -28,7 +28,8 @@ namespace nil {
                 using boost::multiprecision::default_ops::eval_bit_set;
 
                 template<typename Backend>
-                constexpr Backend eval_extended_euclidean_algorithm(Backend &num1, Backend& num2, Backend &bezout_x, Backend &bezout_y) {
+                constexpr Backend eval_extended_euclidean_algorithm(
+                        Backend &num1, Backend& num2, Backend &bezout_x, Backend &bezout_y) {
                     Backend x, y, tmp_num1 = num1, tmp_num2 = num2;
                     using ui_type = typename std::tuple_element<0, typename Backend::unsigned_types>::type;
                     y = ui_type(1u);
