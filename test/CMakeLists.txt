@@ -87,22 +87,13 @@ if(EIGEN_FOUND)
                 CMAKE_FLAGS "-DCMAKE_CXX_LINK_EXECUTABLE='echo not linking now...'" "-DINCLUDE_DIRECTORIES=${EIGEN3_INCLUDE_DIRS}")
 endif()
 
-add_library(no_eh_support SHARED ${CURRENT_TEST_SOURCES_DIR}/no_eh_test_support.cpp)
+# TODO: figure out if it is needed
+# add_library(no_eh_support SHARED ${CURRENT_TEST_SOURCES_DIR}/no_eh_test_support.cpp)
 
 macro(define_runtime_multiprecision_test name)
     set(test_name "${CURRENT_PROJECT_NAME}_${name}_test")
 
-    set(additional_args "")
-    if(ENABLE_JUNIT_TEST_OUTPUT)
-        set(TEST_RESULTS_DIR "${CMAKE_CURRENT_BINARY_DIR}/junit_results")
-        set(TEST_LOGS_DIR "${TEST_RESULTS_DIR}/logs")
-        file(MAKE_DIRECTORY ${TEST_LOGS_DIR})
-
-        set(additional_args "--log_format=JUNIT"
-                            "--log_sink=${TEST_LOGS_DIR}/${test_name}.xml")
-    endif()
-
-    cm_test(NAME ${test_name} SOURCES ${name}.cpp ARGS ${additional_args})
+    cm_test(NAME ${test_name} SOURCES ${name}.cpp ARGS)
 
     target_include_directories(${test_name} PRIVATE
                                "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
@@ -112,13 +103,6 @@ macro(define_runtime_multiprecision_test name)
 
     set_target_properties(${test_name} PROPERTIES CXX_STANDARD 17
         CXX_STANDARD_REQUIRED TRUE)
-
-    get_target_property(target_type Boost::unit_test_framework TYPE)
-    if(target_type STREQUAL "SHARED_LIB")
-        target_compile_definitions(${test_name} PRIVATE BOOST_TEST_DYN_LINK)
-    elseif(target_type STREQUAL "STATIC_LIB")
-
-    endif()
 
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         target_compile_options(${test_name} PRIVATE "-fconstexpr-steps=2147483647")
@@ -134,7 +118,7 @@ macro(define_modular_cpp_int_test name)
 
     set(test_name "${CURRENT_PROJECT_NAME}_${name}_test")
     target_compile_definitions(${test_name} PUBLIC -DTEST_CPP_INT)
-    target_link_libraries(${test_name} no_eh_support)
+    # target_link_libraries(${test_name} no_eh_support)
     add_dependencies(${CURRENT_PROJECT_NAME}_test_suite_modular_cpp_int_tests ${test_name})
 
 endmacro(define_modular_cpp_int_test)
